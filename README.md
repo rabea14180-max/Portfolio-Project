@@ -12,6 +12,13 @@ MQTT/API → Server → Dashboard Alert
 
 Flex Sight focuses on providing a simple and scalable monitoring solution that supports early detection of overheating risks and helps organizations respond faster to potential safety incidents.
 
+
+## Team Members
+
+- Munirah Alotaibi
+- Hanin Alhassan
+- Hamsa Alammar
+- Rabeea Thabet
 ---
 
 ## Problem Statement
@@ -116,4 +123,4 @@ The project combines embedded systems, MQTT/API communication, server-side proce
 
 ## Project Documentation
 
-[Flex Sight Final Report](https://github.com/rabea14180-max/Portfolio-Project/blob/54970acfa79d2d1052bf85b5fb5209a7eeb87d96/Flex-Si
+[Flex Sight Final Report](https://github.com/rabea14180-max/Portfolio-Project/blob/main/Stage%201/Flex-Sight-Final-Report%20--.pdf)
