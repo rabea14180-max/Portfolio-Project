@@ -113,3 +113,7 @@ These future enhancements can transform Flex Sight into a more advanced smart sa
 Flex Sight is a practical and scalable temperature monitoring solution designed to improve operational safety through real-time monitoring and instant dashboard alerts.
 
 The project combines embedded systems, MQTT/API communication, server-side processing, and dashboard monitoring into one efficient workflow that supports early risk detection and faster response in operational environments.
+
+## Project Documentation
+
+[Flex Sight Final Report](https://github.com/rabea14180-max/Portfolio-Project/blob/54970acfa79d2d1052bf85b5fb5209a7eeb87d96/Flex-Sight-Final-Report%20--.pdf)
