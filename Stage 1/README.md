@@ -12,6 +12,7 @@ MQTT/API → Server → Dashboard Alert
 
 Flex Sight focuses on providing a simple and scalable monitoring solution that supports early detection of overheating risks and helps organizations respond faster to potential safety incidents.
 
+---
 
 ## Team Members
 
@@ -19,6 +20,36 @@ Flex Sight focuses on providing a simple and scalable monitoring solution that s
 - Hanin Alhassan
 - Hamsa Alammar
 - Rabeea Thabet
+
+---
+
+## Communication & Collaboration Rules
+
+To maintain effective teamwork and smooth project coordination, the team established clear communication and meeting guidelines throughout the project development process.
+
+### Communication Rules
+- Team members are expected to respond to important messages within a reasonable timeframe.
+- Urgent updates and technical issues are communicated immediately through group channels.
+- Discussions related to development, system changes, or documentation are shared with all members to maintain transparency.
+
+### Meeting Rules
+- Meetings are scheduled based on team availability and project deadlines.
+- Each meeting focuses on progress updates, technical discussions, task distribution, and issue resolution.
+- Decisions are made collaboratively through discussion and agreement among team members.
+
+---
+
+## Collaboration Tools
+
+| Tool | Purpose |
+|---|---|
+| WhatsApp | Daily communication and quick updates |
+| Discord | Technical discussions and file sharing |
+| Google Meet | Online meetings and team coordination |
+| Google Docs | Collaborative documentation and report writing |
+| Canva | Presentation design and visual materials |
+| GitHub | Version control and project organization |
+
 ---
 
 ## Problem Statement
@@ -55,6 +86,22 @@ The dashboard displays live readings, device status, and automatic alerts whenev
 
 ---
 
+## Technologies Used
+
+### Hardware Components
+- Temperature Sensors
+- Embedded Monitoring Device
+- Wi-Fi Communication Module
+
+### Software Components
+- MQTT/API Communication
+- Backend Server
+- Database System
+- Dashboard Monitoring Interface
+- GitHub for version control and collaboration
+
+---
+
 ## Main Features
 
 - Real-time temperature monitoring
@@ -67,10 +114,23 @@ The dashboard displays live readings, device status, and automatic alerts whenev
 
 ---
 
-## Target Environments
+## Target Users & Environments
 
-Flex Sight is designed for environments where temperature monitoring is important for operational safety, including:
+Flex Sight is designed for organizations and operational environments that require continuous temperature monitoring and fast alert response.
 
+### System Owners
+Responsible for monitoring the overall system, reviewing alerts, and supervising operational performance.
+
+### Administrators
+Manage devices, monitor readings, and supervise dashboard activity and alerts.
+
+### Safety Teams
+Track abnormal temperature alerts and respond quickly to potential safety incidents.
+
+### Technical Staff
+Monitor device performance and ensure system reliability and maintenance.
+
+Target environments include:
 - Warehouses
 - Server rooms
 - Data centers
@@ -100,6 +160,40 @@ Flex Sight was selected because it provides the best balance between feasibility
 
 ---
 
+## Success Metrics
+
+The success of Flex Sight will be measured using several key indicators:
+
+- Continuous real-time monitoring performance
+- Fast dashboard alert response time
+- Reliable MQTT/API communication
+- Stable temperature data transmission
+- Accurate threshold detection at approximately 50°C
+- Scalable system performance for future expansion
+
+The project also aims to improve monitoring efficiency and reduce delayed responses in operational environments.
+
+---
+
+## Challenges & Opportunities
+
+### Challenges
+- Dependence on stable internet connectivity
+- Sensor calibration and testing requirements
+- Hardware accuracy limitations
+- Continuous power supply requirements
+- Different environments may require different threshold values
+
+### Opportunities
+- AI-based monitoring and prediction
+- Camera integration
+- Multi-location monitoring
+- Additional sensor support
+- Mobile notification systems
+- Advanced reporting and analytics
+
+---
+
 ## Future Expansion
 
 Future versions of Flex Sight may include:
@@ -120,6 +214,8 @@ These future enhancements can transform Flex Sight into a more advanced smart sa
 Flex Sight is a practical and scalable temperature monitoring solution designed to improve operational safety through real-time monitoring and instant dashboard alerts.
 
 The project combines embedded systems, MQTT/API communication, server-side processing, and dashboard monitoring into one efficient workflow that supports early risk detection and faster response in operational environments.
+
+---
 
 ## Project Documentation
 
