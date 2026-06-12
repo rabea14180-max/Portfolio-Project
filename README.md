@@ -244,22 +244,7 @@ FlexSight was chosen because it is:
 
 ### 10.1 Architecture Overview
 
-mermaid
-flowchart TB
-    A["Temperature Sensor"]
-    B["Custom Monitoring Node"]
-    C["MQTT/API Layer"]
-    D["Server"]
-    E["Database"]
-    F["Web Dashboard"]
-    G["Dashboard Alert"]
-
-    A --> B
-    B --> C
-    C --> D
-    D --> E
-    D --> F
-    F --> G
+![FlexSight Architecture](./assets/flexsight-architecture.png)
 
 
 ### 10.2 Core Workflow
@@ -284,30 +269,11 @@ Dashboard Alert
 
 ### 10.3 Data Flow
 
-mermaid
-sequenceDiagram
-    participant Sensor as Temperature Sensor
-    participant Node as Custom Monitoring Node
-    participant MQTT as MQTT/API
-    participant Server as Server
-    participant DB as Database
-    participant UI as Web Dashboard
+## Data Flow Sequence
 
-    Sensor->>Node: Read temperature value
-    Node->>MQTT: Send temperature reading
-    MQTT->>Server: Forward reading
-    Server->>Server: Process reading
-    Server->>Server: Check 50C threshold
-    Server->>DB: Store reading
+![FlexSight Sequence Diagram](./assets/flexsight-sequence.png)
 
-    alt Temperature >= 50C
-        Server->>DB: Store alert
-        UI->>Server: Request alerts
-        Server-->>UI: Return dashboard alert
-    else Temperature < 50C
-        UI->>Server: Request live reading
-        Server-->>UI: Return normal status
-    end
+    
 
 
 ---
