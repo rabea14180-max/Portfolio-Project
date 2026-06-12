@@ -545,7 +545,6 @@ Critical Threshold: 50C
 Alert Type: Dashboard Alert
 Node Location: Server Room
 
-
 ### 14.13 Wireframes
 
 Wireframe pages:
