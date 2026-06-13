@@ -277,23 +277,20 @@ FlexSight was chosen because it is:
 
 ### 10.2 Core Workflow
 
-```text
-Temperature Sensor
-        ↓
-Custom Monitoring Node
-        ↓
-MQTT/API Layer
-        ↓
-Server Processing
-        ↓
-Threshold Checking
-        ↓
-Database Storage
-        ↓
-Web Dashboard
-        ↓
-Dashboard Alert
-```
+### 10.2 Core Workflow
+
+The FlexSight workflow shows how temperature data moves from the sensor to the dashboard alert.
+
+| Step | Component | Description |
+|---|---|---|
+| 1 | Temperature Sensor | Reads the current temperature value |
+| 2 | ESP32 Monitoring Node | Collects the reading and prepares it for transmission |
+| 3 | MQTT/API Layer | Sends the temperature reading to the server |
+| 4 | Server Processing | Receives, validates, and processes the reading |
+| 5 | Threshold Checking | Compares the reading with the defined alert threshold |
+| 6 | Database Storage | Stores temperature readings and alert records |
+| 7 | Web Dashboard | Displays live readings, node status, and alerts |
+| 8 | Dashboard Alert | Shows an alert when the temperature reaches the critical level |
 
 ### 10.3 Data Flow
 
