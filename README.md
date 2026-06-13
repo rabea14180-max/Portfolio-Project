@@ -118,6 +118,30 @@ The system:
 These features may be considered in future versions after the temperature monitoring MVP is completed and tested.
 
 ---
+### Hardware Starter Kit
+
+The team selected an ESP32 starter kit for the initial prototype because it includes the main components needed for early testing and development.
+
+The kit includes:
+
+- ESP32 Development Board
+- Temperature and humidity sensor
+- Breadboard
+- Jumper wires
+- USB cable
+- OLED display
+- Buzzer
+- Relay module
+- Motion sensor
+- Light sensor
+- LEDs
+- Resistors
+- Push buttons
+
+This kit allows the team to start programming, wiring, and testing the first prototype without purchasing each component separately.
+
+The ESP32 Development Board will be used as the programmable monitoring node that reads sensor data and sends temperature readings to the server through MQTT/API.
+---
 
 ## 5. Target Users & Sectors
 
