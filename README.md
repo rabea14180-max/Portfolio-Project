@@ -56,6 +56,16 @@ When the temperature reaches approximately *50C*, the system triggers an automat
 | Stage 2 | [View Stage 2 Report](Stage%202/README.md) | Project Charter, Objectives, Scope, Stakeholders, Risks |
 
 
+## Project Timeline
+
+| Week | Activity |
+|------|----------|
+| Week 1–2 | Idea Development & Team Formation |
+| Week 3–4 | Project Charter Development |
+| Week 5–6 | Technical Documentation & System Design |
+| Week 7–10 | MVP Development & Integration |
+| Week 11 | Testing & Validation |
+| Week 12 | Final Presentation & Project Closure |
 ---
 
 ## 2. Problem Statement
