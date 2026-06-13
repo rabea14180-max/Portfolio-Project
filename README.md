@@ -151,13 +151,18 @@ text
 Temperature Sensor → Custom Monitoring Node → MQTT/API → Server → Dashboard Alert
 
 
-| Role | Team Member | Responsibility |
+
+## 6. Team Formation & Roles
+
+The project team was divided based on the main areas required to build FlexSight: project leadership, UI/UX design, frontend development, backend development, and programming support.
+
+
+| Role | Team Member | Main Responsibility |
 |---|---|---|
-| Project Lead & System Architecture | Rabea Younis Thabit | Leads the project direction and system architecture |
-| Embedded Systems & Sensor Integration | Hanin Taqi Al Sayed Hassan | Handles sensor and node integration |
-| Server & Backend Development | Munirah Enad Alotaibi | Builds backend logic, server processing, and API handling |
-| Dashboard & Alert Management | Alammar Bnian Hamsa | Designs and develops dashboard alerts and monitoring interface |
-| Documentation & Presentation | Rabea Younis Thabit | Prepares documentation, reports, and presentation materials |
+| Team Leader & Frontend Developer | Hamsa Bnian Alammar | Leads the team coordination, follows up on tasks, supports project planning, and builds the frontend dashboard pages using HTML, CSS, and JavaScript |
+| UI/UX Designer & Frontend Developer | Munirah Enad Alotaibi | Designs the Figma wireframes, design system, dashboard layout, visual identity, reusable components, and supports frontend implementation based on the final UI screens |
+| Programming & Backend Developer | Hanin Taqi Al Sayed Hassan | Handles programming tasks, backend logic, ESP32 monitoring node setup, temperature sensor integration, MQTT/API communication, and supports alert processing |
+| Backend Developer | Rabea Younis Thabit | Builds and supports the backend structure, server-side processing, API handling, database connection, and temperature threshold checking |
 
 ---
 
