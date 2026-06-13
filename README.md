@@ -329,47 +329,15 @@ The FlexSight workflow shows how temperature data moves from the sensor to the d
 | Readings | id, node_id, temperature, timestamp |
 | Alerts | id, node_id, alert_type, severity, message, status, created_at |
 
-### 12.2 Entity Relationship Diagram
 
-mermaid
-erDiagram
-    USERS {
-        int id PK
-        string name
-        string email
-        string password
-        string role
-        datetime created_at
-    }
 
-    NODES {
-        int id PK
-        string node_name
-        string location
-        string status
-        datetime created_at
-    }
+---
 
-    READINGS {
-        int id PK
-        int node_id FK
-        float temperature
-        datetime timestamp
-    }
+### 12.2 Entity Relationship Diagram (ERD)
 
-    ALERTS {
-        int id PK
-        int node_id FK
-        string alert_type
-        string severity
-        string message
-        string status
-        datetime created_at
-    }
+The following ERD illustrates the database structure and relationships between users, monitoring nodes, temperature readings, and alerts.
 
-    NODES ||--o{ READINGS : has
-    NODES ||--o{ ALERTS : generates
-
+![FlexSight ERD](./assets/flexsight-erd.jpeg)
 
 ---
 
