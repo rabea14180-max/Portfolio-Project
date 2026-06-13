@@ -244,12 +244,11 @@ FlexSight was chosen because it is:
 
 ### 10.1 Architecture Overview
 
-![FlexSight Architecture](./assets/flexsight-architecture.png)
-
+![FlexSight Architecture](./assets/flexsight-system-architecture.jpeg)
 
 ### 10.2 Core Workflow
 
-text
+```text
 Temperature Sensor
         ↓
 Custom Monitoring Node
@@ -265,14 +264,13 @@ Database Storage
 Web Dashboard
         ↓
 Dashboard Alert
-
+```
 
 ### 10.3 Data Flow
 
-## Data Flow Sequence
+#### Data Flow Sequence
 
-![FlexSight Sequence Diagram](./assets/flexsight-sequence.png)
-
+![FlexSight Sequence Diagram](./assets/flexsight-sequence-diagram.jpeg)
     
 
 
