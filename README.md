@@ -425,37 +425,56 @@ The UI helps users:
 
 ### 14.3 Figma File Structure
 
-text
-FlexSight Figma File
-│
-├── 01 Cover
-│   └── Project title, tagline, short description, and dashboard preview
-│
-├── 02 Project Overview
-│   └── Problem, solution, target users, sectors, and project value
-│
-├── 03 System Architecture
-│   └── Visual workflow: Temperature Sensor → Custom Monitoring Node → MQTT/API → Server → Dashboard Alert
-│
-├── 04 User Flow
-│   └── Login → Dashboard → Alerts / Nodes / Reports / Settings
-│
-├── 05 Wireframes
-│   └── Low-fidelity layouts for all main web pages
-│
-├── 06 Design System
-│   └── Colors, typography, spacing, buttons, cards, badges, inputs, and tables
-│
-├── 07 Final UI Screens
-│   └── High-fidelity web dashboard screens
-│
-├── 08 Prototype
-│   └── Clickable navigation between all pages
-│
-└── 09 Exported Screens
-    └── PNG images used in README and presentation
+The FlexSight Figma file is organized into clear sections to support the full design process from project overview to final prototype.
 
+#### Figma Structure
 
+- *01 Cover*
+  - Project title
+  - Tagline
+  - Short description
+  - Dashboard preview
+
+- *02 Project Overview*
+  - Problem statement
+  - Proposed solution
+  - Target users
+  - Target sectors
+  - Project value
+
+- *03 System Architecture*
+  - Visual workflow  
+  - Temperature Sensor → ESP32 Monitoring Node → MQTT/API → Server → Dashboard Alert
+
+- *04 User Flow*
+  - Login
+  - Dashboard
+  - Alerts
+  - Nodes
+  - Reports
+  - Settings
+
+- *05 Wireframes*
+  - Low-fidelity layouts for all main web pages
+
+- *06 Design System*
+  - Colors
+  - Typography
+  - Spacing
+  - Buttons
+  - Cards
+  - Badges
+  - Inputs
+  - Tables
+
+- *07 Final UI Screens*
+  - High-fidelity web dashboard screens
+
+- *08 Prototype*
+  - Clickable navigation between all pages
+
+- *09 Exported Screens*
+  - PNG images used in the README and presentation
 ### 14.4 Design Pages
 
 | Page | Purpose |
