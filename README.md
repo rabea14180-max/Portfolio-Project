@@ -48,6 +48,14 @@ The current MVP focuses on *temperature monitoring only*.
 
 When the temperature reaches approximately *50C*, the system triggers an automatic dashboard alert.
 
+## Documentation Stages
+
+| Stage | Document | Focus |
+|-------|----------|-------|
+| Stage 1 | [View Stage 1 Report](Stage%201/Flex-Sight-Final-Report%20--.pdf) | Idea Development, Team Formation, Brainstorming, Idea Evaluation |
+| Stage 2 | [View Stage 2 Report](Stage%202/README.md) | Project Charter, Objectives, Scope, Stakeholders, Risks |
+
+
 ---
 
 ## 2. Problem Statement
@@ -834,15 +842,4 @@ Temperature Sensor → Custom Monitoring Node → MQTT/API → Server → Dashbo
 
 The system monitors temperature readings, processes them on the server, checks against an alert threshold, and displays live readings and alerts on a dashboard.
 
-Gas detection, smoke detection, flame detection, and AI camera features are intentionally kept out of scope for the current MVP and may be added as future enhancements.  
-
-
----
-
-
-## Documentation Stages
-
-| Stage | Document | Focus |
-|-------|----------|-------|
-| Stage 1 | [View Stage 1 Report](Stage%201/Flex-Sight-Final-Report%20--.pdf) | Idea Development, Team Formation, Brainstorming, Idea Evaluation |
-| Stage 2 | [View Stage 2 Report](Stage%202/README.md) | Project Charter, Objectives, Scope, Stakeholders, Risks |
+Gas detection, smoke detection, flame detection, and AI camera features are intentionally kept out of scope for the current MVP and may be added as future enhancements. 
