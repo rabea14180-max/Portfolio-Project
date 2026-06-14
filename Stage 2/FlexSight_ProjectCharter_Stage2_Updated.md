@@ -191,7 +191,7 @@ The system detects abnormal heat levels early and notifies responsible personnel
 |------|------------|--------------------|
 | Unstable internet connection disrupting MQTT/API transmission | Medium | Implement local buffering and retransmission after connectivity restoration. |
 | Sensor inaccuracy or calibration issues | Medium | Conduct calibration tests and compare readings with a reference thermometer. |
-| Fixed 50°C threshold may not suit all environments | Medium | Make the threshold configurable on the server side. |
+| Fixed 50°C threshold may not suit all environments | Medium | Make the threshold   configurable on the server side. |
 | Power supply interruption to the embedded device | Low | Document power requirements and recommend UPS solutions. |
 | Team unfamiliarity with MQTT implementation | Low | Allocate research time and use well-documented MQTT libraries. |
 | Hardware quality variation | Low | Source reliable components and test multiple sensor units. |
@@ -200,4 +200,11 @@ The system detects abnormal heat levels early and notifies responsible personnel
 | False alerts from temporary fluctuations | Medium | Apply validation and averaging logic before triggering alerts. |
 | Team availability conflicts | Medium | Create a clear schedule and maintain shared documentation. |
 | Security vulnerabilities in API or MQTT communication | Low | Use authentication, secure communication protocols, and restricted access permissions. |
+
+<img width="1288" height="986" alt="Screenshot 2026-06-14 145929" src="https://github.com/user-attachments/assets/e15764ff-62fe-4ef1-b805-adfc8052f660" />
+
+
+<img width="1290" height="948" alt="Screenshot 2026-06-14 150001" src="https://github.com/user-attachments/assets/91b07d5e-dea2-4159-9ece-c58a50b1e1d9" />
+
+
 
