@@ -20,7 +20,6 @@ The system consists of an IoT device layer for collecting temperature and humidi
 The ESP32 monitoring node collects readings from the DHT11 temperature and humidity sensor and sends the data to the backend using MQTT or HTTP/API communication. The backend validates the received data, stores it in the database, checks temperature thresholds, and triggers warning or critical alerts when abnormal readings are detected.
 
 ⸻
-
 System Components
 
 Component	Technology	Description
