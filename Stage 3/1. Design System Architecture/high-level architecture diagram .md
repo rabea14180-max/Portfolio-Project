@@ -4,11 +4,47 @@ High-Level Package Diagram
 
 High-Level Architecture Diagram
 
-
-
-
-<img width="4000" height="4000" alt="High- Level Architecture Diagram" src="https://github.com/user-attachments/assets/6fc5a93b-b30b-4ed1-8ad2-5f734225fad3" />
-
+```mermaid
+flowchart LR
+    subgraph IoT["IoT Device Layer"]
+        S["DHT11 Sensor<br/>Temperature & Humidity"]
+        E["ESP32 Monitoring Node<br/>Collects one reading every hour"]
+    end
+    subgraph COM["Communication Layer"]
+        C["MQTT / HTTP API<br/>Sends hourly sensor readings"]
+    end
+    subgraph SERVER["Server Layer"]
+        API["Flask Backend API"]
+        EP["API Endpoints"]
+        RV["Reading Validation"]
+        TC["Threshold Checking"]
+        AP["Alert Processing Logic"]
+    end
+    subgraph DATA["Data Layer"]
+        DB["SQL Database<br/>Users<br/>Organizations<br/>Locations<br/>Devices<br/>Sensor Readings<br/>Alerts<br/>Alert Notifications"]
+    end
+    subgraph CLIENT["Client Layer"]
+        WD["Web Dashboard<br/>HTML, CSS, JavaScript"]
+        U["System Users<br/>Owner<br/>Org Owner<br/>Admin / Manager<br/>Inspector"]
+    end
+    subgraph EXT["External Services Layer"]
+        EMAIL["Email Alert Service"]
+        RU["Responsible Users<br/>Admin / Manager<br/>Inspector<br/>Org Owner"]
+    end
+    S -->|"Temperature & humidity data"| E
+    E -->|"Hourly reading"| C
+    C -->|"POST /api/readings"| API
+    API --> EP
+    EP --> RV
+    RV --> TC
+    TC --> AP
+    API -->|"Store readings and alerts"| DB
+    DB -->|"Retrieve stored data"| API
+    WD -->|"GET /api/readings<br/>GET /api/alerts"| API
+    U -->|"View dashboard, devices, alerts, and readings"| WD
+    AP -->|"Warning or critical alert"| EMAIL
+    EMAIL -->|"Send email notification"| RU
+```
 ⸻
 
 Architecture Overview
