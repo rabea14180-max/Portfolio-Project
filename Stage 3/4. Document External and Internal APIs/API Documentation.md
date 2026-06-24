@@ -2,92 +2,54 @@ API Documentation
 
 Purpose
 
-This document defines the external services and internal API endpoints used by the FlexSight Temperature and Humidity Monitoring System. It explains how sensor data is transmitted, processed, stored, and presented through the dashboard.
-
-The API design supports communication between ESP32 monitoring devices, the backend server, the database, and dashboard users while maintaining a scalable and maintainable architecture.
+This document defines the external services and internal API endpoints used by the FlexSight Temperature and Humidity Monitoring System.
 
 ⸻
 
 External APIs and Services
 
-Overview
-
-FlexSight relies on external communication services to receive sensor readings and deliver notifications.
-
 Service	Purpose	Reason for Selection
-MQTT Broker	Receives sensor readings from ESP32 devices and forwards them to the backend.	Lightweight, reliable, and optimized for IoT communication.
-SMTP Email Service	Sends warning and critical alert notifications to users.	Simple integration and suitable for automated email notifications.
+MQTT Broker	Receives sensor readings from ESP32 devices and forwards them to the backend.	Lightweight and efficient IoT communication protocol.
+SMTP Email Service	Sends warning and critical alert notifications.	Reliable and simple notification mechanism for MVP requirements.
 
 ⸻
 
-MQTT Broker
+System Communication Flow
 
-Purpose
-
-The MQTT Broker acts as the communication layer between ESP32 monitoring devices and the backend server.
-
-Why MQTT Was Chosen
-
-* Lightweight protocol suitable for embedded devices.
-* Low bandwidth usage.
-* Fast message delivery.
-* Widely adopted in IoT applications.
-* Supports scalable communication between multiple devices and the server.
-
-Communication Flow
-
-ESP32 Device → MQTT Broker → Backend Server
-
-MQTT Communication
-
-The ESP32 monitoring devices publish temperature and humidity readings once every hour. The backend subscribes to the required topics, validates incoming data, stores readings in the database, and generates alerts whenever configured thresholds are exceeded.
+flowchart LR
+    ESP32["ESP32 + DHT11 Sensor"]
+    MQTT["MQTT Broker"]
+    API["Flask Backend API"]
+    DB["SQL Database"]
+    EMAIL["SMTP Email Service"]
+    USER["Owner / Admin / Inspector"]
+    ESP32 --> MQTT
+    MQTT --> API
+    API --> DB
+    API --> EMAIL
+    EMAIL --> USER
 
 ⸻
 
-SMTP Email Service
-
-Purpose
-
-The SMTP Email Service is responsible for sending warning and critical alert notifications to responsible users.
-
-Why It Was Chosen
-
-* Easy integration with Flask applications.
-* Supports automated notifications.
-* Reliable for MVP requirements.
-* No mobile application is required during the MVP stage.
-
-Notification Flow
-
-Backend Server → Email Service → System Users
-
-⸻
-
-MQTT Topics Specification
+MQTT Topics
 
 Topic	Publisher	Subscriber	Purpose
 flexsight/readings	ESP32 Device	Backend Server	Sends temperature and humidity readings.
+flexsight/device-status	ESP32 Device	Backend Server	Reports online/offline status.
 flexsight/alerts	Backend Server	Dashboard	Publishes generated alerts.
-flexsight/device-status	ESP32 Device	Backend Server	Reports device online/offline status.
 
 ⸻
 
-Authentication and Authorization
+User Roles
 
-FlexSight implements Role-Based Access Control (RBAC) to ensure that users only access features relevant to their responsibilities.
-
-Supported Roles
-
-Role	Description
-Owner	Full system access including configuration and user management.
-Admin / Manager	Monitoring, alert management, and operational supervision.
-Inspector	Incident follow-up, alert investigation, and alert resolution.
+Role	Responsibilities
+Owner	Full system access and configuration management.
+Admin / Manager	Monitor readings, alerts, and devices.
+Inspector	Follow up incidents and update alert status.
 
 ⸻
 
 Internal API Overview
-
-The backend provides RESTful API endpoints that allow communication between the dashboard, monitoring devices, and system services.
 
 Endpoint	Method	Purpose
 /api/login	POST	Authenticate users.
@@ -100,52 +62,49 @@ Endpoint	Method	Purpose
 /api/users	GET	Retrieve users and roles.
 /api/settings/threshold	PUT	Update threshold configuration.
 
+⸻
 
+API Processing Flow
 
-
+sequenceDiagram
+    participant ESP32
+    participant MQTT
+    participant API
+    participant Database
+    participant Email
+    ESP32->>MQTT: Publish reading
+    MQTT->>API: Forward reading
+    API->>Database: Store reading
+    API->>API: Validate & Check Threshold
+    alt Threshold Exceeded
+        API->>Email: Send Alert
+    end
 
 ⸻
 
 API Endpoint Specifications
 
-1. User Login
-
-Endpoint
-
 POST /api/login
 
-Purpose
-
-Authenticate users and grant access to the FlexSight dashboard.
-
-Request Body
+Request
 
 {
   "username": "admin",
   "password": "password123"
 }
 
-Successful Response
+Response
 
 {
   "success": true,
-  "role": "admin",
-  "token": "jwt_token"
+  "role": "admin"
 }
 
 ⸻
 
-2. Submit Sensor Reading
-
-Endpoint
-
 POST /api/readings
 
-Purpose
-
-Receive temperature and humidity readings from ESP32 monitoring devices.
-
-Request Body
+Request
 
 {
   "device_id": "ESP32-001",
@@ -154,7 +113,7 @@ Request Body
   "timestamp": "2026-06-01T10:00:00Z"
 }
 
-Successful Response
+Response
 
 {
   "success": true,
@@ -163,177 +122,27 @@ Successful Response
 
 ⸻
 
-3. Retrieve Sensor Readings
-
-Endpoint
-
 GET /api/readings
-
-Purpose
-
-Retrieve historical and live sensor readings.
 
 Query Parameters
 
 Parameter	Description
-device_id	Filter by device.
-location_id	Filter by location.
-start_date	Filter start date.
-end_date	Filter end date.
-
-Successful Response
-
-[
-  {
-    "device_id": "ESP32-001",
-    "temperature": 35.4,
-    "humidity": 60.2,
-    "timestamp": "2026-06-01T10:00:00Z"
-  }
-]
+device_id	Filter by device
+location_id	Filter by location
+start_date	Start date
+end_date	End date
 
 ⸻
-
-4. Retrieve Alerts
-
-Endpoint
 
 GET /api/alerts
 
-Purpose
-
-Retrieve active and historical alerts.
-
-Successful Response
-
-[
-  {
-    "alert_id": 1,
-    "severity": "critical",
-    "temperature": 52.3,
-    "humidity": 78.0,
-    "status": "active"
-  }
-]
+Returns active and historical alerts.
 
 ⸻
 
-5. Update Alert Status
+PUT /api/alerts/{id}
 
-Endpoint
-
-PUT /api/alerts/{alert_id}
-
-Purpose
-
-Allow authorized users to update alert status.
-
-Request Body
-
-{
-  "status": "resolved"
-}
-
-Successful Response
-
-{
-  "success": true,
-  "message": "Alert updated successfully"
-}
-
-⸻
-
-6. Retrieve Devices
-
-Endpoint
-
-GET /api/devices
-
-Purpose
-
-Retrieve all monitoring devices and their status.
-
-Successful Response
-
-[
-  {
-    "device_id": "ESP32-001",
-    "status": "online"
-  }
-]
-
-⸻
-
-7. Retrieve Locations
-
-Endpoint
-
-GET /api/locations
-
-Purpose
-
-Retrieve all monitored locations.
-
-Successful Response
-
-[
-  {
-    "location_id": 1,
-    "name": "Warehouse A"
-  }
-]
-
-⸻
-
-8. Retrieve Users
-
-Endpoint
-
-GET /api/users
-
-Purpose
-
-Retrieve users and assigned roles.
-
-Successful Response
-
-[
-  {
-    "user_id": 1,
-    "username": "admin",
-    "role": "Admin"
-  }
-]
-
-⸻
-
-9. Update Threshold Configuration
-
-Endpoint
-
-PUT /api/settings/threshold
-
-Purpose
-
-Update warning and critical temperature thresholds.
-
-Request Body
-
-{
-  "warning_threshold": 45,
-  "critical_threshold": 50
-}
-
-Successful Response
-
-{
-  "success": true,
-  "message": "Threshold updated successfully"
-}
-
-
-
-
+Updates alert status (resolved/unresolved).
 
 ⸻
 
@@ -353,105 +162,35 @@ PUT /api/settings/threshold	✓	✗	✗
 
 Error Responses
 
-The API returns standardized error messages when requests cannot be processed successfully.
-
-Unauthorized Access
-
 {
   "success": false,
   "message": "Unauthorized access"
 }
-
-Invalid Credentials
-
 {
   "success": false,
   "message": "Invalid username or password"
 }
-
-Device Not Found
-
 {
   "success": false,
   "message": "Device not found"
 }
 
-Invalid Sensor Data
-
-{
-  "success": false,
-  "message": "Invalid sensor data"
-}
-
-Internal Server Error
-
-{
-  "success": false,
-  "message": "Internal server error"
-}
-
-⸻
-
-API Security
-
-The FlexSight API applies multiple security measures to protect system resources and user data.
-
-Security Controls
-
-* Password hashing before storing credentials.
-* Role-Based Access Control (RBAC).
-* Authentication token verification.
-* Request input validation.
-* Protected administrative endpoints.
-* Validation of incoming sensor readings.
-* Secure communication between system components.
-* Access restrictions based on assigned user roles.
-
-Authentication Strategy
-
-Users must authenticate through the login endpoint before accessing protected resources. The system verifies user credentials and grants access according to assigned permissions.
-
 ⸻
 
 Technical Justification
 
-MQTT Broker
-
-MQTT was selected because it is lightweight and optimized for communication between ESP32 monitoring devices and backend services. It minimizes bandwidth usage while providing reliable message delivery for IoT environments.
-
-Flask Backend
-
-Flask was selected because it is lightweight, flexible, and easy to maintain. It supports RESTful API development and allows rapid implementation of MVP requirements.
-
-SQL Database
-
-A relational SQL database was selected because it provides structured storage for users, devices, locations, readings, alerts, and audit records while supporting efficient querying and data integrity.
-
-RESTful API Design
-
-The API structure follows REST principles to ensure consistency, scalability, and maintainability. The design aligns with the User Stories, System Architecture, Database Design, and Sequence Diagrams developed in Stage 3.
+* MQTT was selected because it is lightweight and optimized for IoT communication.
+* Flask was selected because it is simple, flexible, and suitable for RESTful API development.
+* SQL Database was selected to provide structured and reliable storage for system records.
+* RESTful APIs provide scalability, maintainability, and clear communication between components.
 
 ⸻
 
 Future Expansion
 
-The API architecture is designed to support future enhancements without major structural changes.
-
-Possible future improvements include:
-
-* Additional environmental sensors.
 * Mobile application integration.
-* SMS notification services.
+* SMS notifications.
+* Additional environmental sensors.
 * Advanced reporting and analytics.
-* Predictive alerting using AI models.
-* Multi-location deployment support.
-* Third-party monitoring platform integrations.
-* Real-time WebSocket dashboard updates.
-
-These features are intentionally excluded from the MVP but can be incorporated in future project phases.
-
-⸻
-
-Conclusion
-
-This API documentation defines the external services and internal endpoints required for the FlexSight Temperature and Humidity Monitoring System. The proposed design supports reliable IoT communication, centralized monitoring, alert management, and future scalability while remaining aligned with the MVP scope and technical requirements of the project.
+* AI-based predictive alerting.
+* Third-party monitoring integrations.
