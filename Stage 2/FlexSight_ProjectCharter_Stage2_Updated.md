@@ -204,7 +204,7 @@ The system detects abnormal heat levels early and notifies responsible personnel
 <img width="1288" height="986" alt="Screenshot 2026-06-14 145929" src="https://github.com/user-attachments/assets/e15764ff-62fe-4ef1-b805-adfc8052f660" />
 
 
-<img width="1290" height="948" alt="Screenshot 2026-06-14 150001" src="https://github.com/user-attachments/assets/91b07d5e-dea2-4159-9ece-c58a50b1e1d9" />
+## Project Timeline
 
-
+![Project Timeline](assets/Project%20Timeline.png.jpeg)
 
