@@ -40,7 +40,7 @@ ESP32 Device → MQTT Broker → Backend Server
 
 MQTT Communication
 
-The ESP32 monitoring devices publish sensor readings once every hour. The backend subscribes to the required topics, validates incoming data, stores readings in the database, and generates alerts whenever configured thresholds are exceeded.
+The ESP32 monitoring devices publish temperature and humidity readings once every hour. The backend subscribes to the required topics, validates incoming data, stores readings in the database, and generates alerts whenever configured thresholds are exceeded.
 
 ⸻
 
@@ -99,6 +99,10 @@ Endpoint	Method	Purpose
 /api/locations	GET	Retrieve monitored locations.
 /api/users	GET	Retrieve users and roles.
 /api/settings/threshold	PUT	Update threshold configuration.
+
+
+
+
 
 ⸻
 
@@ -327,6 +331,10 @@ Successful Response
   "message": "Threshold updated successfully"
 }
 
+
+
+
+
 ⸻
 
 Access Control Matrix
@@ -344,6 +352,8 @@ PUT /api/settings/threshold	✓	✗	✗
 ⸻
 
 Error Responses
+
+The API returns standardized error messages when requests cannot be processed successfully.
 
 Unauthorized Access
 
@@ -373,29 +383,53 @@ Invalid Sensor Data
   "message": "Invalid sensor data"
 }
 
+Internal Server Error
+
+{
+  "success": false,
+  "message": "Internal server error"
+}
+
 ⸻
 
 API Security
 
-The FlexSight API implements several security measures:
+The FlexSight API applies multiple security measures to protect system resources and user data.
 
-* Password hashing before storage.
+Security Controls
+
+* Password hashing before storing credentials.
 * Role-Based Access Control (RBAC).
 * Authentication token verification.
 * Request input validation.
 * Protected administrative endpoints.
+* Validation of incoming sensor readings.
 * Secure communication between system components.
-* Validation of incoming sensor readings before database storage.
+* Access restrictions based on assigned user roles.
+
+Authentication Strategy
+
+Users must authenticate through the login endpoint before accessing protected resources. The system verifies user credentials and grants access according to assigned permissions.
 
 ⸻
 
 Technical Justification
 
-MQTT was selected because it is lightweight and optimized for communication between ESP32 devices and backend services. It minimizes bandwidth usage while providing reliable message delivery for IoT environments.
+MQTT Broker
 
-Flask was selected because it is lightweight, easy to maintain, and well suited for RESTful API development. It supports rapid development while remaining scalable for future project growth.
+MQTT was selected because it is lightweight and optimized for communication between ESP32 monitoring devices and backend services. It minimizes bandwidth usage while providing reliable message delivery for IoT environments.
 
-The API structure follows REST principles and aligns with the User Stories, System Architecture, Database Design, and Sequence Diagrams defined in Stage 3.
+Flask Backend
+
+Flask was selected because it is lightweight, flexible, and easy to maintain. It supports RESTful API development and allows rapid implementation of MVP requirements.
+
+SQL Database
+
+A relational SQL database was selected because it provides structured storage for users, devices, locations, readings, alerts, and audit records while supporting efficient querying and data integrity.
+
+RESTful API Design
+
+The API structure follows REST principles to ensure consistency, scalability, and maintainability. The design aligns with the User Stories, System Architecture, Database Design, and Sequence Diagrams developed in Stage 3.
 
 ⸻
 
@@ -412,5 +446,12 @@ Possible future improvements include:
 * Predictive alerting using AI models.
 * Multi-location deployment support.
 * Third-party monitoring platform integrations.
+* Real-time WebSocket dashboard updates.
 
 These features are intentionally excluded from the MVP but can be incorporated in future project phases.
+
+⸻
+
+Conclusion
+
+This API documentation defines the external services and internal endpoints required for the FlexSight Temperature and Humidity Monitoring System. The proposed design supports reliable IoT communication, centralized monitoring, alert management, and future scalability while remaining aligned with the MVP scope and technical requirements of the project.
