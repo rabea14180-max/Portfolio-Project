@@ -4,7 +4,7 @@ Persona 1: Owner
 
 Must Have (MVP)
 
-As an Owner, I want to view all users, devices, locations, readings, and alerts, so that I can supervise the entire FlexSight system.
+As an Owner, I want to view all users, devices, readings, and alerts, so that I can supervise the entire FlexSight system.
 
 As an Owner, I want to access dashboard data across all monitored environments, so that I can monitor the overall system status.
 
@@ -26,7 +26,7 @@ Could Have
 
 As an Owner, I want to generate summary reports, so that I can review temperature trends and alert history.
 
-As an Owner, I want to customize warning and critical temperature thresholds, so that alert levels match the needs of each monitored location.
+As an Owner, I want to customize warning and critical temperature thresholds, so that alert levels match the needs of each monitored device or sector.
 
 ⸻
 
@@ -34,13 +34,13 @@ Persona 2: Admin / Manager
 
 Must Have (MVP)
 
-As an Admin/Manager, I want to view temperature and humidity readings from ESP32 devices, so that I can monitor the current environmental status of each location.
+As an Admin/Manager, I want to view temperature and humidity readings from ESP32 devices, so that I can monitor the current environmental status of each monitored device.
 
 As an Admin/Manager, I want to see warning and critical alerts on the dashboard, so that I can respond quickly to abnormal temperature levels.
 
 As an Admin/Manager, I want to view device status, so that I can know whether each monitoring device is working properly.
 
-As an Admin/Manager, I want to filter readings by location, sector, device, and date, so that I can analyze sensor data easily.
+As an Admin/Manager, I want to filter readings by sector, device, and date, so that I can analyze sensor data easily.
 
 As an Admin/Manager, I want to review active alerts, so that I can prioritize urgent incidents.
 
@@ -66,11 +66,11 @@ Persona 3: Inspector
 
 Must Have (MVP)
 
-As an Inspector, I want to view assigned alerts and affected devices or locations, so that I can follow up on reported incidents.
+As an Inspector, I want to view assigned alerts and affected devices, so that I can follow up on reported incidents.
 
 As an Inspector, I want to view temperature and humidity readings, so that I can understand the severity of the issue.
 
-As an Inspector, I want to view alert details including device ID, location, temperature, humidity, and time, so that I can inspect the issue accurately.
+As an Inspector, I want to view alert details including device ID, temperature, humidity, and time, so that I can inspect the issue accurately.
 
 As an Inspector, I want to update the alert status as resolved or unresolved, so that the team can track incident follow-up progress.
 
@@ -80,7 +80,7 @@ Should Have
 
 As an Inspector, I want to add follow-up notes to an alert, so that the response details are documented.
 
-As an Inspector, I want to view previous alerts for the same location, so that I can identify repeated temperature issues.
+As an Inspector, I want to view previous alerts for the same device, so that I can identify repeated temperature issues.
 
 Could Have
 
