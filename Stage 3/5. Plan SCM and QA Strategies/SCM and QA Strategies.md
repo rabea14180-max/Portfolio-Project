@@ -93,16 +93,20 @@ Pull Request requirements:
 
 ## Team Workflow
 
-1. Select assigned task.
-2. Create feature branch from development.
-3. Implement functionality.
-4. Test locally.
-5. Create Pull Request.
-6. Review and approve changes.
-7. Merge into development.
-8. Perform integration testing.
-9. Release approved code to main.
-
+1. Select assigned task
+Each team member starts by working on the task assigned to them.
+2. Develop the assigned functionality
+The team member implements the required feature or completes the assigned files on their local machine.
+3. Test locally
+The implemented functionality is tested locally to ensure it works correctly before uploading.
+4. Push changes to the shared GitHub repository
+After successful testing, the team member commits and pushes their work to the shared GitHub repository.
+5. Sync project updates
+Other team members pull the latest changes from the repository to keep everyone working on the most recent version of the project.
+6. Integration testing
+The team verifies that all completed components work together correctly after combining everyone's contributions.
+7. Final project review
+The team performs a final review, fixes any remaining issues, and prepares the project for submission.
 ---
 
 # Plan QA Processes
