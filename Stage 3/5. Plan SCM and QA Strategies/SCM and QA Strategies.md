@@ -10,15 +10,15 @@ To establish practical procedures for source code management, team collaboration
 
 ### Hamsa Alammar & Munirah Alotaibi
 
-Frontend development, dashboard implementation, user interface components, and user experience improvements.
+Responsible for frontend development, dashboard implementation, user interface components, and user experience improvements.
 
 ### Rabeea Thabet & Hanin Alhassan
 
-Backend development, MQTT communication, API implementation, database integration, and sensor data processing.
+Responsible for backend development, MQTT communication, API implementation, database integration, and sensor data processing.
 
 ### All Team Members
 
-Testing responsibilities, bug reporting, code reviews, and quality assurance activities.
+Responsible for testing, bug reporting, reviewing project updates, and maintaining overall software quality.
 
 ---
 
@@ -26,43 +26,17 @@ Testing responsibilities, bug reporting, code reviews, and quality assurance act
 
 ## Version Control
 
-The project will use Git and GitHub as the primary version control system.
+The project uses Git and GitHub as the primary version control system.
 
-The repository will contain protected branches to ensure code stability and proper collaboration.
+All team members work on the same shared GitHub repository. Each member completes their assigned task on their local machine, tests the implementation, commits the changes, and pushes the updated files to the repository.
 
----
-
-## Branching Strategy
-
-### main
-
-Contains only stable and approved production-ready code.
-
-### development
-
-Integration branch used for combining completed features before final release.
-
-### feature/<feature-name>
-
-Used for developing individual features and tasks.
-
-Examples:
-
-* feature-dashboard
-* feature-alert-system
-* feature-api
-* feature-database
-* feature-sensor-monitoring
-
-### hotfix/<issue>
-
-Used for urgent bug fixes when necessary.
+Before starting new work, team members pull the latest updates from the repository to ensure everyone is working on the most recent version of the project.
 
 ---
 
 ## Commit Plan
 
-Team members will create small and frequent commits for each logical change.
+Team members create clear and meaningful commits for each completed logical change.
 
 Commit examples:
 
@@ -76,46 +50,40 @@ docs: update technical documentation
 
 ---
 
-## Code Review and Pull Requests
+## Code Review
 
-Direct pushes to the main and development branches are not allowed.
+Before pushing any changes, each team member tests their work locally to verify that the implementation functions correctly.
 
-Every change must be submitted through a Pull Request.
+After the changes are pushed to the shared repository, the team reviews the updated files, verifies that the new functionality works as expected, and resolves any issues before continuing development.
 
-Pull Request requirements:
+Code Review Checklist:
 
-* Related task must be completed.
-* Code must pass testing.
-* At least one team member must review the code.
-* Required comments and fixes must be resolved before merging.
+* Assigned task is completed.
+* Functionality works correctly.
+* No conflicts with other project files.
+* Reported issues are fixed before continuing development.
 
 ---
 
 ## Team Workflow
 
-1. Select assigned task
-Each team member starts by working on the task assigned to them.
-2. Develop the assigned functionality
-The team member implements the required feature or completes the assigned files on their local machine.
-3. Test locally
-The implemented functionality is tested locally to ensure it works correctly before uploading.
-4. Push changes to the shared GitHub repository
-After successful testing, the team member commits and pushes their work to the shared GitHub repository.
-5. Sync project updates
-Other team members pull the latest changes from the repository to keep everyone working on the most recent version of the project.
-6. Integration testing
-The team verifies that all completed components work together correctly after combining everyone's contributions.
-7. Final project review
-The team performs a final review, fixes any remaining issues, and prepares the project for submission.
+1. Select the assigned task.
+2. Implement the required functionality on the local machine.
+3. Test the implementation locally.
+4. Commit and push the completed work to the shared GitHub repository.
+5. Pull the latest updates from the repository before continuing development.
+6. Perform integration testing after combining all completed tasks.
+7. Conduct a final project review and resolve any remaining issues before submission.
+
 ---
 
 # Plan QA Processes
 
 ## Testing Strategy
 
-All team members share responsibility for testing and quality assurance.
+All team members share responsibility for testing and quality assurance throughout the project.
 
-Testing will include:
+Testing includes:
 
 ### Unit Testing
 
@@ -138,7 +106,7 @@ Testing communication between:
 
 ### Manual Testing
 
-Testing complete user workflows and system behavior.
+Testing complete user workflows and overall system behavior.
 
 ---
 
@@ -150,11 +118,11 @@ Used for backend unit testing.
 
 ### Postman
 
-Used to validate API endpoints and responses.
+Used to validate API endpoints and API responses.
 
 ### Browser Testing
 
-Used to test dashboard functionality and responsiveness.
+Used to verify dashboard functionality, responsiveness, and user interface behavior.
 
 ---
 
@@ -162,19 +130,19 @@ Used to test dashboard functionality and responsiveness.
 
 ### Sensor Monitoring Flow
 
-Verify that sensor readings are received correctly.
+Verify that sensor readings are received correctly from the sensor.
 
 ### Data Storage Flow
 
-Verify that temperature readings are stored successfully in the database.
+Verify that temperature readings are successfully stored in the database.
 
 ### Dashboard Flow
 
-Verify that live temperature data appears correctly on the dashboard.
+Verify that live temperature readings are displayed correctly on the dashboard.
 
 ### Alert Flow
 
-Verify that alerts are triggered automatically when temperature exceeds the configured threshold (50°C).
+Verify that an alert is automatically generated when the temperature reaches or exceeds **50°C**.
 
 ### API Flow
 
@@ -186,45 +154,43 @@ Verify that all API endpoints return accurate and valid data.
 
 ### Critical Flow 1
 
-Sensor sends temperature reading.
+The sensor sends a temperature reading.
 
 ### Critical Flow 2
 
-Server receives and processes sensor data.
+The backend server receives and processes the sensor data.
 
 ### Critical Flow 3
 
-Temperature data is stored in the database.
+The processed temperature data is stored in the database.
 
 ### Critical Flow 4
 
-Dashboard displays the latest reading.
+The dashboard displays the latest temperature reading.
 
 ### Critical Flow 5
 
-Alert is generated when temperature reaches or exceeds 50°C.
+An alert is generated automatically when the temperature reaches or exceeds **50°C**.
 
 ---
 
-# Deployment Pipeline
+# Development Workflow
 
-## Staging Pipeline (Development Branch)
-
-1. Push code to development.
-2. Run automated tests.
-3. Perform API validation.
-4. Deploy to staging environment.
-5. Execute manual testing checklist.
+1. Complete the assigned task.
+2. Test the functionality locally.
+3. Commit and push the changes to the shared GitHub repository.
+4. Pull the latest project updates.
+5. Perform integration testing with the complete system.
 
 ---
 
-## Production Pipeline (Main Branch)
+# Final Project Validation
 
-1. Re-run required tests.
-2. Deploy stable version.
-3. Perform smoke testing.
-4. Monitor logs and system alerts.
-5. Verify dashboard and API availability.
+1. Verify that all project components work together correctly.
+2. Re-run the required tests.
+3. Fix any remaining issues.
+4. Perform final manual testing.
+5. Prepare the final version for submission.
 
 ---
 
@@ -233,9 +199,10 @@ Alert is generated when temperature reaches or exceeds 50°C.
 ## SCM Strategy
 
 * Git and GitHub workflow.
-* main / development / feature / hotfix branching model.
-* Pull Requests and code reviews.
-* Protected branches and approval process.
+* Shared GitHub repository collaboration.
+* Commit and push process.
+* Local testing before uploading changes.
+* Team code review process.
 
 ## QA Strategy
 
@@ -243,4 +210,4 @@ Alert is generated when temperature reaches or exceeds 50°C.
 * Integration Testing.
 * Manual Testing.
 * Pytest and Postman tools.
-* Staging and production deployment validation.
+* Final system validation before project submission.
