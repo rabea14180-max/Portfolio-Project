@@ -282,3 +282,426 @@ Incoming sensor readings are validated before storage. The backend continuously 
 ### Extensibility
 
 The architecture has been designed to support future enhancements, including additional sensors, configurable threshold profiles, advanced reporting, mobile applications, and real-time monitoring capabilities while preserving the current MVP structure.
+
+# Components, Classes, and Database Design
+
+This section describes the internal structure of the FlexSight system. It defines the major software components, object-oriented classes, and database structure that together support the implementation of the MVP.
+
+The purpose of this design is to provide a clear technical blueprint for developers by illustrating how system components interact, how data is organized, and how the backend is structured before implementation.
+
+---
+
+# System Components
+
+The FlexSight platform is composed of several major components that work together to collect, process, store, and display environmental monitoring data.
+
+| Component                      | Responsibility                                                                                |
+| ------------------------------ | --------------------------------------------------------------------------------------------- |
+| **Temperature Sensor (DHT11)** | Measures temperature and humidity values from the monitored environment.                      |
+| **ESP32 Monitoring Node**      | Collects sensor readings and transmits them to the backend every hour.                        |
+| **MQTT / HTTP Communication**  | Transfers sensor readings securely from the ESP32 device to the backend server.               |
+| **Flask Backend API**          | Processes incoming readings, validates data, stores records, and generates alerts.            |
+| **SQL Database**               | Stores users, devices, sensor readings, alerts, notifications, and system configuration data. |
+| **Web Dashboard**              | Displays live readings, device status, historical data, and alerts for authenticated users.   |
+| **Notification Service**       | Sends email notifications whenever warning or critical alerts are generated.                  |
+
+---
+
+# Class Design
+
+The backend follows an object-oriented design in which each class represents a specific entity or service within the FlexSight platform.
+
+The Class Diagram illustrates the relationships between users, monitoring devices, sensors, alerts, backend services, and supporting components.
+
+## Class Diagram
+
+```
+
+```mermaid
+classDiagram
+    class User {
+        +String userId
+        +String username
+        +String password
+        +String email
+        +Enum role
+        +DateTime lastLogin
+        +login() Boolean
+        +logout() void
+        +viewDashboard() void
+        +resetPassword() Boolean
+        +receiveNotification(alert) void
+    }
+
+    class Owner {
+        +manageSystemSettings() void
+        +viewSystemReports() void
+    }
+
+    class AdminManager {
+        +monitorAlerts() void
+        +reviewDeviceStatus() void
+        +exportAlertReports() void
+        +manageThresholds() void
+    }
+
+    class Inspector {
+        +viewReadings() void
+        +followUpIncidents() void
+        +exportReadings() void
+        +markIncidentResolved() void
+    }
+
+    class EmbeddedDevice {
+        +String deviceId
+        +String status
+        +Boolean isActive
+        +DateTime lastHeartbeat
+        +String firmwareVersion
+        +connectToNetwork() void
+        +sendData(payload: String) void
+        +calibrate() void
+        +sendHeartbeat() void
+        +isOnline() Boolean
+        +updateFirmware(version: String) void
+    }
+
+    class TemperatureSensor {
+        +String sensorId
+        +Float currentTemp
+        +Float calibrationOffset
+        +Float minRange
+        +Float maxRange
+        +readTemperature() Float
+        +isCalibrated() Boolean
+        +calibrate(offset: Float) void
+        +validateReading() Boolean
+    }
+
+    class MQTTBroker {
+        +String brokerUrl
+        +Int port
+        +String topic
+        +Boolean useTLS
+        +publish(topic, message) void
+        +subscribe(topic) void
+        +authenticateDevice(deviceId, token) Boolean
+    }
+
+    class Server {
+        +String serverId
+        +String status
+        +receiveData(payload) void
+        +processDataAsync(temp) void
+        +checkThreshold(temp) Boolean
+        +triggerAlert() void
+        +processHeartbeat(deviceId) void
+    }
+
+    class Database {
+        +saveTemperatureLog() void
+        +saveAlertLog() void
+        +fetchDeviceRecords() List
+        +fetchAlertHistory() List
+        +fetchUsersByRole(role) List
+        +backup() void
+        +restore() void
+    }
+
+    class Alert {
+        +String alertId
+        +String deviceId
+        +Float temperature
+        +DateTime timestamp
+        +Enum status
+        +Enum severity
+        +String resolvedBy
+        +trigger() void
+        +resolve() void
+        +notifyUser() void
+        +escalate() void
+    }
+
+    class Dashboard {
+        +String dashboardId
+        +String currentUserId
+        +Boolean isRealTime
+        +displayLiveReadings() void
+        +showAlert(alert) void
+        +updateDeviceStatus() void
+        +connectWebSocket() void
+        +exportData(format: String) void
+    }
+
+    class ThresholdConfig {
+        +String configId
+        +Float warningValue
+        +Float criticalValue
+        +Boolean isActive
+        +String appliedTo
+        +updateThreshold() void
+        +applyToDevice(deviceId: String) void
+    }
+
+    class NotificationService {
+        +sendEmail(user, alert) Boolean
+        +getRecipients(deviceId) List
+        +notifyAll(alert) void
+    }
+
+    User <|-- Owner
+    User <|-- AdminManager
+    User <|-- Inspector
+
+    EmbeddedDevice *-- TemperatureSensor
+
+    EmbeddedDevice --> MQTTBroker
+    MQTTBroker --> Server
+
+    Server *-- ThresholdConfig
+    Server --> Database
+    Server --> Alert
+
+    Dashboard --> Server
+    Dashboard --> Alert : displays
+
+    User --> Dashboard
+
+    Alert --> NotificationService : uses
+
+    NotificationService --> User : sends to
+    NotificationService --> Database : fetches users
+```
+
+```
+
+The main classes included in the system are:
+
+* User
+* Owner
+* AdminManager
+* Inspector
+* EmbeddedDevice
+* TemperatureSensor
+* MQTTBroker
+* Server
+* Database
+* Alert
+* Dashboard
+* ThresholdConfig
+* NotificationService
+
+These classes define the responsibilities, attributes, methods, and relationships required to support the system's monitoring and alert functionality.
+
+---
+
+# Database Design
+
+The FlexSight platform uses a relational SQL database to organize system information and maintain data integrity.
+
+The database stores user accounts, organizations, monitoring devices, sensors, readings, threshold configurations, alerts, and system configuration records.
+
+## Database Schema
+
+## Database Schema
+
+The FlexSight platform uses a relational SQL database to organize system data and maintain strong relationships between users, organizations, monitoring devices, sensors, readings, alerts, and system configurations.
+
+The following schema defines the database tables, primary keys (PK), foreign keys (FK), and important attributes used throughout the system.
+
+### users
+
+```text
+id (PK)
+username (UNIQUE)
+password_hash
+email (UNIQUE)
+mobile (UNIQUE)
+role (owner / organisation_owner / admin_manager / inspector)
+notification_preferences (email / sms / push / all)
+account_status (active / inactive / suspended)
+last_login_at
+created_at
+updated_at
+```
+
+### organizations
+
+```text
+id (PK)
+name
+owner_id (FK -> users.id)
+address
+contact_email
+contact_mobile
+is_active
+created_at
+updated_at
+```
+
+### organization_members
+
+```text
+id (PK)
+organization_id (FK -> organizations.id)
+user_id (FK -> users.id)
+role_in_org (admin / inspector / viewer)
+assigned_at
+created_at
+```
+
+### locations
+
+```text
+id (PK)
+organization_id (FK -> organizations.id)
+name
+address
+city
+district
+latitude
+longitude
+is_active
+created_at
+updated_at
+```
+
+### embedded_devices
+
+```text
+id (PK)
+device_code (UNIQUE)
+organization_id (FK -> organizations.id)
+location_id (FK -> locations.id)
+name
+status (online / offline / maintenance / error)
+is_active
+firmware_version
+battery_level
+last_heartbeat_at
+last_seen_at
+created_at
+updated_at
+```
+
+### temperature_sensors
+
+```text
+id (PK)
+sensor_code (UNIQUE)
+device_id (FK -> embedded_devices.id)
+name
+current_temp
+calibration_offset
+min_range
+max_range
+last_calibration_at
+is_calibrated
+created_at
+updated_at
+```
+
+### sensor_readings
+
+```text
+id (PK)
+device_id (FK -> embedded_devices.id)
+sensor_id (FK -> temperature_sensors.id)
+temperature_value
+recorded_at
+```
+
+### mqtt_brokers
+
+```text
+id (PK)
+broker_url
+port
+default_topic
+use_tls
+max_connections
+status (active / inactive)
+created_at
+updated_at
+```
+
+### device_broker_mapping
+
+```text
+id (PK)
+device_id (FK -> embedded_devices.id)
+broker_id (FK -> mqtt_brokers.id)
+topic
+auth_token_hash
+assigned_at
+```
+
+### servers
+
+```text
+id (PK)
+server_name
+host_url
+status (active / inactive / maintenance)
+cpu_usage
+memory_usage
+created_at
+updated_at
+```
+
+### databases
+
+```text
+id (PK)
+server_id (FK -> servers.id)
+db_connection
+db_type (relational / time_series)
+backup_schedule
+status
+created_at
+updated_at
+```
+
+### threshold_configs
+
+```text
+id (PK)
+organization_id (FK -> organizations.id)
+name
+threshold_value
+warning_value
+cooldown_minutes
+is_active
+applied_to (organization / location / device)
+created_at
+updated_at
+```
+
+### alerts
+
+```text
+id (PK)
+alert_code (UNIQUE)
+device_id (FK -> embedded_devices.id)
+sensor_id (FK -> temperature_sensors.id)
+temperature
+threshold_value
+severity (info / warning / critical / emergency)
+status (triggered / acknowledged / resolved / escalated)
+cooldown_until
+triggered_at
+resolved_at
+resolved_by (FK -> users.id)
+created_at
+updated_at
+```
+
+---
+
+## Entity Relationship Diagram (ERD)
+
+> *(Insert the ER Diagram here.)*
+
+The ER Diagram illustrates the relationships between all major database tables, including users, organizations, monitoring devices, sensor readings, alerts, and threshold configurations.
+
+The relational database design improves data consistency, minimizes redundancy, and simplifies future system expansion while maintaining efficient query performance.
