@@ -87,3 +87,78 @@ The Flask Backend API validates incoming readings, stores them in the SQL databa
 Finally, the Web Dashboard retrieves the processed data through REST APIs and presents live readings, device status, historical records, and alert information to authorized users.
 
 This layered architecture enables the system to remain modular while allowing future enhancements such as additional sensors, multiple monitoring nodes, configurable thresholds, and advanced reporting features without significant architectural changes.
+
+# User Stories and Mockups
+
+This section defines the functional requirements of the FlexSight MVP from the users' perspective. User Stories describe the expected system behavior for each user role and help prioritize features according to the MoSCoW prioritization technique.
+
+The main goal is to ensure that the MVP focuses on delivering the essential monitoring and alert functionalities while allowing future expansion through additional features.
+
+---
+
+## 0.1 User Stories
+
+The following user roles have been identified for the FlexSight platform:
+
+* **Owner**
+* **Admin / Manager**
+* **Inspector**
+
+Each role has specific permissions and responsibilities within the system.
+
+### Prioritization Method
+
+The project uses the **MoSCoW prioritization technique** to classify requirements:
+
+| Priority        | Description                                                                           |
+| --------------- | ------------------------------------------------------------------------------------- |
+| **Must Have**   | Essential features required for the MVP.                                              |
+| **Should Have** | Important features that improve usability but are not critical for the first release. |
+| **Could Have**  | Optional enhancements that may be implemented if time permits.                        |
+| **Won't Have**  | Features intentionally excluded from the MVP and planned for future releases.         |
+
+---
+
+### Personas
+
+The complete User Stories for the following personas are included in this documentation:
+
+* **Owner**
+* **Admin / Manager**
+* **Inspector**
+
+Each User Story follows the standard format:
+
+> **As a [user role], I want to [perform an action], so that [achieve a goal].**
+
+The complete prioritized User Stories are provided in the following section.
+
+> *(Paste your complete User Stories here exactly as prepared by the team.)*
+
+---
+
+## 0.2 Mockups
+
+To visualize the FlexSight user interface before implementation, low-fidelity and high-fidelity mockups were designed using **Figma**.
+
+The mockups illustrate the primary screens of the MVP, including:
+
+* Login Screen
+* Dashboard
+* Device Monitoring
+* Alerts Page
+* Alert Details
+* Historical Readings
+* User Management
+* System Settings
+
+These mockups provide a clear understanding of the user experience and support communication between designers and developers before implementation begins.
+
+### Figma Design
+
+> https://www.figma.com/design/16Nuzcwz3B1azhiJiN22X9/FlexSight-Stage-3-Technical-Documentation
+
+---
+
+The mockups represent the expected appearance of the FlexSight web dashboard and serve as the visual foundation for frontend development throughout the MVP implementation.
+
