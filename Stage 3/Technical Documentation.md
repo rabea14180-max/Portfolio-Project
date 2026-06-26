@@ -172,7 +172,57 @@ The system consists of an IoT device layer responsible for collecting environmen
 
 ## High-Level Architecture Diagram
 
-> *(Insert the High-Level Architecture Diagram here.)*
+```mermaid
+flowchart LR
+    subgraph IoT["IoT Device Layer"]
+        S["DHT11 Sensor<br/>Temperature & Humidity"]
+        E["ESP32 Monitoring Node<br/>Collects one reading every hour"]
+    end
+
+    subgraph COM["Communication Layer"]
+        C["MQTT / HTTP API<br/>Sends hourly sensor readings"]
+    end
+
+    subgraph SERVER["Server Layer"]
+        API["Flask Backend API"]
+        EP["API Endpoints"]
+        RV["Reading Validation"]
+        TC["Threshold Checking"]
+        AP["Alert Processing Logic"]
+    end
+
+    subgraph DATA["Data Layer"]
+        DB["SQL Database<br/>Users<br/>Devices<br/>Sensor Readings<br/>Alerts<br/>Alert Notifications<br/>Threshold Settings"]
+    end
+
+    subgraph CLIENT["Client Layer"]
+        WD["Web Dashboard<br/>HTML, CSS, JavaScript"]
+        U["System Users<br/>Owner<br/>Admin / Manager<br/>Inspector"]
+    end
+
+    subgraph EXT["External Services Layer"]
+        EMAIL["Email Alert Service"]
+        RU["Responsible Users<br/>Owner<br/>Admin / Manager<br/>Inspector"]
+    end
+
+    S -->|"Temperature and humidity data"| E
+    E -->|"Hourly reading"| C
+    C -->|"POST /api/readings"| API
+
+    API --> EP
+    EP --> RV
+    RV --> TC
+    TC --> AP
+
+    API -->|"Store readings and alerts"| DB
+    DB -->|"Retrieve stored data"| API
+
+    WD -->|"GET /api/readings<br/>GET /api/alerts<br/>GET /api/devices"| API
+    U -->|"View dashboard, devices, readings, and alerts"| WD
+
+    AP -->|"Warning or critical alert"| EMAIL
+    EMAIL -->|"Send email notification"| RU
+```
 
 ---
 
