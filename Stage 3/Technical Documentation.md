@@ -162,3 +162,73 @@ These mockups provide a clear understanding of the user experience and support c
 
 The mockups represent the expected appearance of the FlexSight web dashboard and serve as the visual foundation for frontend development throughout the MVP implementation.
 
+# System Architecture
+
+The FlexSight platform follows a layered IoT architecture that separates system responsibilities into independent layers. This architecture improves maintainability, scalability, and reliability while allowing future expansion without affecting the core system.
+
+The system consists of an IoT device layer responsible for collecting environmental data, a communication layer that transfers sensor readings, a server layer that processes incoming data and generates alerts, a data layer for persistent storage, a client layer for user interaction, and an external service layer for email notifications.
+
+---
+
+## High-Level Architecture Diagram
+
+> *(Insert the High-Level Architecture Diagram here.)*
+
+---
+
+## Architecture Overview
+
+The monitoring process begins with the **DHT11 Temperature and Humidity Sensor**, which measures environmental conditions every hour. The sensor is connected to an **ESP32 Monitoring Node**, responsible for collecting sensor readings and transmitting them to the backend through **MQTT** or **HTTP APIs**.
+
+Once the readings reach the **Flask Backend API**, the system validates the received data before storing it in the SQL database. After validation, the backend compares the temperature values against predefined warning and critical thresholds.
+
+If the temperature exceeds the configured threshold values, the system automatically generates an alert, stores it in the database, and triggers an email notification to the responsible users.
+
+Finally, the **Web Dashboard** retrieves the processed data through RESTful APIs and displays live readings, historical records, device status, and alert information according to the user's role.
+
+---
+
+# System Components
+
+| Component                | Technology                          | Description                                                                                               |
+| ------------------------ | ----------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **IoT Device**           | ESP32 Monitoring Node               | Collects temperature and humidity readings every hour and sends them to the backend server.               |
+| **Sensor**               | DHT11 Temperature & Humidity Sensor | Measures environmental temperature and humidity values from the monitored location.                       |
+| **Communication Layer**  | MQTT / HTTP API                     | Transfers sensor readings securely from the ESP32 device to the backend system.                           |
+| **Frontend**             | HTML, CSS, JavaScript               | Provides a responsive web dashboard for monitoring devices, readings, alerts, and system status.          |
+| **Backend**              | Python + Flask                      | Processes incoming sensor data, validates readings, generates alerts, and provides RESTful APIs.          |
+| **Database**             | SQL Database                        | Stores users, devices, sensor readings, alerts, threshold configurations, and system records.             |
+| **Alert Engine**         | Threshold Monitoring Logic          | Evaluates incoming readings against configured threshold values and generates warning or critical alerts. |
+| **Notification Service** | SMTP / Email Service                | Sends automatic email notifications to responsible users when abnormal temperatures are detected.         |
+
+---
+
+# Architectural Principles
+
+### Separation of Concerns
+
+Each layer performs a dedicated responsibility. Sensor devices collect environmental data, communication protocols transfer the data, the backend processes business logic, the database stores information, and the dashboard presents the processed results to end users.
+
+---
+
+### Scalability
+
+The architecture supports adding multiple ESP32 monitoring nodes and additional monitored locations without requiring major architectural modifications.
+
+---
+
+### Maintainability
+
+Using a layered architecture simplifies debugging, maintenance, and future feature development by keeping responsibilities clearly separated.
+
+---
+
+### Reliability
+
+Incoming sensor readings are validated before storage. The backend continuously evaluates threshold values to ensure abnormal temperatures are detected accurately and appropriate alerts are generated.
+
+---
+
+### Extensibility
+
+The architecture has been designed to support future enhancements, including additional sensors, configurable threshold profiles, advanced reporting, mobile applications, and real-time monitoring capabilities while preserving the current MVP structure.
