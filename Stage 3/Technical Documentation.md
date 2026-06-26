@@ -1,524 +1,205 @@
 # FlexSight - Technical Documentation
 
-## Stage 3
+## Stage 3: Technical Documentation
 
-### Temperature & Humidity Monitoring and Alert System
+### Temperature and Humidity Monitoring and Alert System
+
+---
+
+## Table of Contents
+
+1. [Introduction](#introduction)
+2. [System Overview](#system-overview)
+3. [User Stories and Mockups](#user-stories-and-mockups)
+4. [System Architecture](#system-architecture)
+5. [Components, Classes, and Database Design](#components-classes-and-database-design)
+6. [High-Level Sequence Diagrams](#high-level-sequence-diagrams)
+7. [External and Internal APIs](#external-and-internal-apis)
+8. [SCM and QA Strategies](#scm-and-qa-strategies)
+9. [Technical Justifications](#technical-justifications)
+10. [Conclusion](#conclusion)
 
 ---
 
 # Introduction
 
-## Purpose of this Document
+FlexSight is an IoT-based temperature and humidity monitoring system designed to support safer and more reliable environmental monitoring in operational environments such as server rooms, warehouses, laboratories, offices, and technical facilities.
 
-This Technical Documentation provides a comprehensive overview of the FlexSight MVP from a technical perspective. It defines the system architecture, software components, database design, interaction flows, API specifications, source control strategy, and quality assurance processes that guide the implementation of the project.
+This technical documentation translates the project objectives and MVP requirements into a detailed technical plan. It defines the system architecture, user stories, mockups, components, classes, database structure, sequence diagrams, API specifications, source control strategy, quality assurance plan, and technical justifications.
 
-The document serves as a technical blueprint for the development team, ensuring that all members share a common understanding of the system structure, communication flow, and implementation approach before development progresses further.
-
----
-
-## Project Overview
-
-FlexSight is an IoT-based Temperature and Humidity Monitoring System designed to improve environmental monitoring and operational safety in facilities such as server rooms, warehouses, laboratories, and industrial environments.
-
-The system continuously collects temperature and humidity readings using a DHT11 sensor connected to an ESP32 monitoring node. Sensor readings are transmitted to the backend through MQTT or HTTP APIs, where they are validated, stored, and analyzed.
-
-Whenever the measured temperature reaches predefined warning or critical thresholds, the backend automatically generates alerts and sends email notifications to responsible users. All collected data, device status, and alerts are displayed through a web-based dashboard, allowing users to monitor monitored environments in real time.
-
----
-
-## Project Objectives
-
-The primary objectives of the FlexSight MVP are:
-
-* Monitor environmental temperature and humidity using ESP32 monitoring devices.
-* Collect and store sensor readings every hour.
-* Automatically detect abnormal temperature levels based on predefined thresholds.
-* Generate warning and critical alerts whenever unsafe conditions are detected.
-* Notify responsible users through email notifications.
-* Provide a centralized dashboard for monitoring devices, readings, and alerts.
-* Build a scalable architecture that supports future expansion with additional monitoring devices and sensors.
-
----
-
-## Scope of the MVP
-
-The current MVP focuses on the core monitoring functionality required to demonstrate the feasibility of the FlexSight platform.
-
-### Included in the MVP
-
-* Temperature monitoring
-* Humidity monitoring
-* ESP32 monitoring node
-* DHT11 sensor integration
-* Hourly sensor readings
-* Alert generation
-* Email notifications
-* Device status monitoring
-* Historical readings
-* Web dashboard
-* User authentication and role management
-
-### Out of Scope
-
-The following features are intentionally excluded from the MVP:
-
-* Mobile application
-* SMS notifications
-* Push notifications
-* AI-based prediction
-* Smoke detection
-* Gas detection
-* Flame detection
-* Camera integration
-* Energy monitoring
-* HVAC monitoring
-* Enterprise analytics
+The purpose of this document is to provide the development team with a clear technical blueprint before implementation. It helps ensure that all team members understand how the system is structured, how data flows between components, how alerts are generated, and how the system will be tested and maintained.
 
 ---
 
 # System Overview
 
-FlexSight follows a layered IoT architecture that separates responsibilities into multiple independent layers. Each layer performs a dedicated function, improving maintainability, scalability, and reliability.
+The FlexSight MVP focuses on monitoring temperature and humidity readings using a DHT11 sensor connected to an ESP32 monitoring node.
 
-The monitoring process begins with the DHT11 Temperature and Humidity Sensor, which measures environmental conditions once every hour. The ESP32 Monitoring Node collects these readings and transmits them to the backend using MQTT or HTTP communication.
+The ESP32 collects sensor readings once every hour and sends the data to the backend system through MQTT or HTTP API communication. The backend validates the incoming readings, stores them in a SQL database, checks temperature threshold values, and generates warning or critical alerts when abnormal temperature levels are detected.
 
-The Flask Backend API validates incoming readings, stores them in the SQL database, evaluates threshold values, and generates warning or critical alerts whenever abnormal temperatures are detected.
+The web dashboard allows authorized users to view device status, temperature and humidity readings, historical records, and alert information. The system also supports email notifications to inform responsible users when a warning or critical alert occurs.
 
-Finally, the Web Dashboard retrieves the processed data through REST APIs and presents live readings, device status, historical records, and alert information to authorized users.
-
-This layered architecture enables the system to remain modular while allowing future enhancements such as additional sensors, multiple monitoring nodes, configurable thresholds, and advanced reporting features without significant architectural changes.
-
-# User Stories and Mockups
-
-This section defines the functional requirements of the FlexSight MVP from the users' perspective. User Stories describe the expected system behavior for each user role and help prioritize features according to the MoSCoW prioritization technique.
-
-The main goal is to ensure that the MVP focuses on delivering the essential monitoring and alert functionalities while allowing future expansion through additional features.
+FlexSight follows a layered architecture that separates responsibilities across the IoT device layer, communication layer, backend layer, database layer, frontend dashboard, and external notification services.
 
 ---
 
-## 0.1 User Stories
+# MVP Scope
 
-The following user roles have been identified for the FlexSight platform:
+The MVP includes the core features required to demonstrate the main monitoring and alerting workflow.
 
-* **Owner**
-* **Admin / Manager**
-* **Inspector**
+## Included in MVP
 
-Each role has specific permissions and responsibilities within the system.
+- Temperature monitoring.
+- Humidity monitoring.
+- ESP32 monitoring node.
+- DHT11 sensor integration.
+- Hourly sensor readings.
+- Device status monitoring.
+- SQL database storage.
+- Web dashboard.
+- Warning and critical alerts.
+- Email alert notifications.
+- User roles and access control.
 
-### Prioritization Method
+## Out of MVP Scope
 
-The project uses the **MoSCoW prioritization technique** to classify requirements:
+The following features are excluded from the MVP:
 
-| Priority        | Description                                                                           |
-| --------------- | ------------------------------------------------------------------------------------- |
-| **Must Have**   | Essential features required for the MVP.                                              |
-| **Should Have** | Important features that improve usability but are not critical for the first release. |
-| **Could Have**  | Optional enhancements that may be implemented if time permits.                        |
-| **Won't Have**  | Features intentionally excluded from the MVP and planned for future releases.         |
+- Mobile application.
+- Mobile push notifications.
+- SMS notifications.
+- AI-based risk prediction.
+- Smoke monitoring.
+- Gas monitoring.
+- Flame monitoring.
+- Camera feeds.
+- Power monitoring.
+- HVAC monitoring.
+- Energy monitoring.
+- Advanced analytics.
+- Enterprise-level reporting.
+- External integrations with third-party monitoring platforms.
+
+- # User Stories and Mockups
+
+This section defines the functional requirements of the FlexSight MVP from the users' perspective. User Stories describe the expected functionality of the system based on each user role. These stories help the development team understand user needs and prioritize features for the MVP.
+
+The project follows the **MoSCoW prioritization method**, which classifies features into Must Have, Should Have, Could Have, and Won't Have categories.
 
 ---
 
-### Personas
+## User Stories
 
-The complete User Stories for the following personas are included in this documentation:
-
-* **Owner**
-* **Admin / Manager**
-* **Inspector**
-
-Each User Story follows the standard format:
-
-> **As a [user role], I want to [perform an action], so that [achieve a goal].**
-
-The complete prioritized User Stories are provided in the following section.
-
-> *(Paste your complete User Stories here exactly as prepared by the team.)*
+The following User Stories define the primary functional requirements of the FlexSight MVP. They are organized according to the MoSCoW prioritization method and grouped by user role.
 
 ---
 
-## 0.2 Mockups
+## Persona 1: Owner
 
-To visualize the FlexSight user interface before implementation, low-fidelity and high-fidelity mockups were designed using **Figma**.
+### Must Have (MVP)
 
-The mockups illustrate the primary screens of the MVP, including:
+* As an Owner, I want to view all users, devices, readings, and alerts, so that I can supervise the entire FlexSight system.
+* As an Owner, I want to access dashboard data across all monitored environments, so that I can monitor the overall system status.
+* As an Owner, I want to view critical alerts from all monitored environments, so that I can identify high-risk situations quickly.
+* As an Owner, I want to manage system settings, so that the monitoring process can be controlled at the system level.
+* As an Owner, I want to view device status, so that I can know whether each ESP32 monitoring device is online or offline.
+
+### Should Have
+
+* As an Owner, I want to manage user roles and permissions, so that each user has the correct access level.
+* As an Owner, I want to view system performance and alert summaries, so that I can evaluate the effectiveness of the monitoring system.
+* As an Owner, I want to view historical hourly temperature and humidity readings, so that I can review previous environmental changes.
+
+### Could Have
+
+* As an Owner, I want to generate summary reports, so that I can review temperature trends and alert history.
+* As an Owner, I want to customize warning and critical temperature thresholds, so that alert levels match the needs of each monitored device or sector.
+
+---
+
+## Persona 2: Admin / Manager
+
+### Must Have (MVP)
+
+* As an Admin/Manager, I want to view temperature and humidity readings from ESP32 devices, so that I can monitor the current environmental status of each monitored device.
+* As an Admin/Manager, I want to see warning and critical alerts on the dashboard, so that I can respond quickly to abnormal temperature levels.
+* As an Admin/Manager, I want to view device status, so that I can know whether each monitoring device is working properly.
+* As an Admin/Manager, I want to filter readings by sector, device, and date, so that I can analyze sensor data easily.
+* As an Admin/Manager, I want to review active alerts, so that I can prioritize urgent incidents.
+* As an Admin/Manager, I want to view warning and critical alerts, so that I can follow up on operational safety issues.
+
+### Should Have
+
+* As an Admin/Manager, I want to receive email notifications for abnormal temperatures, so that responsible users are informed even when they are not viewing the dashboard.
+* As an Admin/Manager, I want to view alert history, so that I can track previous incidents and responses.
+* As an Admin/Manager, I want to monitor hourly readings, so that I can confirm that FlexSight is collecting readings exactly once every hour.
+
+### Could Have
+
+* As an Admin/Manager, I want to view email delivery status, so that I can confirm whether alert notifications were sent successfully.
+* As an Admin/Manager, I want to export readings and alert data, so that I can prepare reports when needed.
+
+---
+
+## Persona 3: Inspector
+
+### Must Have (MVP)
+
+* As an Inspector, I want to view assigned alerts and affected devices, so that I can follow up on reported incidents.
+* As an Inspector, I want to view temperature and humidity readings, so that I can understand the severity of the issue.
+* As an Inspector, I want to view alert details including device ID, temperature, humidity, and time, so that I can inspect the issue accurately.
+* As an Inspector, I want to update the alert status as resolved or unresolved, so that the team can track incident follow-up progress.
+* As an Inspector, I want to view the affected device status, so that I can know whether the monitoring device is online or offline.
+
+### Should Have
+
+* As an Inspector, I want to add follow-up notes to an alert, so that the response details are documented.
+* As an Inspector, I want to view previous alerts for the same device, so that I can identify repeated temperature issues.
+
+### Could Have
+
+* As an Inspector, I want to receive assigned alert notifications, so that I can follow up on incidents faster.
+
+---
+
+## Won't Have (Out of MVP Scope)
+
+The following features are intentionally excluded from the MVP and may be considered in future releases:
+
+* Mobile application.
+* Mobile push notifications.
+* SMS notifications.
+* AI-based risk prediction.
+* Smoke monitoring.
+* Gas monitoring.
+* Flame monitoring.
+* Camera feeds.
+* Power monitoring.
+* HVAC monitoring.
+* Energy monitoring.
+* Advanced analytics.
+* Enterprise-level reporting.
+* External integrations with third-party monitoring platforms.
+
+---
+
+# Mockups
+
+To visualize the user interface before implementation, several mockups were designed to represent the main screens of the FlexSight dashboard.
+
+These mockups provide a clear understanding of the system layout and user experience before development begins.
+
+The mockups include:
 
 * Login Screen
 * Dashboard
-* Device Monitoring
-* Alerts Page
-* Alert Details
-* Historical Readings
-* User Management
-* System Settings
+* Devices Screen
+* Alert Details Screen
+* Alert Notification
+* History Screen
 
-These mockups provide a clear understanding of the user experience and support communication between designers and developers before implementation begins.
+## Figma Design
 
-### Figma Design
+https://www.figma.com/design/16Nuzcwz3B1azhiJiN22X9/FlexSight-Stage-3-Technical-Documentation
 
-> https://www.figma.com/design/16Nuzcwz3B1azhiJiN22X9/FlexSight-Stage-3-Technical-Documentation
-
----
-
-The mockups represent the expected appearance of the FlexSight web dashboard and serve as the visual foundation for frontend development throughout the MVP implementation.
-
-# System Architecture
-
-The FlexSight platform follows a layered IoT architecture that separates system responsibilities into independent layers. This architecture improves maintainability, scalability, and reliability while allowing future expansion without affecting the core system.
-
-The system consists of an IoT device layer responsible for collecting environmental data, a communication layer that transfers sensor readings, a server layer that processes incoming data and generates alerts, a data layer for persistent storage, a client layer for user interaction, and an external service layer for email notifications.
-
----
-
-## High-Level Architecture Diagram
-
-```mermaid
-flowchart LR
-    subgraph IoT["IoT Device Layer"]
-        S["DHT11 Sensor<br/>Temperature & Humidity"]
-        E["ESP32 Monitoring Node<br/>Collects one reading every hour"]
-    end
-
-    subgraph COM["Communication Layer"]
-        C["MQTT / HTTP API<br/>Sends hourly sensor readings"]
-    end
-
-    subgraph SERVER["Server Layer"]
-        API["Flask Backend API"]
-        EP["API Endpoints"]
-        RV["Reading Validation"]
-        TC["Threshold Checking"]
-        AP["Alert Processing Logic"]
-    end
-
-    subgraph DATA["Data Layer"]
-        DB["SQL Database<br/>Users<br/>Devices<br/>Sensor Readings<br/>Alerts<br/>Alert Notifications<br/>Threshold Settings"]
-    end
-
-    subgraph CLIENT["Client Layer"]
-        WD["Web Dashboard<br/>HTML, CSS, JavaScript"]
-        U["System Users<br/>Owner<br/>Admin / Manager<br/>Inspector"]
-    end
-
-    subgraph EXT["External Services Layer"]
-        EMAIL["Email Alert Service"]
-        RU["Responsible Users<br/>Owner<br/>Admin / Manager<br/>Inspector"]
-    end
-
-    S -->|"Temperature and humidity data"| E
-    E -->|"Hourly reading"| C
-    C -->|"POST /api/readings"| API
-
-    API --> EP
-    EP --> RV
-    RV --> TC
-    TC --> AP
-
-    API -->|"Store readings and alerts"| DB
-    DB -->|"Retrieve stored data"| API
-
-    WD -->|"GET /api/readings<br/>GET /api/alerts<br/>GET /api/devices"| API
-    U -->|"View dashboard, devices, readings, and alerts"| WD
-
-    AP -->|"Warning or critical alert"| EMAIL
-    EMAIL -->|"Send email notification"| RU
-```
-
----
-
-## Architecture Overview
-
-The monitoring process begins with the **DHT11 Temperature and Humidity Sensor**, which measures environmental conditions every hour. The sensor is connected to an **ESP32 Monitoring Node**, responsible for collecting sensor readings and transmitting them to the backend through **MQTT** or **HTTP APIs**.
-
-Once the readings reach the **Flask Backend API**, the system validates the received data before storing it in the SQL database. After validation, the backend compares the temperature values against predefined warning and critical thresholds.
-
-If the temperature exceeds the configured threshold values, the system automatically generates an alert, stores it in the database, and triggers an email notification to the responsible users.
-
-Finally, the **Web Dashboard** retrieves the processed data through RESTful APIs and displays live readings, historical records, device status, and alert information according to the user's role.
-
----
-
-# System Components
-
-| Component                | Technology                          | Description                                                                                               |
-| ------------------------ | ----------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **IoT Device**           | ESP32 Monitoring Node               | Collects temperature and humidity readings every hour and sends them to the backend server.               |
-| **Sensor**               | DHT11 Temperature & Humidity Sensor | Measures environmental temperature and humidity values from the monitored location.                       |
-| **Communication Layer**  | MQTT / HTTP API                     | Transfers sensor readings securely from the ESP32 device to the backend system.                           |
-| **Frontend**             | HTML, CSS, JavaScript               | Provides a responsive web dashboard for monitoring devices, readings, alerts, and system status.          |
-| **Backend**              | Python + Flask                      | Processes incoming sensor data, validates readings, generates alerts, and provides RESTful APIs.          |
-| **Database**             | SQL Database                        | Stores users, devices, sensor readings, alerts, threshold configurations, and system records.             |
-| **Alert Engine**         | Threshold Monitoring Logic          | Evaluates incoming readings against configured threshold values and generates warning or critical alerts. |
-| **Notification Service** | SMTP / Email Service                | Sends automatic email notifications to responsible users when abnormal temperatures are detected.         |
-
----
-
-# Architectural Principles
-
-### Separation of Concerns
-
-Each layer performs a dedicated responsibility. Sensor devices collect environmental data, communication protocols transfer the data, the backend processes business logic, the database stores information, and the dashboard presents the processed results to end users.
-
----
-
-### Scalability
-
-The architecture supports adding multiple ESP32 monitoring nodes and additional monitored locations without requiring major architectural modifications.
-
----
-
-### Maintainability
-
-Using a layered architecture simplifies debugging, maintenance, and future feature development by keeping responsibilities clearly separated.
-
----
-
-### Reliability
-
-Incoming sensor readings are validated before storage. The backend continuously evaluates threshold values to ensure abnormal temperatures are detected accurately and appropriate alerts are generated.
-
----
-
-### Extensibility
-
-The architecture has been designed to support future enhancements, including additional sensors, configurable threshold profiles, advanced reporting, mobile applications, and real-time monitoring capabilities while preserving the current MVP structure.
-
-# Components, Classes, and Database Design
-
-This section describes the internal structure of the FlexSight system. It defines the major software components, object-oriented classes, and database structure that together support the implementation of the MVP.
-
-The purpose of this design is to provide a clear technical blueprint for developers by illustrating how system components interact, how data is organized, and how the backend is structured before implementation.
-
----
-
-# System Components
-
-The FlexSight platform is composed of several major components that work together to collect, process, store, and display environmental monitoring data.
-
-| Component                      | Responsibility                                                                                |
-| ------------------------------ | --------------------------------------------------------------------------------------------- |
-| **Temperature Sensor (DHT11)** | Measures temperature and humidity values from the monitored environment.                      |
-| **ESP32 Monitoring Node**      | Collects sensor readings and transmits them to the backend every hour.                        |
-| **MQTT / HTTP Communication**  | Transfers sensor readings securely from the ESP32 device to the backend server.               |
-| **Flask Backend API**          | Processes incoming readings, validates data, stores records, and generates alerts.            |
-| **SQL Database**               | Stores users, devices, sensor readings, alerts, notifications, and system configuration data. |
-| **Web Dashboard**              | Displays live readings, device status, historical data, and alerts for authenticated users.   |
-| **Notification Service**       | Sends email notifications whenever warning or critical alerts are generated.                  |
-
----
-
-## Class Design
-
-The backend follows an object-oriented design in which each class represents a specific entity or service within the FlexSight platform.
-
-The Class Diagram illustrates the relationships between users, monitoring devices, sensors, alerts, backend services, and supporting components.
-
-## Class Diagram
-
-```mermaid
-classDiagram
-    class User {
-        +String userId
-        +String username
-        +String password
-        +String email
-        +Enum role
-        +DateTime lastLogin
-        +login() Boolean
-        +logout() void
-        +viewDashboard() void
-        +resetPassword() Boolean
-        +receiveNotification(alert) void
-    }
-
-    class Owner {
-        +manageSystemSettings() void
-        +viewSystemReports() void
-    }
-
-    class AdminManager {
-        +monitorAlerts() void
-        +reviewDeviceStatus() void
-        +exportAlertReports() void
-        +manageThresholds() void
-    }
-
-    class Inspector {
-        +viewReadings() void
-        +followUpIncidents() void
-        +exportReadings() void
-        +markIncidentResolved() void
-    }
-
-    class EmbeddedDevice {
-        +String deviceId
-        +String status
-        +Boolean isActive
-        +DateTime lastHeartbeat
-        +String firmwareVersion
-        +connectToNetwork() void
-        +sendData(payload: String) void
-        +calibrate() void
-        +sendHeartbeat() void
-        +isOnline() Boolean
-        +updateFirmware(version: String) void
-    }
-
-    class TemperatureSensor {
-        +String sensorId
-        +Float currentTemp
-        +Float calibrationOffset
-        +Float minRange
-        +Float maxRange
-        +readTemperature() Float
-        +isCalibrated() Boolean
-        +calibrate(offset: Float) void
-        +validateReading() Boolean
-    }
-
-    class MQTTBroker {
-        +String brokerUrl
-        +Int port
-        +String topic
-        +Boolean useTLS
-        +publish(topic, message) void
-        +subscribe(topic) void
-        +authenticateDevice(deviceId, token) Boolean
-    }
-
-    class Server {
-        +String serverId
-        +String status
-        +receiveData(payload) void
-        +processDataAsync(temp) void
-        +checkThreshold(temp) Boolean
-        +triggerAlert() void
-        +processHeartbeat(deviceId) void
-    }
-
-    class Database {
-        +saveTemperatureLog() void
-        +saveAlertLog() void
-        +fetchDeviceRecords() List
-        +fetchAlertHistory() List
-        +fetchUsersByRole(role) List
-        +backup() void
-        +restore() void
-    }
-
-    class Alert {
-        +String alertId
-        +String deviceId
-        +Float temperature
-        +DateTime timestamp
-        +Enum status
-        +Enum severity
-        +String resolvedBy
-        +trigger() void
-        +resolve() void
-        +notifyUser() void
-        +escalate() void
-    }
-
-    class Dashboard {
-        +String dashboardId
-        +String currentUserId
-        +Boolean isRealTime
-        +displayLiveReadings() void
-        +showAlert(alert) void
-        +updateDeviceStatus() void
-        +connectWebSocket() void
-        +exportData(format: String) void
-    }
-
-    class ThresholdConfig {
-        +String configId
-        +Float warningValue
-        +Float criticalValue
-        +Boolean isActive
-        +String appliedTo
-        +updateThreshold() void
-        +applyToDevice(deviceId: String) void
-    }
-
-    class NotificationService {
-        +sendEmail(user, alert) Boolean
-        +getRecipients(deviceId) List
-        +notifyAll(alert) void
-    }
-
-    User <|-- Owner
-    User <|-- AdminManager
-    User <|-- Inspector
-
-    EmbeddedDevice *-- TemperatureSensor
-
-    EmbeddedDevice --> MQTTBroker
-    MQTTBroker --> Server
-
-    Server *-- ThresholdConfig
-    Server --> Database
-    Server --> Alert
-
-    Dashboard --> Server
-    Dashboard --> Alert : displays
-
-    User --> Dashboard
-
-    Alert --> NotificationService : uses
-
-    NotificationService --> User : sends to
-    NotificationService --> Database : fetches users
-```
-
-The main classes included in the system are:
-
-- User
-- Owner
-- AdminManager
-- Inspector
-- EmbeddedDevice
-- TemperatureSensor
-- MQTTBroker
-- Server
-- Database
-- Alert
-- Dashboard
-- ThresholdConfig
-- NotificationService
-
-These classes define the responsibilities, attributes, methods, and relationships required to support the system's monitoring functionality.
-
----
-
-# Database Design
-
-The FlexSight platform uses a relational SQL database to organize system information and maintain data integrity.
-
-The database stores user accounts, organizations, monitoring devices, sensors, readings, threshold configurations, alerts, and system configuration records.
-
-## Database Schema
-
-> *(Paste your Database Schema here.)*
-
----
-
-## Entity Relationship Diagram (ERD)
-
-> **Insert the ER Diagram created from the database schema here.**
-
-The ER Diagram illustrates the relationships between the database tables used by the FlexSight platform. It shows how users, organizations, locations, embedded devices, sensors, readings, threshold configurations, and alerts are connected through primary and foreign keys.
-
-The relational database design improves data consistency, reduces redundancy, and supports future scalability while maintaining efficient data retrieval.
-
-### Main Relationships
-
-- One **User** owns one **Organization**.
-- One **Organization** contains multiple **Locations**.
-- One **Organization** manages multiple **Embedded Devices**.
-- One **Location** contains multiple **Embedded Devices**.
-- Each **Embedded Device** has one **Temperature Sensor**.
-- One **Temperature Sensor** stores many **Sensor Readings**.
-- One **Embedded Device** can generate many **Alerts**.
-- One **Server** hosts one or more **Databases**.
-- One **Threshold Configuration** can be applied to multiple monitored devices.
+The Figma prototype serves as the visual reference for the frontend implementation and demonstrates the expected appearance and navigation flow of the FlexSight web dashboard.
