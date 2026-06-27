@@ -1,16 +1,15 @@
-# API Documentation
+## API Documentation
 
-## Purpose
+Purpose
 
-This document defines the external services and internal API endpoints used by the FlexSight Temperature and Humidity Monitoring System. It explains how sensor data is transmitted, processed, stored, retrieved, and displayed through the dashboard.
-
+This document defines the external services and internal API endpoints used by the FlexSight Temperature Monitoring System. It explains how temperature data is transmitted, processed, stored, retrieved, and displayed through the dashboard.
 ---
 
 ## External APIs and Services
 
 | Service | Purpose | Reason for Selection |
 |---|---|---|
-| MQTT Broker | Receives temperature and humidity readings from ESP32 devices and forwards them to the backend. | Lightweight, reliable, and suitable for IoT communication. |
+| MQTT Broker | Receives hourly temperature readings from ESP32 devices and forwards them to the backend. | Lightweight, reliable, and suitable for IoT communication. |
 | SMTP Email Service | Sends warning and critical alert notifications to responsible users. | Simple, reliable, and appropriate for MVP email notifications. |
 
 ---
@@ -19,8 +18,8 @@ This document defines the external services and internal API endpoints used by t
 
 ```mermaid
 flowchart LR
-    Sensor["DHT11 Sensor<br/>Temperature & Humidity"]
-    ESP32["ESP32 Monitoring Node"]
+    Sensor["Temperature Sensor<br/>Measures temperature"]
+    ESP32["ESP32 Monitoring Device"]
     MQTT["MQTT Broker"]
     API["Flask Backend API"]
     DB["SQL Database"]
