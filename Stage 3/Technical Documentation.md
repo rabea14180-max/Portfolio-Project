@@ -548,7 +548,7 @@ classDiagram
         +viewSystemReports() void
     }
 
-    class AdminManager {
+    class Admin {
         +monitorAlerts() void
         +reviewDeviceStatus() void
         +manageThresholds() void
