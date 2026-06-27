@@ -1465,4 +1465,4 @@ Before submitting the project, the team performs a complete validation process.
 
 The SCM and QA strategy provides a structured development workflow that supports effective collaboration, reliable version control, continuous testing, and high software quality.
 
-By combining GitHub-based source control, systematic testing practices, and collaborative code reviews, the FlexSight team can deliver a stable, maintainable, and reliable MVP while supporting future system enhancements.
+By combining GitHub-based source control, systematic testing practices, and collaborative code reviews, the FlexSight team can deliver a stable, maintainable, and reliable MVP while supporting future system enhancements 
