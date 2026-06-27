@@ -1,77 +1,49 @@
-# Database Schema
+Components, Classes, and Database Design
 
-## users
+Database Overview
+
+The FlexSight database is designed to support user management, ESP32 monitoring devices, temperature sensors, hourly temperature readings, threshold configuration, alert processing, and email notification handling.
+
+The schema uses primary keys (PK) and foreign keys (FK) to maintain clear relationships between the main system entities.
+
+⸻
+
+Database Schema
+
+users
 
 * id (PK)
 * username (UNIQUE)
 * password_hash
 * email (UNIQUE)
-* mobile (UNIQUE)
-* role (owner / organisation_owner / admin_manager / inspector)
-* notification_preferences (email / sms / push / all)
+* role (owner / admin / inspector)
+* notification_preferences (email)
 * account_status (active / inactive / suspended)
 * last_login_at
 * created_at
 * updated_at
 
-## organizations
-
-* id (PK)
-* name
-* owner_id (FK -> users.id)
-* address
-* contact_email
-* contact_mobile
-* is_active
-* created_at
-* updated_at
-
-## organization_members
-
-* id (PK)
-* organization_id (FK -> organizations.id)
-* user_id (FK -> users.id)
-* role_in_org (admin / inspector / viewer)
-* assigned_at
-* created_at
-
-## locations
-
-* id (PK)
-* organization_id (FK -> organizations.id)
-* name
-* address
-* city
-* district
-* latitude
-* longitude
-* is_active
-* created_at
-* updated_at
-
-## embedded_devices
+embedded_devices
 
 * id (PK)
 * device_code (UNIQUE)
-* organization_id (FK -> organizations.id)
-* location_id (FK -> locations.id)
+* user_id (FK -> users.id)
 * name
 * status (online / offline / maintenance / error)
 * is_active
 * firmware_version
-* battery_level
 * last_heartbeat_at
-* last_seen_at
+* last_reading_at
 * created_at
 * updated_at
 
-## temperature_sensors
+temperature_sensors
 
 * id (PK)
 * sensor_code (UNIQUE)
 * device_id (FK -> embedded_devices.id)
 * name
-* current_temp
+* current_temperature
 * calibration_offset
 * min_range
 * max_range
@@ -80,116 +52,130 @@
 * created_at
 * updated_at
 
-## sensor_readings
+sensor_readings
 
 * id (PK)
 * device_id (FK -> embedded_devices.id)
 * sensor_id (FK -> temperature_sensors.id)
-* temperature_value
+* temperature
 * recorded_at
 
-## mqtt_brokers
-
-* id (PK)
-* broker_url
-* port
-* default_topic
-* use_tls
-* max_connections
-* status (active / inactive)
-* created_at
-* updated_at
-
-## device_broker_mapping
+threshold_configs
 
 * id (PK)
 * device_id (FK -> embedded_devices.id)
-* broker_id (FK -> mqtt_brokers.id)
-* topic
-* auth_token_hash
-* assigned_at
-
-## servers
-
-* id (PK)
-* server_name
-* host_url
-* status (active / inactive / maintenance)
-* cpu_usage
-* memory_usage
-* created_at
-* updated_at
-
-## databases
-
-* id (PK)
-* server_id (FK -> servers.id)
-* db_connection
-* db_type (relational / time_series)
-* backup_schedule
-* status
-* created_at
-* updated_at
-
-## threshold_configs
-
-* id (PK)
-* organization_id (FK -> organizations.id)
 * name
-* threshold_value
 * warning_value
+* critical_value
 * cooldown_minutes
 * is_active
-* applied_to (organization / location / device)
 * created_at
 * updated_at
 
-## alerts
+alerts
 
 * id (PK)
 * alert_code (UNIQUE)
 * device_id (FK -> embedded_devices.id)
 * sensor_id (FK -> temperature_sensors.id)
+* assigned_to (FK -> users.id)
 * temperature
 * threshold_value
-* severity (info / warning / critical / emergency)
-* status (triggered / acknowledged / resolved / escalated)
+* severity (warning / critical)
+* status (triggered / acknowledged / resolved / unresolved)
 * cooldown_until
 * triggered_at
+* acknowledged_at
 * resolved_at
 * resolved_by (FK -> users.id)
 * created_at
 * updated_at
 
-# Relationships
+alert_notifications
 
-* users 1 -> 1 organizations (owner)
-* organizations 1 -> N organization_members
-* organization_members N -> 1 users
-* organizations 1 -> N locations
-* organizations 1 -> N embedded_devices
-* organizations 1 -> N threshold_configs
-* locations 1 -> N embedded_devices
+* id (PK)
+* alert_id (FK -> alerts.id)
+* user_id (FK -> users.id)
+* notification_type (email)
+* status (sent / failed / pending)
+* sent_at
+* created_at
+
+⸻
+
+Relationships
+
+* users 1 -> N embedded_devices
 * embedded_devices 1 -> 1 temperature_sensors
 * embedded_devices 1 -> N sensor_readings
-* embedded_devices 1 -> N device_heartbeats
 * embedded_devices 1 -> N alerts
-* embedded_devices 1 -> N firmware_updates
-* embedded_devices N -> N mqtt_brokers (via device_broker_mapping)
+* embedded_devices 1 -> N threshold_configs
 * temperature_sensors 1 -> N sensor_readings
-* temperature_sensors 1 -> N calibration_logs
 * temperature_sensors 1 -> N alerts
-* mqtt_brokers N -> N servers (via broker_server_mapping)
-* servers 1 -> N databases
-* threshold_configs 1 -> N threshold_device_mapping
 * alerts 1 -> N alert_notifications
-* users 1 -> N dashboards
-* users 1 -> N admin_actions
-* users 1 -> N audit_logs
+* users 1 -> N alert_notifications
+* users 1 -> N alerts (assigned_to)
+* users 1 -> N alerts (resolved_by)
 
+⸻
 
-```mermaid
- classDiagram
+Back-end Components
+
+The FlexSight backend is composed of core components responsible for authentication, device monitoring, temperature reading processing, threshold checking, alert generation, database storage, dashboard communication, and email notification delivery.
+
+Each component has a clear responsibility and works with other components to support the complete temperature monitoring workflow.
+
+User
+
+Represents a FlexSight system user who can access the platform based on an assigned role.
+
+Owner
+
+Represents the highest-level user responsible for supervising the full FlexSight system, including users, devices, alerts, readings, and system settings.
+
+Admin
+
+Represents the system user responsible for monitoring devices, reviewing alerts, checking device status, and following up on abnormal temperature readings.
+
+Inspector
+
+Represents the user responsible for viewing assigned alerts, checking affected devices, adding follow-up notes, and marking alerts as resolved or unresolved.
+
+EmbeddedDevice
+
+Represents the ESP32 monitoring device responsible for collecting hourly temperature readings and sending them to the backend.
+
+TemperatureSensor
+
+Represents the temperature sensor connected to the ESP32 monitoring device.
+
+Server
+
+Represents the Flask backend server responsible for receiving, validating, processing, and storing temperature data.
+
+Database
+
+Represents the SQL database layer responsible for storing and retrieving users, devices, readings, alerts, threshold settings, and notification records.
+
+Alert
+
+Represents a warning or critical event generated when temperature readings exceed the configured threshold.
+
+Dashboard
+
+Represents the web interface used by users to view temperature readings, alerts, device status, and system summaries.
+
+ThresholdConfig
+
+Represents the warning and critical threshold settings used to classify temperature readings.
+
+NotificationService
+
+Represents the service responsible for sending email alert notifications to responsible users.
+
+The following class diagram visually represents these components, their attributes, methods, and relationships.
+
+classDiagram
     class User {
         +String userId
         +String username
@@ -201,45 +187,50 @@
         +logout() void
         +viewDashboard() void
         +resetPassword() Boolean
-        +receiveNotification(alert) void
+        +receiveEmailNotification(alert) void
     }
 
     class Owner {
+        +manageUsers() void
+        +manageDevices() void
         +manageSystemSettings() void
+        +manageThresholds() void
         +viewSystemReports() void
     }
 
-    class AdminManager {
+    class Admin {
+        +monitorReadings() void
         +monitorAlerts() void
         +reviewDeviceStatus() void
-        +exportAlertReports() void
-        +manageThresholds() void
+        +viewAlertHistory() void
     }
 
     class Inspector {
-        +viewReadings() void
-        +followUpIncidents() void
-        +exportReadings() void
-        +markIncidentResolved() void
+        +viewAssignedAlerts() void
+        +viewAlertDetails() void
+        +addFollowUpNotes() void
+        +acknowledgeAlert() void
+        +markAlertResolved() void
     }
 
     class EmbeddedDevice {
         +String deviceId
+        +String deviceCode
         +String status
         +Boolean isActive
         +DateTime lastHeartbeat
+        +DateTime lastReadingAt
         +String firmwareVersion
         +connectToNetwork() void
-        +sendData(payload: String) void
-        +calibrate() void
+        +sendTemperatureReading(payload: String) void
         +sendHeartbeat() void
         +isOnline() Boolean
-        +updateFirmware(version: String) void
     }
 
     class TemperatureSensor {
         +String sensorId
-        +Float currentTemp
+        +String sensorCode
+        +Float currentTemperature
         +Float calibrationOffset
         +Float minRange
         +Float maxRange
@@ -249,98 +240,120 @@
         +validateReading() Boolean
     }
 
-    class MQTTBroker {
-        +String brokerUrl
-        +Int port
-        +String topic
-        +Boolean useTLS
-        +publish(topic, message) void
-        +subscribe(topic) void
-        +authenticateDevice(deviceId, token) Boolean
+    class SensorReading {
+        +String readingId
+        +String deviceId
+        +String sensorId
+        +Float temperature
+        +DateTime recordedAt
+        +storeReading() void
+    }
+
+    class ThresholdConfig {
+        +String configId
+        +String deviceId
+        +Float warningValue
+        +Float criticalValue
+        +Boolean isActive
+        +updateThreshold() void
+        +applyToDevice(deviceId: String) void
+    }
+
+    class Alert {
+        +String alertId
+        +String alertCode
+        +String deviceId
+        +String sensorId
+        +String assignedTo
+        +Float temperature
+        +Float thresholdValue
+        +Enum severity
+        +Enum status
+        +DateTime triggeredAt
+        +DateTime acknowledgedAt
+        +DateTime resolvedAt
+        +String resolvedBy
+        +trigger() void
+        +acknowledge() void
+        +resolve() void
+        +notifyResponsibleUsers() void
+    }
+
+    class NotificationService {
+        +sendEmail(user, alert) Boolean
+        +getRecipients(alertId) List
+        +notifyResponsibleUsers(alert) void
+    }
+
+    class AlertNotification {
+        +String notificationId
+        +String alertId
+        +String userId
+        +String notificationType
+        +Enum status
+        +DateTime sentAt
+        +createNotificationRecord() void
+        +updateStatus() void
     }
 
     class Server {
         +String serverId
         +String status
         +receiveData(payload) void
-        +processDataAsync(temp) void
+        +validateReading(payload) Boolean
+        +processTemperature(temp) void
         +checkThreshold(temp) Boolean
         +triggerAlert() void
         +processHeartbeat(deviceId) void
     }
 
     class Database {
-        +saveTemperatureLog() void
+        +saveTemperatureReading() void
         +saveAlertLog() void
+        +saveNotificationRecord() void
         +fetchDeviceRecords() List
         +fetchAlertHistory() List
         +fetchUsersByRole(role) List
-        +backup() void
-        +restore() void
-    }
-
-    class Alert {
-        +String alertId
-        +String deviceId
-        +Float temperature
-        +DateTime timestamp
-        +Enum status
-        +Enum severity
-        +String resolvedBy
-        +trigger() void
-        +resolve() void
-        +notifyUser() void
-        +escalate() void
     }
 
     class Dashboard {
         +String dashboardId
         +String currentUserId
-        +Boolean isRealTime
-        +displayLiveReadings() void
+        +displayTemperatureReadings() void
         +showAlert(alert) void
         +updateDeviceStatus() void
-        +connectWebSocket() void
-        +exportData(format: String) void
-    }
-
-    class ThresholdConfig {
-        +String configId
-        +Float warningValue
-        +Float criticalValue
-        +Boolean isActive
-        +String appliedTo
-        +updateThreshold() void
-        +applyToDevice(deviceId: String) void
-    }
-
-    class NotificationService {
-        +sendEmail(user, alert) Boolean
-        +getRecipients(deviceId) List
-        +notifyAll(alert) void
+        +displaySystemSummary() void
     }
 
     User <|-- Owner
-    User <|-- AdminManager
+    User <|-- Admin
     User <|-- Inspector
 
+    Owner --> EmbeddedDevice : manages
+    Admin --> EmbeddedDevice : monitors
+    Inspector --> Alert : follows up
+
     EmbeddedDevice *-- TemperatureSensor
+    EmbeddedDevice --> SensorReading : generates
+    TemperatureSensor --> SensorReading : records
 
-    EmbeddedDevice --> MQTTBroker
-    MQTTBroker --> Server
+    EmbeddedDevice --> Server : sends temperature readings
+    Server --> SensorReading : validates and stores
+    Server --> ThresholdConfig : checks
+    ThresholdConfig --> EmbeddedDevice : applies to
 
-    Server *-- ThresholdConfig
-    Server --> Database
-    Server --> Alert
-
-    Dashboard --> Server
-    Dashboard --> Alert : displays
-
-    User --> Dashboard
-
+    Server --> Alert : creates
     Alert --> NotificationService : uses
+    NotificationService --> User : sends email
+    NotificationService --> AlertNotification : creates
 
-    NotificationService --> User : sends to
-    NotificationService --> Database : fetches users
-    
-  ```
+    Server --> Database : stores data
+    Database --> SensorReading : stores
+    Database --> Alert : stores
+    Database --> AlertNotification : stores
+
+    Dashboard --> Server : requests data
+    Dashboard --> SensorReading : displays
+    Dashboard --> Alert : displays
+    Dashboard --> EmbeddedDevice : displays status
+    User --> Dashboard : views
