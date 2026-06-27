@@ -639,7 +639,7 @@ classDiagram
     }
 
     User <|-- Owner
-    User <|-- AdminManager
+    User <|-- Admin
     User <|-- Inspector
 
     User --> EmbeddedDevice : manages
