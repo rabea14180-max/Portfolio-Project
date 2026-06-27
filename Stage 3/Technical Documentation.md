@@ -2,7 +2,7 @@
 
 ## Stage 3: Technical Documentation
 
-### Temperature and Humidity Monitoring and Alert System
+### Temperature Monitoring and Alert System
 
 ---
 
@@ -23,7 +23,7 @@
 
 # Introduction
 
-FlexSight is an IoT-based temperature and humidity monitoring system designed to support safer and more reliable environmental monitoring in operational environments such as server rooms, warehouses, laboratories, offices, and technical facilities.
+FlexSight is an IoT-based temperature monitoring system designed to support safer and more reliable environmental monitoring in operational environments such as server rooms, warehouses, laboratories, offices, and technical facilities.
 
 This technical documentation translates the project objectives and MVP requirements into a detailed technical plan. It defines the system architecture, user stories, mockups, components, classes, database structure, sequence diagrams, API specifications, source control strategy, quality assurance plan, and technical justifications.
 
@@ -33,11 +33,11 @@ The purpose of this document is to provide the development team with a clear tec
 
 # System Overview
 
-The FlexSight MVP focuses on monitoring temperature and humidity readings using a DHT11 sensor connected to an ESP32 monitoring node.
+The FlexSight MVP focuses on monitoring temperature readings using a DHT11 Temperature Sensor connected to an ESP32 monitoring node.
 
 The ESP32 collects sensor readings once every hour and sends the data to the backend system through MQTT or HTTP API communication. The backend validates the incoming readings, stores them in a SQL database, checks temperature threshold values, and generates warning or critical alerts when abnormal temperature levels are detected.
 
-The web dashboard allows authorized users to view device status, temperature and humidity readings, historical records, and alert information. The system also supports email notifications to inform responsible users when a warning or critical alert occurs.
+The web dashboard allows authorized users to view device status, temperature readings, historical records, and alert information. The system also supports email notifications to inform responsible users when a warning or critical alert occurs.
 
 FlexSight follows a layered architecture that separates responsibilities across the IoT device layer, communication layer, backend layer, database layer, frontend dashboard, and external notification services.
 
@@ -50,7 +50,6 @@ The MVP includes the core features required to demonstrate the main monitoring a
 ## Included in MVP
 
 - Temperature monitoring.
-- Humidity monitoring.
 - ESP32 monitoring node.
 - DHT11 sensor integration.
 - Hourly sensor readings.
@@ -353,7 +352,7 @@ The schema uses Primary Keys (PK) and Foreign Keys (FK) to maintain clear relati
 - password_hash
 - email (UNIQUE)
 - mobile (UNIQUE)
-- role (owner / admin_manager / inspector)
+- role (owner / admin / inspector)
 - notification_preferences (email)
 - account_status (active / inactive / suspended)
 - last_login_at
@@ -482,7 +481,7 @@ Represents a FlexSight system user who can access the platform according to an a
 
 Represents the highest-level user responsible for supervising the entire FlexSight platform and managing system settings.
 
-### AdminManager
+### Admin
 
 Represents the operational user responsible for monitoring devices, reviewing alerts, and managing threshold configurations.
 
