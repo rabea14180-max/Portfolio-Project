@@ -17,7 +17,7 @@ The schema uses primary keys (PK) and foreign keys (FK) to maintain clear relati
 * password_hash
 * email (UNIQUE)
 * mobile (UNIQUE)
-* role (owner / admin_manager / inspector)
+* role (owner / admin / inspector)
 * notification_preferences (email)
 * account_status (active / inactive / suspended)
 * last_login_at
@@ -132,7 +132,7 @@ Represents a FlexSight system user who can access the platform based on an assig
 
 Represents the highest-level user responsible for supervising the full FlexSight system.
 
-## AdminManager
+## Admin
 
 Represents the operational user responsible for monitoring devices, reviewing alerts, and managing threshold settings.
 
@@ -197,7 +197,7 @@ classDiagram
         +viewSystemReports() void
     }
 
-    class AdminManager {
+    class Admin {
         +monitorAlerts() void
         +reviewDeviceStatus() void
         +manageThresholds() void
@@ -288,7 +288,7 @@ classDiagram
     }
 
     User <|-- Owner
-    User <|-- AdminManager
+    User <|-- Admin
     User <|-- Inspector
 
     User --> EmbeddedDevice : manages
