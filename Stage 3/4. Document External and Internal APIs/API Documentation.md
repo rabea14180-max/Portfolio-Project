@@ -42,7 +42,7 @@ flowchart LR
 
 | Topic | Publisher | Subscriber | Purpose |
 |---|---|---|---|
-| `flexsight/readings` | ESP32 Device | Backend Server | Sends hourly temperature and humidity readings. |
+| `flexsight/readings` | ESP32 Device | Backend Server | Sends hourly temperature readings. |
 | `flexsight/device-status` | ESP32 Device | Backend Server | Reports device online/offline status. |
 | `flexsight/alerts` | Backend Server | Dashboard | Publishes generated warning or critical alerts. |
 
@@ -63,12 +63,11 @@ flowchart LR
 | Endpoint | Method | Purpose |
 |---|---|---|
 | `/api/login` | POST | Authenticate users and return access information. |
-| `/api/readings` | POST | Receive temperature and humidity readings from ESP32 devices. |
+| `/api/readings` | POST | Receive hourly temperature readings from ESP32 devices. |
 | `/api/readings` | GET | Retrieve stored sensor readings. |
 | `/api/alerts` | GET | Retrieve active and historical alerts. |
 | `/api/alerts/{id}` | PUT | Update alert status. |
 | `/api/devices` | GET | Retrieve device information and status. |
-| `/api/locations` | GET | Retrieve monitored locations. |
 | `/api/users` | GET | Retrieve users and roles. |
 | `/api/settings/threshold` | PUT | Update warning and critical temperature thresholds. |
 
@@ -85,7 +84,7 @@ sequenceDiagram
     participant Dashboard
     participant Email
 
-    ESP32->>MQTT: Publish temperature and humidity reading
+    ESP32->>MQTT: Publish hourly temperature reading
     MQTT->>API: Forward reading
     API->>API: Validate reading
     API->>Database: Store reading
@@ -141,16 +140,15 @@ Authenticates a user and allows access to the dashboard based on the assigned ro
 
 ### Purpose
 
-Receives temperature and humidity readings from ESP32 monitoring devices.
+Receives temperature readings from ESP32 monitoring devices.
 
 ### Request Body
 
 ```json
 {
-  "device_id": "ESP32-001",
-  "temperature": 35.4,
-  "humidity": 60.2,
-  "timestamp": "2026-06-01T10:00:00Z"
+  "device_id": "ESP32-01",
+  "temperature": 52.0,
+  "timestamp": "2026-06-01T14:00:00Z"
 }
 ```
 
@@ -160,17 +158,17 @@ Receives temperature and humidity readings from ESP32 monitoring devices.
 |---|---|---|---|
 | `device_id` | String | Yes | Unique ESP32 device identifier. |
 | `temperature` | Float | Yes | Temperature value in Celsius. |
-| `humidity` | Float | Yes | Humidity percentage. |
 | `timestamp` | DateTime | Yes | Time when the reading was collected. |
 
 ### Processing Logic
 
-1. Receive reading from ESP32 through MQTT/backend communication.
-2. Validate device ID and sensor data.
-3. Store reading in the SQL database.
+
+1. Receive the hourly reading from the ESP32 device through MQTT/backend communication.
+2. Validate the device ID and temperature value.
+3. Store the reading in the SQL database.
 4. Compare temperature against warning and critical thresholds.
-5. Generate alert if the threshold is exceeded.
-6. Send email notification when required.
+5. Generate an alert if the threshold is exceeded.
+6. Send an email notification when required.
 7. Update the dashboard with the latest reading.
 
 ### Successful Response
@@ -188,14 +186,13 @@ Receives temperature and humidity readings from ESP32 monitoring devices.
 
 ### Purpose
 
-Retrieves stored temperature and humidity readings for dashboard display and historical review.
+Retrieves stored temperature readings for dashboard display and historical review.
 
 ### Query Parameters
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
 | `device_id` | String | No | Filter readings by device. |
-| `location_id` | Integer | No | Filter readings by monitored location. |
 | `start_date` | Date | No | Start date for historical filtering. |
 | `end_date` | Date | No | End date for historical filtering. |
 
@@ -204,11 +201,9 @@ Retrieves stored temperature and humidity readings for dashboard display and his
 ```json
 [
   {
-    "device_id": "ESP32-001",
-    "location": "Warehouse A",
-    "temperature": 35.4,
-    "humidity": 60.2,
-    "timestamp": "2026-06-01T10:00:00Z"
+    "device_id": "ESP32-01",
+    "temperature": 52.0,
+    "timestamp": "2026-06-01T14:00:00Z"
   }
 ]
 ```
@@ -227,13 +222,11 @@ Retrieves active and historical alerts for dashboard monitoring and incident fol
 [
   {
     "alert_id": 1,
-    "device_id": "ESP32-001",
-    "location": "Warehouse A",
+    "device_id": "ESP32-01",
     "severity": "critical",
-    "temperature": 52.3,
-    "humidity": 78.0,
+    "temperature": 52.0,
     "status": "active",
-    "triggered_at": "2026-06-01T10:00:00Z"
+    "triggered_at": "2026-06-01T14:00:00Z"
   }
 ]
 ```
@@ -284,34 +277,13 @@ Retrieves registered ESP32 monitoring devices and their current status.
 ```json
 [
   {
-    "device_id": "ESP32-001",
-    "name": "Warehouse Sensor 1",
-    "location": "Warehouse A",
+    "device_id": "ESP32-01",
+    "name": "ESP32 Monitoring Device 01",
     "status": "online",
-    "last_seen_at": "2026-06-01T10:00:00Z"
+    "last_reading_at": "2026-06-01T14:00:00Z"
   }
 ]
-```
 
----
-
-## 7. GET `/api/locations`
-
-### Purpose
-
-Retrieves monitored locations where ESP32 devices are installed.
-
-### Successful Response
-
-```json
-[
-  {
-    "location_id": 1,
-    "name": "Warehouse A",
-    "sector": "Storage Area",
-    "status": "active"
-  }
-]
 ```
 
 ---
@@ -329,9 +301,10 @@ Retrieves system users and assigned roles for access management.
   {
     "user_id": 1,
     "username": "admin",
-    "role": "Admin / Manager",
+    "role": "Admin",
     "account_status": "active"
   }
+]
 ]
 ```
 
@@ -365,7 +338,7 @@ Updates warning and critical temperature thresholds used by the alert logic.
 
 # Access Control Matrix
 
-| Endpoint | Owner | Admin / Manager | Inspector |
+| Endpoint | Owner | Admin | Inspector |
 |---|---|---|---|
 | `POST /api/login` | ✓ | ✓ | ✓ |
 | `GET /api/readings` | ✓ | ✓ | ✓ |
@@ -373,7 +346,6 @@ Updates warning and critical temperature thresholds used by the alert logic.
 | `GET /api/alerts` | ✓ | ✓ | ✓ |
 | `PUT /api/alerts/{id}` | ✓ | ✓ | ✓ |
 | `GET /api/devices` | ✓ | ✓ | ✓ |
-| `GET /api/locations` | ✓ | ✓ | ✓ |
 | `GET /api/users` | ✓ | ✗ | ✗ |
 | `PUT /api/settings/threshold` | ✓ | ✗ | ✗ |
 
@@ -410,7 +382,7 @@ Updates warning and critical temperature thresholds used by the alert logic.
 |---|---|
 | MQTT Broker | Lightweight and suitable for ESP32 IoT communication. |
 | Flask Backend API | Simple, flexible, and appropriate for RESTful API development. |
-| SQL Database | Provides structured storage for users, devices, locations, readings, and alerts. |
+| SQL Databasae | |Provides structured storage for users, devices, readings, alerts, alert notifications, and threshold settings |
 | SMTP Email Service | Supports automated alert notifications without requiring a mobile app. |
 | RESTful API Design | Provides clear communication between dashboard, backend, and database. |
 
@@ -422,16 +394,15 @@ The API structure allows future expansion without major changes to the core syst
 
 Possible future additions include:
 
-- SMS notification service.
-- Mobile application integration.
-- Additional environmental sensors.
-- Advanced reporting and analytics.
-- AI-based predictive alerting.
-- Real-time WebSocket dashboard updates.
-- Third-party monitoring system integrations.
+* More ESP32 monitoring devices.
+* Configurable alert assignment.
+* Advanced report export.
+* Email delivery tracking.
+* Dashboard performance summaries.
+* Additional role-based permission controls.
 
 ---
 
 # Conclusion
 
-This API documentation defines the external services and internal endpoints required for the FlexSight Temperature and Humidity Monitoring System. The design supports IoT data transmission, dashboard monitoring, alert generation, role-based access, and future scalability while remaining aligned with the MVP scope.
+This API documentation defines the external services and internal endpoints required for the FlexSight Temperature Monitoring System. The design supports IoT data transmission, dashboard monitoring, alert generation, role-based access, email notifications, and future scalability while remaining aligned with the MVP scope.
