@@ -2,178 +2,238 @@
 
 ## Overview
 
-FlexSight is an IoT-based temperature monitoring and alert system designed to improve operational safety in environments where temperature fluctuations can lead to equipment damage, operational downtime, or safety incidents.
+FlexSight is an IoT-based temperature monitoring and alert system designed to improve operational safety in environments where abnormal temperature levels may cause equipment damage, operational downtime, or safety incidents.
 
-The system continuously collects temperature readings from embedded monitoring devices, transmits data through MQTT/API communication, processes incoming data on a centralized server, and displays real-time information through a monitoring dashboard.
+The system continuously collects temperature readings from a DHT11 Temperature Sensor connected to an ESP32 Monitoring Device. The collected data is transmitted through MQTT/API communication, processed by a centralized Flask backend server, stored in a SQL database, and displayed on a real-time web dashboard.
 
-When abnormal temperature levels are detected, the system automatically generates alerts to support rapid response and reduce operational risks.
+Whenever abnormal temperature levels are detected, the system automatically generates warning or critical alerts and sends email notifications to responsible users, enabling rapid response and reducing operational risks.
 
 ---
 
-## Problem Statement
+# Problem Statement
 
-Many operational environments such as server rooms, warehouses, factories, industrial facilities, and data centers still rely on manual monitoring methods.
+Many operational environments such as server rooms, warehouses, factories, industrial facilities, and data centers still rely on manual temperature monitoring.
 
 These approaches often result in:
 
-- Delayed detection of temperature spikes
-- Lack of continuous monitoring
-- Slow response to critical incidents
-- Increased risk of equipment damage
-- Limited visibility of environmental conditions
+* Delayed detection of abnormal temperature levels.
+* Lack of continuous monitoring.
+* Slow response to critical incidents.
+* Increased risk of equipment damage.
+* Limited visibility of system conditions.
 
 FlexSight addresses these challenges by providing a lightweight, automated, and scalable monitoring solution.
 
 ---
 
-## Proposed Solution
+# Proposed Solution
 
 The system follows a simple and efficient workflow:
 
-Temperature Sensor → MQTT/API → Server → Dashboard Alert
+```text
+DHT11 Temperature Sensor
+        │
+        ▼
+ESP32 Monitoring Device
+        │
+        ▼
+MQTT / HTTP API
+        │
+        ▼
+Flask Backend Server
+        │
+        ▼
+SQL Database
+        │
+        ▼
+Web Dashboard
+        │
+        ▼
+Email Alert Notification
+```
 
 ### Core Functions
 
-- Real-time temperature monitoring
-- MQTT/API data transmission
-- Server-side processing and evaluation
-- Temperature threshold monitoring
-- Automatic alert generation
-- Dashboard visualization
-- Historical data storage
+* Real-time temperature monitoring.
+* MQTT/API communication.
+* Server-side data validation and processing.
+* Temperature threshold monitoring.
+* Automatic alert generation.
+* Email notifications.
+* Dashboard visualization.
+* Historical data storage.
 
 ---
 
-## Project Objectives
+# Project Objectives
 
-### Primary Objective
+## Primary Objective
 
-Develop a working IoT-based temperature monitoring system capable of detecting abnormal temperature conditions and generating automatic alerts.
+Develop a functional IoT-based temperature monitoring system capable of detecting abnormal temperature conditions and automatically generating alerts.
 
-### Secondary Objectives
+## Secondary Objectives
 
-- Build a functional MVP using embedded devices.
-- Provide real-time dashboard monitoring.
-- Implement centralized server processing.
-- Store temperature readings and alert history.
-- Create a scalable architecture for future expansion.
+* Build a functional Minimum Viable Product (MVP).
+* Provide real-time dashboard monitoring.
+* Implement centralized backend processing.
+* Store temperature readings and alert history.
+* Design a scalable architecture for future expansion.
 
 ---
 
-## Target Users
+# Target Users
 
 The system is designed for:
 
-- Facility Managers
-- Safety Officers
-- Warehouse Operators
-- Server Room Administrators
-- Operations Teams
-- Industrial Site Supervisors
+* Facility Managers
+* Safety Officers
+* Warehouse Operators
+* Server Room Administrators
+* Operations Teams
+* Industrial Site Supervisors
 
 ---
 
-## Target Sectors
+# Target Sectors
 
-- Warehouses
-- Server Rooms
-- Factories
-- Industrial Facilities
-- Data Centers
-- Technical Facilities
-- Electrical Rooms
-
----
-
-## Technical Stack
-
-### Hardware
-
-- ESP32
-- Temperature Sensors
-
-### Software
-
-- Python
-- MQTT
-- HTML
-- CSS
-- JavaScript
-- SQL Database
-
-### Tools
-
-- GitHub
-- Figma
-- Google Docs
-- Canva
+* Warehouses
+* Server Rooms
+* Factories
+* Industrial Facilities
+* Data Centers
+* Technical Facilities
+* Electrical Rooms
 
 ---
 
-## Team Members
+# Technical Stack
 
-| Name | Role |
-|--------|--------|
-| Hamsa Alammar | Team Leader & Frontend Developer |
-| Munirah Alotaibi | UI/UX Designer & Frontend Developer |
-| Hanin Hassan | Programming & Backend Developer |
-| Rabea Thabit | Backend Developer |
+## Hardware
 
----
+* ESP32 Monitoring Device
+* DHT11 Temperature Sensor
 
-## Project Stages
+## Software
 
-### Stage 1 – Idea Development
+* Python
+* Flask
+* MQTT
+* HTML
+* CSS
+* JavaScript
+* SQL Database
 
-Completed Activities:
+## Tools
 
-- Team Formation
-- Brainstorming Sessions
-- Idea Evaluation
-- Problem Identification
-- Solution Definition
-- Project Selection
-
-Deliverables:
-
-- Idea Development Documentation
-- Stage 1 README
+* Git
+* GitHub
+* Figma
+* Google Docs
+* Canva
+* Mermaid
 
 ---
 
-### Stage 2 – Project Charter Development
+# Team Members
 
-Completed Activities:
-
-- Project Objectives
-- SMART Goals
-- Stakeholder Identification
-- Team Role Definition
-- Scope Definition
-- Risk Assessment
-- Mitigation Planning
-- High-Level Project Planning
-
-Deliverables:
-
-- Project Charter
-- Stage 2 README
+| Name                 | Role                                |
+| -------------------- | ----------------------------------- |
+| **Hamsa Alammar**    | Team Leader & Frontend Developer    |
+| **Munirah Alotaibi** | UI/UX Designer & Frontend Developer |
+| **Hanin Hassan**     | Backend Developer                   |
+| **Rabea Thabit**     | Backend Developer                   |
 
 ---
 
-## Current Status
+# Project Stages
+
+## Stage 1 – Idea Development
+
+### Completed Activities
+
+* Team Formation
+* Brainstorming Sessions
+* Idea Evaluation
+* Problem Identification
+* Solution Definition
+* Project Selection
+
+### Deliverables
+
+* Idea Development Documentation
+* Stage 1 README
+
+---
+
+## Stage 2 – Project Charter Development
+
+### Completed Activities
+
+* Project Objectives
+* SMART Goals
+* Stakeholder Identification
+* Team Role Definition
+* Scope Definition
+* Risk Assessment
+* Mitigation Planning
+* High-Level Project Planning
+
+### Deliverables
+
+* Project Charter
+* Stage 2 README
+
+---
+
+## Stage 3 – Technical Documentation
+
+### Completed Activities
+
+* User Stories and Prioritization
+* UI/UX Mockups (Figma)
+* High-Level System Architecture
+* Components and Class Design
+* Database Schema Design
+* High-Level Sequence Diagrams
+* External and Internal API Specifications
+* Source Control Management (SCM)
+* Quality Assurance (QA) Planning
+* Technical Design Justifications
+
+### Deliverables
+
+* Technical Documentation
+* Stage 3 README
+
+---
+
+# Project Documentation
+
+The project documentation is organized into three major development stages:
+
+* **Stage 1** – Idea Development
+* **Stage 2** – Project Charter
+* **Stage 3** – Technical Documentation
+
+Each stage contains its own README together with the corresponding documentation that explains the project's evolution from the initial concept to the complete technical design.
+
+---
+
+# Current Status
 
 ✅ Stage 1 Completed
 
 ✅ Stage 2 Completed
 
-✅ Project Planning Completed
+✅ Stage 3 Completed
 
-🚧 Preparing for Technical Documentation
+✅ Technical Documentation Completed
+
+🚧 Preparing for MVP Development (Implementation Phase)
 
 ---
 
-## Repository Structure
+# Repository Structure
 
 ```text
 Portfolio-Project/
@@ -184,30 +244,44 @@ Portfolio-Project/
 │   ├── README.md
 │   └── FlexSight-Stage1-Fixed.docx
 │
-└── Stage 2/
+├── Stage 2/
+│   ├── README.md
+│   └── FlexSight_ProjectCharter_Stage2_Updated.md
+│
+└── Stage 3/
     ├── README.md
-    └── FlexSight_ProjectCharter_Stage2_Updated.md
+    └── TechnicalDocumentation.md
 ```
 
 ---
 
-## Future Vision
+# Future Vision
 
 Future versions of FlexSight may include:
 
-- Smoke Sensors
-- Gas Detection
-- Flame Detection
-- AI-Based Risk Analysis
-- Camera Integration
-- Multi-Location Monitoring
-- Advanced Analytics
-- Mobile Notifications
+* Multiple ESP32 Device Monitoring
+* Smoke Detection
+* Gas Detection
+* Flame Detection
+* AI-Based Risk Prediction
+* Camera Integration
+* Advanced Analytics and Reporting
+* Mobile Application
+* SMS Alert Notifications
+* Cloud Deployment
+* Real-Time Data Visualization
 
 ---
 
-## Authors
+# Authors
 
-Developed by the FlexSight Team as part of the Portfolio Project.
+Developed by the **FlexSight Team** as part of the Holberton School Portfolio Project.
+
+### Team Members
+
+* Hamsa Alammar
+* Munirah Alotaibi
+* Hanin Hassan
+* Rabea Thabit
 
 © 2026 FlexSight Team
