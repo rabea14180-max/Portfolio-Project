@@ -42,7 +42,7 @@ flowchart LR
 
 | Topic | Publisher | Subscriber | Purpose |
 |---|---|---|---|
-| `flexsight/readings` | ESP32 Device | Backend Server | Sends hourly temperature readings. |
+| `flexsight/readings` | ESP32 Device | Backend Server | Sends temperature readings. |
 | `flexsight/device-status` | ESP32 Device | Backend Server | Reports device online/offline status. |
 | `flexsight/alerts` | Backend Server | Dashboard | Publishes generated warning or critical alerts. |
 
@@ -52,7 +52,7 @@ flowchart LR
 
 | Role | Description |
 |---|---|
-| Owner | Full access to users, devices, locations, readings, alerts, and system settings. |
+| Owner | Full access to users, devices, readings, alerts, and system settings. |
 | Admin  | Monitors readings, device status, alerts, and operational conditions. |
 | Inspector | Follows up on assigned alerts and updates incident status. |
 
