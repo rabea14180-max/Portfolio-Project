@@ -53,7 +53,7 @@ flowchart LR
 | Role | Description |
 |---|---|
 | Owner | Full access to users, devices, locations, readings, alerts, and system settings. |
-| Admin / Manager | Monitors readings, device status, alerts, and operational conditions. |
+| Admin  | Monitors readings, device status, alerts, and operational conditions. |
 | Inspector | Follows up on assigned alerts and updates incident status. |
 
 ---
