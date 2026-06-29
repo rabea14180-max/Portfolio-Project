@@ -181,7 +181,7 @@ classDiagram
     class User {
         +String userId
         +String username
-        +String password
+        -String password
         +String email
         +Enum role
         +DateTime lastLogin
