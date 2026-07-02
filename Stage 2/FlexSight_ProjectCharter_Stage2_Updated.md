@@ -1,8 +1,4 @@
-[٢:٣٧ م, ٢‏/٧‏/٢٠٢٦] MUNERA: # FLEX SIGHT
 ## Temperature Monitoring & Alert System
-
-*PROJECT CHARTER*  
-*Stage 2 Report | May 2026*
 
 | Item | Details |
 |---|---|
@@ -24,7 +20,6 @@ Manual monitoring can cause several issues:
 
 - Temperature changes may be noticed late.
 - Critical heat levels may not trig…
-[٢:٣٩ م, ٢‏/٧‏/٢٠٢٦] MUNERA: # FLEX SIGHT
 ## Temperature Monitoring & Alert System
 
 *PROJECT CHARTER*  
