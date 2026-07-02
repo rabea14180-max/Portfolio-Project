@@ -4,21 +4,50 @@
 
 To establish practical procedures for source code management, team collaboration, testing, deployment, and quality assurance throughout the FlexSight development lifecycle.
 
+The SCM and QA strategy supports the MVP development process, including authentication, backend APIs, database integration, dashboard pages, hourly temperature readings, alert generation, and email notification handling.
+
 ---
 
 # Team Structure
 
 ### Hamsa Alammar & Munirah Alotaibi
 
-Responsible for frontend development, dashboard implementation, user interface components, and user experience improvements.
+Responsible for frontend development, dashboard implementation, authentication pages, user interface components, and user experience improvements.
+
+This includes:
+
+- Sign up page
+- Login page
+- Log out button
+- Dashboard pages
+- Devices page
+- Alerts page
+- Readings page
+- Users page
+- Settings page
 
 ### Rabeea Thabet & Hanin Alhassan
 
-Responsible for backend development, MQTT communication, API implementation, database integration, and sensor data processing.
+Responsible for backend development, MQTT communication, API implementation, authentication endpoints, database integration, and sensor data processing.
+
+This includes:
+
+- Flask backend API
+- Sign up API
+- Login API
+- Log out API
+- Readings API
+- Alerts API
+- Devices API
+- Users API
+- Threshold settings API
+- Database connection
+- Temperature validation
+- Alert processing logic
 
 ### All Team Members
 
-Responsible for testing, bug reporting, reviewing project updates, and maintaining overall software quality.
+Responsible for testing, bug reporting, reviewing project updates, verifying authentication flow, checking dashboard behavior, and maintaining overall software quality.
 
 ---
 
@@ -40,13 +69,19 @@ Team members create clear and meaningful commits for each completed logical chan
 
 Commit examples:
 
-```text
+text
+feat: add sign up page
+feat: add login page
+feat: add logout button
 feat: add dashboard temperature card
 feat: implement alert notification logic
+feat: add authentication API endpoints
 fix: correct sensor reading validation
+fix: correct login form validation
 test: add API endpoint tests
+test: test authentication flow
 docs: update technical documentation
-```
+
 
 ---
 
@@ -58,22 +93,27 @@ After the changes are pushed to the shared repository, the team reviews the upda
 
 Code Review Checklist:
 
-* Assigned task is completed.
-* Functionality works correctly.
-* No conflicts with other project files.
-* Reported issues are fixed before continuing development.
+- Assigned task is completed.
+- Functionality works correctly.
+- Authentication flow works correctly.
+- API endpoints return correct responses.
+- Dashboard displays correct data.
+- No conflicts with other project files.
+- Reported issues are fixed before continuing development.
 
 ---
 
 ## Team Workflow
 
 1. Select the assigned task.
-2. Implement the required functionality on the local machine.
-3. Test the implementation locally.
-4. Commit and push the completed work to the shared GitHub repository.
-5. Pull the latest updates from the repository before continuing development.
-6. Perform integration testing after combining all completed tasks.
-7. Conduct a final project review and resolve any remaining issues before submission.
+2. Pull the latest updates from the shared GitHub repository.
+3. Implement the required functionality on the local machine.
+4. Test the implementation locally.
+5. Commit the completed work with a clear commit message.
+6. Push the updated files to the shared GitHub repository.
+7. Review the updated files with the team.
+8. Perform integration testing after combining all completed tasks.
+9. Conduct a final project review and resolve any remaining issues before submission.
 
 ---
 
@@ -91,22 +131,41 @@ Testing individual functions and modules independently.
 
 Examples:
 
-* Temperature validation functions.
-* Alert generation logic.
-* API utility functions.
+- Temperature validation functions.
+- Threshold checking logic.
+- Alert generation logic.
+- Login validation logic.
+- Sign up validation logic.
+- API utility functions.
 
 ### Integration Testing
 
 Testing communication between:
 
-* Sensor and MQTT broker.
-* MQTT broker and backend server.
-* Backend and database.
-* Backend and dashboard.
+- Sign up page and backend API.
+- Login page and backend API.
+- Log out action and backend API.
+- ESP32 monitoring device and MQTT/API communication.
+- MQTT/API communication and backend server.
+- Backend and database.
+- Backend and dashboard.
+- Alert logic and notification records.
 
 ### Manual Testing
 
 Testing complete user workflows and overall system behavior.
+
+Manual testing includes:
+
+- User sign up.
+- User login.
+- User logout.
+- Dashboard navigation.
+- Viewing hourly temperature readings.
+- Viewing device status.
+- Viewing warning and critical alerts.
+- Updating alert status.
+- Updating threshold settings.
 
 ---
 
@@ -122,15 +181,27 @@ Used to validate API endpoints and API responses.
 
 ### Browser Testing
 
-Used to verify dashboard functionality, responsiveness, and user interface behavior.
+Used to verify dashboard functionality, authentication pages, responsiveness, and user interface behavior.
+
+### MySQL Workbench / Terminal
+
+Used to verify database tables, inserted records, relationships, and test queries.
 
 ---
 
 # Project-Specific QA Coverage
 
+### Authentication Flow
+
+Verify that users can sign up, log in, access the dashboard, and log out successfully.
+
+### Role Access Flow
+
+Verify that Owner, Admin, and Inspector users can access the correct dashboard features based on their roles.
+
 ### Sensor Monitoring Flow
 
-Verify that sensor readings are received correctly from the sensor.
+Verify that temperature readings are received correctly from the ESP32 monitoring device.
 
 ### Data Storage Flow
 
@@ -138,15 +209,19 @@ Verify that temperature readings are successfully stored in the database.
 
 ### Dashboard Flow
 
-Verify that live temperature readings are displayed correctly on the dashboard.
+Verify that hourly temperature readings are displayed correctly on the dashboard.
 
 ### Alert Flow
 
-Verify that an alert is automatically generated when the temperature reaches or exceeds **50°C**.
+Verify that warning and critical alerts are generated based on configured temperature thresholds.
 
 ### API Flow
 
 Verify that all API endpoints return accurate and valid data.
+
+### Email Notification Flow
+
+Verify that notification records are created when warning or critical alerts occur.
 
 ---
 
@@ -154,23 +229,43 @@ Verify that all API endpoints return accurate and valid data.
 
 ### Critical Flow 1
 
-The sensor sends a temperature reading.
+A new user signs up using the Sign Up page.
 
 ### Critical Flow 2
 
-The backend server receives and processes the sensor data.
+A registered user logs in using the Login page.
 
 ### Critical Flow 3
 
-The processed temperature data is stored in the database.
+The user accesses the dashboard based on the assigned role.
 
 ### Critical Flow 4
 
-The dashboard displays the latest temperature reading.
+The ESP32 monitoring device sends an hourly temperature reading.
 
 ### Critical Flow 5
 
-An alert is generated automatically when the temperature reaches or exceeds **50°C**.
+The backend server receives and processes the temperature data.
+
+### Critical Flow 6
+
+The processed temperature data is stored in the database.
+
+### Critical Flow 7
+
+The dashboard displays the latest hourly temperature reading.
+
+### Critical Flow 8
+
+A warning alert is generated when the temperature reaches the warning range.
+
+### Critical Flow 9
+
+A critical alert is generated when the temperature reaches or exceeds 50°C.
+
+### Critical Flow 10
+
+The user logs out and returns to the login page.
 
 ---
 
@@ -181,16 +276,26 @@ An alert is generated automatically when the temperature reaches or exceeds **50
 3. Commit and push the changes to the shared GitHub repository.
 4. Pull the latest project updates.
 5. Perform integration testing with the complete system.
+6. Record bugs or issues.
+7. Fix reported issues.
+8. Re-test after fixing.
+9. Prepare the final version for submission.
 
 ---
 
 # Final Project Validation
 
 1. Verify that all project components work together correctly.
-2. Re-run the required tests.
-3. Fix any remaining issues.
-4. Perform final manual testing.
-5. Prepare the final version for submission.
+2. Test sign up, login, and log out.
+3. Test all required API endpoints.
+4. Test database records and relationships.
+5. Test dashboard data display.
+6. Test temperature threshold alert generation.
+7. Test notification records.
+8. Re-run the required tests.
+9. Fix any remaining issues.
+10. Perform final manual testing.
+11. Prepare the final version for submission.
 
 ---
 
@@ -198,16 +303,24 @@ An alert is generated automatically when the temperature reaches or exceeds **50
 
 ## SCM Strategy
 
-* Git and GitHub workflow.
-* Shared GitHub repository collaboration.
-* Commit and push process.
-* Local testing before uploading changes.
-* Team code review process.
+- Git and GitHub workflow.
+- Shared GitHub repository collaboration.
+- Commit and push process.
+- Pull latest updates before new work.
+- Local testing before uploading changes.
+- Team code review process.
+- Final integration review before submission.
 
 ## QA Strategy
 
-* Unit Testing.
-* Integration Testing.
-* Manual Testing.
-* Pytest and Postman tools.
-* Final system validation before project submission.
+- Unit Testing.
+- Integration Testing.
+- Manual Testing.
+- Authentication testing.
+- API endpoint testing.
+- Database testing.
+- Dashboard testing.
+- Alert testing.
+- Pytest and Postman tools.
+- Browser testing.
+- Final system validation before project submission.
