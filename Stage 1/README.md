@@ -108,7 +108,8 @@ The system:
 | 7 | Dashboard Alerts | Show warning and critical alerts when abnormal temperatures are detected |
 | 8 | Historical Readings | Store and display previous hourly temperature readings |
 | 9 | Email Notifications | Send email notifications when warning or critical alerts occur |
-| 10 | User Roles | Support Owner, Admin, and Inspector roles |
+| 10 | User Roles | Support Owner, Admin, and Inspector roles with role-based access |
+| 11 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
 
 ## 4.2 Out of Scope
 
@@ -137,14 +138,15 @@ These features may be considered in future versions after the temperature monito
 
 | User Role | Description |
 |---|---|
-| Owner | Full access to users, devices, readings, alerts, threshold settings, and system settings |
-| Admin | Monitors temperature readings, device status, alerts, and dashboard activity |
-| Inspector | Follows up on assigned alerts, reviews affected devices, adds notes, and updates incident status |
+| Owner | Full access to users, devices, readings, alerts, threshold settings, authentication, and system settings |
+| Admin | Monitors temperature readings, device status, alerts, dashboard activity, and authenticated system access |
+| Inspector | Follows up on assigned alerts, reviews affected devices, adds notes, updates incident status, and uses authenticated dashboard access |
 
 ### 5.2 Target Use Cases
 
 | Use Case | Description |
 |---|---|
+| User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
 | Temperature Monitoring | Collect hourly temperature readings from ESP32 monitoring devices |
 | Alert Detection | Detect warning and critical temperature levels based on configured thresholds |
 | Dashboard Monitoring | Display readings, device status, and alert information in a web dashboard |
