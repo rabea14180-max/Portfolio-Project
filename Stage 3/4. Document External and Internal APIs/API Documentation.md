@@ -1,8 +1,9 @@
-## API Documentation
+# API Documentation
 
-Purpose
+## Purpose
 
 This document defines the external services and internal API endpoints used by the FlexSight Temperature Monitoring System. It explains how temperature data is transmitted, processed, stored, retrieved, and displayed through the dashboard.
+
 ---
 
 ## External APIs and Services
@@ -27,6 +28,8 @@ flowchart LR
     Email["SMTP Email Service"]
     Users["Owner / Admin / Inspector"]
 
+    Users --> Dashboard
+    Dashboard --> API
     Sensor --> ESP32
     ESP32 --> MQTT
     MQTT --> API
@@ -36,15 +39,16 @@ flowchart LR
     Email --> Users
 ```
 
+
 ---
 
 ## MQTT Topics Specification
 
 | Topic | Publisher | Subscriber | Purpose |
 |---|---|---|---|
-| `flexsight/readings` | ESP32 Device | Backend Server | Sends temperature readings. |
-| `flexsight/device-status` | ESP32 Device | Backend Server | Reports device online/offline status. |
-| `flexsight/alerts` | Backend Server | Dashboard | Publishes generated warning or critical alerts. |
+| flexsight/readings | ESP32 Device | Backend Server | Sends temperature readings. |
+| flexsight/device-status | ESP32 Device | Backend Server | Reports device online/offline status. |
+| flexsight/alerts | Backend Server | Dashboard | Publishes generated warning or critical alerts. |
 
 ---
 
@@ -53,7 +57,7 @@ flowchart LR
 | Role | Description |
 |---|---|
 | Owner | Full access to users, devices, readings, alerts, and system settings. |
-| Admin  | Monitors readings, device status, alerts, and operational conditions. |
+| Admin | Monitors readings, device status, alerts, and operational conditions. |
 | Inspector | Follows up on assigned alerts and updates incident status. |
 
 ---
@@ -62,14 +66,16 @@ flowchart LR
 
 | Endpoint | Method | Purpose |
 |---|---|---|
-| `/api/login` | POST | Authenticate users and return access information. |
-| `/api/readings` | POST | Receive hourly temperature readings from ESP32 devices. |
-| `/api/readings` | GET | Retrieve stored sensor readings. |
-| `/api/alerts` | GET | Retrieve active and historical alerts. |
-| `/api/alerts/{id}` | PUT | Update alert status. |
-| `/api/devices` | GET | Retrieve device information and status. |
-| `/api/users` | GET | Retrieve users and roles. |
-| `/api/settings/threshold` | PUT | Update warning and critical temperature thresholds. |
+| /api/signup | POST | Create a new user account. |
+| /api/login | POST | Authenticate users and return access information. |
+| /api/logout | POST | End the user session. |
+| /api/readings | POST | Receive hourly temperature readings from ESP32 devices. |
+| /api/readings | GET | Retrieve stored sensor readings. |
+| /api/alerts | GET | Retrieve active and historical alerts. |
+| /api/alerts/{id} | PUT | Update alert status. |
+| /api/devices | GET | Retrieve device information and status. |
+| /api/users | GET | Retrieve users and roles. |
+| /api/settings/threshold | PUT | Update warning and critical temperature thresholds. |
 
 ---
 
@@ -77,12 +83,17 @@ flowchart LR
 
 ```mermaid
 sequenceDiagram
+    participant Dashboard
     participant ESP32
     participant MQTT
     participant API
     participant Database
-    participant Dashboard
     participant Email
+
+    Dashboard->>API: Send sign up / login / logout request
+    API->>Database: Create, validate, or end user session
+    Database-->>API: Return authentication result
+    API-->>Dashboard: Return access result
 
     ESP32->>MQTT: Publish hourly temperature reading
     MQTT->>API: Forward reading
@@ -98,11 +109,51 @@ sequenceDiagram
     end
 ```
 
+
 ---
 
 # API Endpoint Specifications
 
-## 1. POST `/api/login`
+## 1. POST /api/signup
+
+### Purpose
+
+Creates a new user account in the FlexSight system.
+
+### Request Body
+
+```json
+{
+  "username": "inspector",
+  "email": "inspector@flexsight.com",
+  "password": "password123",
+  "role": "Inspector"
+}
+```
+
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | User account name. |
+| email | String | Yes | User email address. |
+| password | String | Yes | User password. |
+| role | String | Yes | User role such as Owner, Admin, or Inspector. |
+
+### Successful Response
+
+```json
+{
+  "success": true,
+  "message": "User account created successfully"
+}
+```
+
+
+---
+
+## 2. POST /api/login
 
 ### Purpose
 
@@ -117,26 +168,45 @@ Authenticates a user and allows access to the dashboard based on the assigned ro
 }
 ```
 
+
 ### Request Fields
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `username` | String | Yes | User login name. |
-| `password` | String | Yes | User password. |
+| username | String | Yes | User login name. |
+| password | String | Yes | User password. |
 
 ### Successful Response
 
 ```json
 {
   "success": true,
-  "role": "admin",
+  "role": "Admin",
   "token": "jwt_token"
+}
+```
+
+
+---
+
+## 3. POST /api/logout
+
+### Purpose
+
+Ends the user session and returns the user to the login page.
+
+### Successful Response
+
+```json
+{
+  "success": true,
+  "message": "Logged out successfully"
 }
 ```
 
 ---
 
-## 2. POST `/api/readings`
+## 4. POST /api/readings
 
 ### Purpose
 
@@ -152,16 +222,16 @@ Receives temperature readings from ESP32 monitoring devices.
 }
 ```
 
+
 ### Request Fields
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `device_id` | String | Yes | Unique ESP32 device identifier. |
-| `temperature` | Float | Yes | Temperature value in Celsius. |
-| `timestamp` | DateTime | Yes | Time when the reading was collected. |
+| device_id | String | Yes | Unique ESP32 device identifier. |
+| temperature | Float | Yes | Temperature value in Celsius. |
+| timestamp | DateTime | Yes | Time when the reading was collected. |
 
 ### Processing Logic
-
 
 1. Receive the hourly reading from the ESP32 device through MQTT/backend communication.
 2. Validate the device ID and temperature value.
@@ -180,9 +250,10 @@ Receives temperature readings from ESP32 monitoring devices.
 }
 ```
 
+
 ---
 
-## 3. GET `/api/readings`
+## 5. GET /api/readings
 
 ### Purpose
 
@@ -192,9 +263,9 @@ Retrieves stored temperature readings for dashboard display and historical revie
 
 | Parameter | Type | Required | Description |
 |---|---|---|---|
-| `device_id` | String | No | Filter readings by device. |
-| `start_date` | Date | No | Start date for historical filtering. |
-| `end_date` | Date | No | End date for historical filtering. |
+| device_id | String | No | Filter readings by device. |
+| start_date | Date | No | Start date for historical filtering. |
+| end_date | Date | No | End date for historical filtering. |
 
 ### Successful Response
 
@@ -208,9 +279,10 @@ Retrieves stored temperature readings for dashboard display and historical revie
 ]
 ```
 
+
 ---
 
-## 4. GET `/api/alerts`
+## 6. GET /api/alerts
 
 ### Purpose
 
@@ -231,9 +303,10 @@ Retrieves active and historical alerts for dashboard monitoring and incident fol
 ]
 ```
 
+
 ---
 
-## 5. PUT `/api/alerts/{id}`
+## 7. PUT /api/alerts/{id}
 
 ### Purpose
 
@@ -248,12 +321,13 @@ Updates the status of an alert after review or follow-up.
 }
 ```
 
+
 ### Request Fields
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `status` | String | Yes | New alert status such as resolved or unresolved. |
-| `notes` | String | No | Optional follow-up notes. |
+| status | String | Yes | New alert status such as resolved or unresolved. |
+| notes | String | No | Optional follow-up notes. |
 
 ### Successful Response
 
@@ -264,9 +338,10 @@ Updates the status of an alert after review or follow-up.
 }
 ```
 
+
 ---
 
-## 6. GET `/api/devices`
+## 8. GET /api/devices
 
 ### Purpose
 
@@ -283,12 +358,12 @@ Retrieves registered ESP32 monitoring devices and their current status.
     "last_reading_at": "2026-06-01T14:00:00Z"
   }
 ]
-
 ```
+
 
 ---
 
-## 8. GET `/api/users`
+## 9. GET /api/users
 
 ### Purpose
 
@@ -305,12 +380,12 @@ Retrieves system users and assigned roles for access management.
     "account_status": "active"
   }
 ]
-]
 ```
+
 
 ---
 
-## 9. PUT `/api/settings/threshold`
+## 10. PUT /api/settings/threshold
 
 ### Purpose
 
@@ -323,16 +398,17 @@ Updates warning and critical temperature thresholds used by the alert logic.
   "warning_threshold": 45,
   "critical_threshold": 50
 }
-```
+
 
 ### Successful Response
 
-```json
+json
 {
   "success": true,
   "message": "Threshold updated successfully"
 }
 ```
+
 
 ---
 
@@ -340,14 +416,16 @@ Updates warning and critical temperature thresholds used by the alert logic.
 
 | Endpoint | Owner | Admin | Inspector |
 |---|---|---|---|
-| `POST /api/login` | ✓ | ✓ | ✓ |
-| `GET /api/readings` | ✓ | ✓ | ✓ |
-| `POST /api/readings` | System | System | System |
-| `GET /api/alerts` | ✓ | ✓ | ✓ |
-| `PUT /api/alerts/{id}` | ✓ | ✓ | ✓ |
-| `GET /api/devices` | ✓ | ✓ | ✓ |
-| `GET /api/users` | ✓ | ✗ | ✗ |
-| `PUT /api/settings/threshold` | ✓ | ✗ | ✗ |
+| POST /api/signup | ✓ | ✓ | ✓ |
+| POST /api/login | ✓ | ✓ | ✓ |
+| POST /api/logout | ✓ | ✓ | ✓ |
+| GET /api/readings | ✓ | ✓ | ✓ |
+| POST /api/readings | System | System | System |
+| GET /api/alerts | ✓ | ✓ | ✓ |
+| PUT /api/alerts/{id} | ✓ | ✓ | ✓ |
+| GET /api/devices | ✓ | ✓ | ✓ |
+| GET /api/users | ✓ | ✗ | ✗ |
+| PUT /api/settings/threshold | ✓ | ✗ | ✗ |
 
 ---
 
@@ -355,11 +433,12 @@ Updates warning and critical temperature thresholds used by the alert logic.
 
 | Error Case | Example Response |
 |---|---|
-| Unauthorized access | `{ "success": false, "message": "Unauthorized access" }` |
-| Invalid credentials | `{ "success": false, "message": "Invalid username or password" }` |
-| Device not found | `{ "success": false, "message": "Device not found" }` |
-| Invalid sensor data | `{ "success": false, "message": "Invalid sensor data" }` |
-| Internal server error | `{ "success": false, "message": "Internal server error" }` |
+| Unauthorized access | { "success": false, "message": "Unauthorized access" } |
+| Invalid credentials | { "success": false, "message": "Invalid username or password" } |
+| User already exists | { "success": false, "message": "User already exists" } |
+| Device not found | { "success": false, "message": "Device not found" } |
+| Invalid sensor data | { "success": false, "message": "Invalid sensor data" } |
+| Internal server error | { "success": false, "message": "Internal server error" } |
 
 ---
 
@@ -382,7 +461,7 @@ Updates warning and critical temperature thresholds used by the alert logic.
 |---|---|
 | MQTT Broker | Lightweight and suitable for ESP32 IoT communication. |
 | Flask Backend API | Simple, flexible, and appropriate for RESTful API development. |
-| SQL Databasae | |Provides structured storage for users, devices, readings, alerts, alert notifications, and threshold settings |
+| SQL Database | Provides structured storage for users, devices, readings, alerts, alert notifications, and threshold settings. |
 | SMTP Email Service | Supports automated alert notifications without requiring a mobile app. |
 | RESTful API Design | Provides clear communication between dashboard, backend, and database. |
 
@@ -394,15 +473,15 @@ The API structure allows future expansion without major changes to the core syst
 
 Possible future additions include:
 
-* More ESP32 monitoring devices.
-* Configurable alert assignment.
-* Advanced report export.
-* Email delivery tracking.
-* Dashboard performance summaries.
-* Additional role-based permission controls.
+- More ESP32 monitoring devices.
+- Configurable alert assignment.
+- Advanced report export.
+- Email delivery tracking.
+- Dashboard performance summaries.
+- Additional role-based permission controls.
 
 ---
 
 # Conclusion
 
-This API documentation defines the external services and internal endpoints required for the FlexSight Temperature Monitoring System. The design supports IoT data transmission, dashboard monitoring, alert generation, role-based access, email notifications, and future scalability while remaining aligned with the MVP scope.
+This API documentation defines the external services and internal endpoints required for the FlexSight Temperature Monitoring System. The design supports IoT data transmission, dashboard monitoring, alert generation, role-based access, email notifications, authentication, and future scalability while remaining aligned with the MVP scope.
