@@ -53,12 +53,14 @@ FlexSight provides a lightweight temperature monitoring MVP using an ESP32 monit
 
 The project follows this main workflow:
 
-text
+```text
 User Authentication → Web Dashboard
 Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+```
 
 
 The system collects hourly temperature readings, processes them on the server, stores them in the database, and displays readings, device status, and alerts on the web dashboard.
+
 
 ---
 
