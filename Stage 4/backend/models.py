@@ -27,9 +27,9 @@ class EmbeddedDevice(db.Model):
 
 
 class TemperatureSensor(db.Model):
-   __tablename__ = "temperature_sensors"
+__tablename__ = "temperature_sensors"
    
-  sensor_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    sensor_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     device_id = db.Column(db.Integer, db.ForeignKey("embedded_devices.device_id"), nullable=False)
     current_temperature = db.Column(db.Numeric(5, 2))
     calibration_offset = db.Column(db.Numeric(5, 2), default=0)
