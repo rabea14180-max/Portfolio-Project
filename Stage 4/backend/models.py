@@ -70,4 +70,50 @@ class Alert(db.Model):
     status = db.Column(db.Enum("OPEN", "ACKNOWLEDGED", "RESOLVED"), default="OPEN")
     severity = db.Column(db.Enum("WARNING", "CRITICAL"), nullable=False)
     resolved_by = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=True)
-    created_at =
+    created_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
+    resolved_at = db.Column(db.DateTime, nullable=True)
+
+    device = db.relationship("EmbeddedDevice", backref="alerts")
+    resolver = db.relationship("User", backref="resolved_alerts")
+
+
+class Dashboard(db.Model):
+    __tablename__ = "dashboards"
+
+    dashboard_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    current_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
+
+    user = db.relationship("User", backref="dashboards")
+
+
+class Notification(db.Model):
+    __tablename__ = "notifications"
+
+    notification_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    alert_id = db.Column(db.Integer, db.ForeignKey("alerts.alert_id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    notification_type = db.Column(db.Enum("EMAIL", "SMS", "PUSH"), default="EMAIL")
+    sent_at = db.Column(db.DateTime, server_default=db.func.current_timestamp())
+    status = db.Column(db.Enum("PENDING", "SENT", "FAILED"), default="PENDING")
+
+    alert = db.relationship("Alert", backref="notifications")
+    user = db.relationship("User", backref="notifications")
+
+
+class DeviceThreshold(db.Model):
+    __tablename__ = "device_thresholds"
+
+    device_id = db.Column(
+        db.Integer,
+        db.ForeignKey("embedded_devices.device_id"),
+        primary_key=True
+    )
+    config_id = db.Column(
+        db.Integer,
+        db.ForeignKey("threshold_configs.config_id"),
+        primary_key=True
+    )
+
+    device = db.relationship("EmbeddedDevice", backref="threshold_links")
+    config = db.relationship("ThresholdConfig", backref="device_links")
