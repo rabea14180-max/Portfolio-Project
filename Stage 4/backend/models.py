@@ -48,7 +48,7 @@ class ThresholdConfig(db.Model):
 
 class TemperatureLog(db.Model):
     __tablename__ = "temperature_logs"
-    
+
     log_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sensor_id = db.Column(db.Integer, db.ForeignKey("temperature_sensors.sensor_id"), nullable=False)
     temperature = db.Column(db.Numeric(5, 2), nullable=False)
