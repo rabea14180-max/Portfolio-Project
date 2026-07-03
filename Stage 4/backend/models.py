@@ -4,7 +4,7 @@ db = SQLAlchemy()
 
 
 class User(db.Model):
-    _tablename_ = "users"
+    __tablename__ = "users"
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     username = db.Column(db.String(100), nullable=False, unique=True)
@@ -16,7 +16,7 @@ class User(db.Model):
 
 
 class EmbeddedDevice(db.Model):
-    _tablename_ = "embedded_devices"
+    __tablename__ = "embedded_devices"
 
     device_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     status = db.Column(db.String(50), nullable=False)
@@ -27,9 +27,9 @@ class EmbeddedDevice(db.Model):
 
 
 class TemperatureSensor(db.Model):
-    _tablename_ = "temperature_sensors"
-
-    sensor_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+   __tablename__ = "temperature_sensors"
+   
+  sensor_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     device_id = db.Column(db.Integer, db.ForeignKey("embedded_devices.device_id"), nullable=False)
     current_temperature = db.Column(db.Numeric(5, 2))
     calibration_offset = db.Column(db.Numeric(5, 2), default=0)
@@ -38,8 +38,8 @@ class TemperatureSensor(db.Model):
 
 
 class ThresholdConfig(db.Model):
-    _tablename_ = "threshold_configs"
-
+   __tablename__ = "threshold_configs"
+    
     config_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     warning_value = db.Column(db.Numeric(5, 2), nullable=False)
     critical_value = db.Column(db.Numeric(5, 2), nullable=False)
@@ -47,8 +47,8 @@ class ThresholdConfig(db.Model):
 
 
 class TemperatureLog(db.Model):
-    _tablename_ = "temperature_logs"
-
+    __tablename__ = "temperature_logs"
+    
     log_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     sensor_id = db.Column(db.Integer, db.ForeignKey("temperature_sensors.sensor_id"), nullable=False)
     temperature = db.Column(db.Numeric(5, 2), nullable=False)
@@ -56,7 +56,7 @@ class TemperatureLog(db.Model):
 
 
 class Alert(db.Model):
-    _tablename_ = "alerts"
+   __tablename__ = "alerts"
 
     alert_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     device_id = db.Column(db.Integer, db.ForeignKey("embedded_devices.device_id"), nullable=False)
@@ -69,16 +69,16 @@ class Alert(db.Model):
 
 
 class Dashboard(db.Model):
-    _tablename_ = "dashboards"
+   __tablename__ = "dashboards"
 
-    dashboard_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+   dashboard_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     current_user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
 
 
 class Notification(db.Model):
-    _tablename_ = "notifications"
-
+    __tablename__ = "notifications"
+    
     notification_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     alert_id = db.Column(db.Integer, db.ForeignKey("alerts.alert_id"), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
@@ -88,7 +88,7 @@ class Notification(db.Model):
 
 
 class DeviceThreshold(db.Model):
-    _tablename_ = "device_thresholds"
+    __tablename__ = "device_thresholds"
 
     device_id = db.Column(
         db.Integer,
