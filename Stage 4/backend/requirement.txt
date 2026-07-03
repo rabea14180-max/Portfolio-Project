@@ -1,8 +1,0 @@
-flask
-flask-sqlalchemy
-flask-mail
-flask-cors
-pymysql
-python-dotenv
-pyjwt
-werkzeug
