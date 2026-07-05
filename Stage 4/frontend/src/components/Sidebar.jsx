@@ -34,7 +34,7 @@ function Sidebar() {
             key={item.to}
             to={item.to}
             className={({ isActive }) =>
-              sidebar-link${isActive ? " sidebar-link-active" : ""}
+              `sidebar-link${isActive ? " sidebar-link-active" : ""}`
             }
           >
             <span className="sidebar-link-icon">{item.icon}</span>

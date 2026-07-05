@@ -34,7 +34,7 @@ function Alerts() {
   async function updateAlertStatus(alertId, status) {
     setActionLoading(alertId);
 
-    const result = await apiRequest(/api/alerts/${alertId}, {
+    const result = await apiRequest(`/api/alerts/${alertId}`, {
       method: "PUT",
       body: JSON.stringify({ status }),
     });

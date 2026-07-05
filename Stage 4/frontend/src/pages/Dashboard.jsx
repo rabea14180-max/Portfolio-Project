@@ -67,7 +67,7 @@ function Dashboard() {
     { label: "Critical Alerts", value: criticalAlerts, icon: "!" },
     {
       label: "Latest Temperature",
-      value: latestReading ? ${latestReading.temperature}°C : "—",
+      value: latestReading ? `${latestReading.temperature}°C` : "—",
       icon: "◈",
     },
   ];
@@ -104,7 +104,7 @@ function Dashboard() {
                 </thead>
                 <tbody>
                   {recentReadings.map((reading, index) => (
-                    <tr key={${reading.device_id}-${reading.timestamp}-${index}}>
+                    <tr key={`${reading.device_id}-${reading.timestamp}-${index}`}>
                       <td>{reading.device_id}</td>
                       <td>{reading.temperature}°C</td>
                       <td>

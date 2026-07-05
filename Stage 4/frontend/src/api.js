@@ -21,11 +21,11 @@ export async function apiRequest(endpoint, options = {}) {
   };
 
   if (token) {
-    headers.Authorization = Bearer ${token};
+    headers.Authorization = `Bearer ${token}`;
   }
 
   try {
-    const response = await fetch(${API_BASE_URL}${endpoint}, {
+    const response = await fetch(`${API_BASE_URL}${endpoint}`, {
       ...options,
       headers,
     });

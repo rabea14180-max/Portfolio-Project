@@ -23,7 +23,7 @@ function Readings() {
     if (params.end_date) query.append("end_date", params.end_date);
 
     const queryString = query.toString();
-    const endpoint = queryString ? /api/readings?${queryString} : "/api/readings";
+    const endpoint = queryString ? `/api/readings?${queryString}` : "/api/readings";
 
     const result = await apiRequest(endpoint);
 
@@ -122,7 +122,7 @@ function Readings() {
               </thead>
               <tbody>
                 {readings.map((reading, index) => (
-                  <tr key={${reading.device_id}-${reading.timestamp}-${index}}>
+                  <tr key={`${reading.device_id}-${reading.timestamp}-${index}`}>
                     <td>{reading.device_id}</td>
                     <td>{reading.temperature}°C</td>
                     <td>

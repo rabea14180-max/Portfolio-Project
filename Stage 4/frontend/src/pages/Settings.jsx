@@ -60,7 +60,7 @@ function Settings() {
 
       <form className="settings-form" onSubmit={handleSubmit}>
         {message && (
-          <div className={alert ${isError ? "alert-error" : "alert-success"}}>
+          <div className={`alert ${isError ? "alert-error" : "alert-success"}`}>
             {message}
           </div>
         )}
