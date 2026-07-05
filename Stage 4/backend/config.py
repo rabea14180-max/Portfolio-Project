@@ -16,20 +16,20 @@ class Config:
     SECRET_KEY = os.getenv("SECRET_KEY", "change-me-in-production")
     DEBUG = os.getenv("FLASK_DEBUG", "False") == "True"
 
-    # --- Database (MySQL) ---
-    # These names match the schema created in database/schema.sql
-    # (temperature_monitoring_system) and the tables defined in models.py
-    DB_USER = os.getenv("DB_USER", "root")
-    DB_PASSWORD = os.getenv("DB_PASSWORD", "")
-    DB_HOST = os.getenv("DB_HOST", "localhost")
-    DB_PORT = os.getenv("DB_PORT", "3306")
-    DB_NAME = os.getenv("DB_NAME", "temperature_monitoring_system")
-
-    SQLALCHEMY_DATABASE_URI = os.getenv(
-        "DATABASE_URL",
-        f"mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
-    )
+    # --- Database (Supabase Postgres, via SQLAlchemy) ---
+    # DATABASE_URL comes from Supabase → Settings → Database → Connection
+    # string → URI. Uses the 6543 transaction pooler.
+    SQLALCHEMY_DATABASE_URI = os.getenv("DATABASE_URL")
     SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        "pool_pre_ping": True,
+        # Supabase's transaction pooler (pgbouncer) already pools connections,
+        # so SQLAlchemy shouldn't hold its own idle pool on top of it.
+        "pool_size": 5,
+        "max_overflow": 0,
+        "pool_recycle": 280,
+    }
+
 
     # --- Email Alerts (used when Alert severity = WARNING / CRITICAL) ---
     MAIL_SERVER = os.getenv("MAIL_SERVER", "smtp.gmail.com")

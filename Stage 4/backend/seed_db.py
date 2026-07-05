@@ -65,4 +65,5 @@ with app.app_context():
     db.session.add_all([a1, a2])
     db.session.commit()
 
-    print("Database successfully seeded for SQLite!")
+    print(f"Database successfully seeded! (Dialect: {db.engine.name})")
+

@@ -155,7 +155,7 @@ def signup():
     role = (data.get("role") or "").upper()
 
     if not all([username, email, password, role]):
-        return jsonify({"success": False, "message": "Invalid sensor data"}), 400
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
 
     if role not in ("OWNER", "ADMIN", "INSPECTOR"):
         return jsonify({"success": False, "message": "Invalid role"}), 400
@@ -305,7 +305,7 @@ def update_alert(alert_id):
     status = (data.get("status") or "").upper()
 
     if status not in ("OPEN", "ACKNOWLEDGED", "RESOLVED"):
-        return jsonify({"success": False, "message": "Invalid sensor data"}), 400
+        return jsonify({"success": False, "message": "Invalid status value"}), 400
 
     alert.status = status
     if status == "RESOLVED":
@@ -371,7 +371,7 @@ def update_threshold():
     critical_threshold = data.get("critical_threshold")
 
     if warning_threshold is None or critical_threshold is None:
-        return jsonify({"success": False, "message": "Invalid sensor data"}), 400
+        return jsonify({"success": False, "message": "Missing threshold values"}), 400
 
     config = ThresholdConfig.query.filter_by(is_active=True).first()
     if config is None:
