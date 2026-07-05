@@ -1,4 +1,3 @@
-import os
 from app import create_app
 from models import db, User, EmbeddedDevice, TemperatureSensor, ThresholdConfig, TemperatureLog, Alert, DeviceThreshold
 from werkzeug.security import generate_password_hash
