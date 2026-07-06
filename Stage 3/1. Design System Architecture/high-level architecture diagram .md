@@ -1,7 +1,5 @@
 # MVP System Architecture
 
-## High-Level Package Diagram
-
 ## High-Level Architecture Diagram
 
 ```mermaid
