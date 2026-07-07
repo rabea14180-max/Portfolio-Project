@@ -15,7 +15,7 @@ function Settings() {
     setIsError(false);
     setLoading(true);
 
-    const result = await apiRequest("/api/settings/threshold", {
+    const result = await apiRequest("/dashboard/settings/threshold", {
       method: "PUT",
       body: JSON.stringify({
         warning_threshold: Number(warningThreshold),
@@ -41,11 +41,11 @@ function Settings() {
     setMessage(result.data?.message || "Failed to update thresholds");
   }
 
-  if (role !== "OWNER") {
+  if (!["OWNER", "ADMIN"].includes(role)) {
     return (
       <div className="card unauthorized-card">
         <p className="unauthorized-message">
-          Unauthorized access. This page is restricted to Owner users.
+          Unauthorized access. This page is restricted to Owner and Admin users.
         </p>
       </div>
     );

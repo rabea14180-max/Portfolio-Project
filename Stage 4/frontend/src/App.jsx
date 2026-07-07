@@ -3,6 +3,7 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import AddUser from "./pages/AddUser";
 import Dashboard from "./pages/Dashboard";
 import Devices from "./pages/Devices";
 import Alerts from "./pages/Alerts";
@@ -18,6 +19,17 @@ function App() {
       <Route path="/signup" element={<Signup />} />
 
       <Route
+        path="/users/new"
+        element={
+          <ProtectedRoute roles={["OWNER"]}>
+            <Layout title="Add User">
+              <AddUser />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
@@ -30,7 +42,7 @@ function App() {
       <Route
         path="/devices"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["OWNER", "ADMIN"]}>
             <Layout title="Devices">
               <Devices />
             </Layout>
@@ -50,7 +62,7 @@ function App() {
       <Route
         path="/readings"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["OWNER", "ADMIN"]}>
             <Layout title="Readings">
               <Readings />
             </Layout>
@@ -60,7 +72,7 @@ function App() {
       <Route
         path="/users"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["OWNER"]}>
             <Layout title="Users">
               <Users />
             </Layout>
@@ -70,7 +82,7 @@ function App() {
       <Route
         path="/settings"
         element={
-          <ProtectedRoute>
+          <ProtectedRoute roles={["OWNER", "ADMIN"]}>
             <Layout title="Settings">
               <Settings />
             </Layout>

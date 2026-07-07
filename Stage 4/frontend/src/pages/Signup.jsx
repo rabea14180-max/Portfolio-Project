@@ -7,7 +7,6 @@ function Signup() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("INSPECTOR");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,15 +17,15 @@ function Signup() {
     setSuccess("");
     setLoading(true);
 
-    const result = await apiRequest("/api/signup", {
+    const result = await apiRequest("/auth/register-owner", {
       method: "POST",
-      body: JSON.stringify({ username, email, password, role }),
+      body: JSON.stringify({ username, email, password }),
     });
 
     setLoading(false);
 
     if (result.ok && result.data?.success) {
-      setSuccess(result.data.message || "User account created successfully");
+      setSuccess(result.data.message || "Owner account created successfully");
       setTimeout(() => navigate("/login"), 2000);
       return;
     }
@@ -44,7 +43,11 @@ function Signup() {
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>
-          <h2 className="auth-form-title">Create Account</h2>
+          <h2 className="auth-form-title">Create Owner Account</h2>
+          <p className="settings-description">
+            Signing up creates a new Owner account. Owners can then add Admin
+            and Inspector accounts from inside the dashboard.
+          </p>
 
           {error && <div className="alert alert-error">{error}</div>}
           {success && <div className="alert alert-success">{success}</div>}
@@ -86,20 +89,6 @@ function Signup() {
               required
               autoComplete="new-password"
             />
-          </div>
-
-          <div className="form-group">
-            <label htmlFor="role">Role</label>
-            <select
-              id="role"
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              required
-            >
-              <option value="OWNER">OWNER</option>
-              <option value="ADMIN">ADMIN</option>
-              <option value="INSPECTOR">INSPECTOR</option>
-            </select>
           </div>
 
           <button type="submit" className="btn btn-primary btn-full" disabled={loading}>

@@ -8,6 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 
 from models import (
     Alert,
+    Dashboard,
     EmbeddedDevice,
     ThresholdConfig,
     DeviceThreshold,
@@ -17,7 +18,12 @@ from models import (
     db,
 )
 
+# POST /api/readings is the only endpoint left under /api - it's the ESP32/MQTT
+# device ingestion contract, not part of the user-facing dashboard API surface.
 api = Blueprint("api", __name__, url_prefix="/api")
+auth = Blueprint("auth", __name__, url_prefix="/auth")
+users_bp = Blueprint("users", __name__, url_prefix="/users")
+dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
 
 
 # ---------------------------------------------------------------------------
@@ -90,7 +96,11 @@ def send_alert_email(alert, device):
         return
 
     recipients = [
-        u.email for u in User.query.filter(User.role.in_(["OWNER", "ADMIN"])).all()
+        u.email
+        for u in User.query.filter(
+            User.dashboard_id == device.dashboard_id,
+            User.role.in_(["OWNER", "ADMIN"]),
+        ).all()
     ]
     if not recipients:
         return
@@ -130,6 +140,7 @@ def check_threshold_and_alert(device, sensor, temperature):
         return None
 
     alert = Alert(
+        dashboard_id=device.dashboard_id,
         device_id=device.device_id,
         temperature=temperature,
         severity=severity,
@@ -143,39 +154,46 @@ def check_threshold_and_alert(device, sensor, temperature):
 
 
 # ---------------------------------------------------------------------------
-# Auth endpoints
+# Auth endpoints (/auth)
 # ---------------------------------------------------------------------------
 
-@api.route("/signup", methods=["POST"])
-def signup():
+@auth.route("/register-owner", methods=["POST"])
+def register_owner():
+    """Public self-registration. Anyone can register as an Owner, which is how
+    a new dashboard/workspace is bootstrapped - there is no one above an Owner
+    to create that account for them."""
+
     data = request.get_json(silent=True) or {}
     username = data.get("username")
     email = data.get("email")
     password = data.get("password")
-    role = (data.get("role") or "").upper()
 
-    if not all([username, email, password, role]):
+    if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
-
-    if role not in ("OWNER", "ADMIN", "INSPECTOR"):
-        return jsonify({"success": False, "message": "Invalid role"}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
 
-    user = User(
+    owner = User(
         username=username,
         email=email,
-        password_hash=generate_password_hash(password, method='pbkdf2:sha256'),
-        role=role,
+        password_hash=generate_password_hash(password, method="pbkdf2:sha256"),
+        role="OWNER",
     )
-    db.session.add(user)
+    db.session.add(owner)
+    db.session.flush()  # assigns owner.user_id without committing yet
+
+    dashboard = Dashboard(owner_id=owner.user_id)
+    db.session.add(dashboard)
+    db.session.flush()  # assigns dashboard.dashboard_id
+
+    owner.dashboard_id = dashboard.dashboard_id
     db.session.commit()
 
-    return jsonify({"success": True, "message": "User account created successfully"}), 201
+    return jsonify({"success": True, "message": "Owner account created successfully"}), 201
 
 
-@api.route("/login", methods=["POST"])
+@auth.route("/login", methods=["POST"])
 def login():
     data = request.get_json(silent=True) or {}
     username = data.get("username")
@@ -192,7 +210,7 @@ def login():
     return jsonify({"success": True, "role": user.role, "token": token}), 200
 
 
-@api.route("/logout", methods=["POST"])
+@auth.route("/logout", methods=["POST"])
 @token_required
 def logout():
     # JWTs are stateless, so logout is handled client-side by discarding the
@@ -201,7 +219,90 @@ def logout():
 
 
 # ---------------------------------------------------------------------------
-# Readings endpoints
+# User management endpoints (/users) - Owner only
+# ---------------------------------------------------------------------------
+
+def _create_dashboard_user(role):
+    data = request.get_json(silent=True) or {}
+    username = data.get("username")
+    email = data.get("email")
+    password = data.get("password")
+
+    if not all([username, email, password]):
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if User.query.filter((User.username == username) | (User.email == email)).first():
+        return jsonify({"success": False, "message": "User already exists"}), 409
+
+    user = User(
+        username=username,
+        email=email,
+        password_hash=generate_password_hash(password, method="pbkdf2:sha256"),
+        role=role,
+        dashboard_id=request.current_user.dashboard_id,
+    )
+    db.session.add(user)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "User account created successfully"}), 201
+
+
+@users_bp.route("/admin", methods=["POST"])
+@token_required
+@roles_required("OWNER")
+def create_admin():
+    return _create_dashboard_user("ADMIN")
+
+
+@users_bp.route("/inspector", methods=["POST"])
+@token_required
+@roles_required("OWNER")
+def create_inspector():
+    return _create_dashboard_user("INSPECTOR")
+
+
+@users_bp.route("", methods=["GET"])
+@token_required
+@roles_required("OWNER")
+def get_users():
+    members = User.query.filter(
+        User.dashboard_id == request.current_user.dashboard_id
+    ).all()
+    result = [
+        {
+            "user_id": u.user_id,
+            "username": u.username,
+            "role": u.role,
+            "account_status": "active",
+        }
+        for u in members
+    ]
+    return jsonify(result), 200
+
+
+@users_bp.route("/<int:user_id>", methods=["DELETE"])
+@token_required
+@roles_required("OWNER")
+def delete_user(user_id):
+    target = User.query.filter(
+        User.user_id == user_id,
+        User.dashboard_id == request.current_user.dashboard_id,
+    ).first()
+
+    if target is None:
+        return jsonify({"success": False, "message": "User not found"}), 404
+
+    if target.role == "OWNER":
+        return jsonify({"success": False, "message": "Cannot delete the dashboard owner"}), 400
+
+    db.session.delete(target)
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "User deleted successfully"}), 200
+
+
+# ---------------------------------------------------------------------------
+# Readings ingestion (/api/readings) - unauthenticated device/system endpoint
 # ---------------------------------------------------------------------------
 
 @api.route("/readings", methods=["POST"])
@@ -243,14 +344,59 @@ def create_reading():
     return jsonify({"success": True, "message": "Reading stored successfully"}), 201
 
 
-@api.route("/readings", methods=["GET"])
+# ---------------------------------------------------------------------------
+# Dashboard endpoints (/dashboard) - scoped to request.current_user.dashboard_id
+# ---------------------------------------------------------------------------
+
+@dashboard_bp.route("", methods=["GET"])
 @token_required
+def get_dashboard():
+    dashboard = Dashboard.query.get(request.current_user.dashboard_id)
+    if dashboard is None:
+        return jsonify({"success": False, "message": "Dashboard not found"}), 404
+
+    return jsonify(
+        {
+            "dashboard_id": dashboard.dashboard_id,
+            "created_at": dashboard.created_at.isoformat(),
+            "owner_username": dashboard.owner.username,
+        }
+    ), 200
+
+
+@dashboard_bp.route("/devices", methods=["GET"])
+@token_required
+@roles_required("OWNER", "ADMIN")
+def get_devices():
+    devices = EmbeddedDevice.query.filter(
+        EmbeddedDevice.dashboard_id == request.current_user.dashboard_id
+    ).all()
+    result = [
+        {
+            "device_id": d.device_id,
+            "status": d.status,
+            "is_active": d.is_active,
+            "last_heartbeat": d.last_heartbeat.isoformat() if d.last_heartbeat else None,
+            "firmware_version": d.firmware_version,
+        }
+        for d in devices
+    ]
+    return jsonify(result), 200
+
+
+@dashboard_bp.route("/readings", methods=["GET"])
+@token_required
+@roles_required("OWNER", "ADMIN")
 def get_readings():
     device_id = request.args.get("device_id", type=int)
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
-    query = TemperatureLog.query.join(TemperatureSensor)
+    query = (
+        TemperatureLog.query.join(TemperatureSensor)
+        .join(EmbeddedDevice)
+        .filter(EmbeddedDevice.dashboard_id == request.current_user.dashboard_id)
+    )
 
     if device_id:
         query = query.filter(TemperatureSensor.device_id == device_id)
@@ -272,14 +418,14 @@ def get_readings():
     return jsonify(result), 200
 
 
-# ---------------------------------------------------------------------------
-# Alerts endpoints
-# ---------------------------------------------------------------------------
-
-@api.route("/alerts", methods=["GET"])
+@dashboard_bp.route("/alerts", methods=["GET"])
 @token_required
 def get_alerts():
-    alerts = Alert.query.order_by(Alert.created_at.desc()).all()
+    alerts = (
+        Alert.query.filter(Alert.dashboard_id == request.current_user.dashboard_id)
+        .order_by(Alert.created_at.desc())
+        .all()
+    )
     result = [
         {
             "alert_id": a.alert_id,
@@ -294,10 +440,13 @@ def get_alerts():
     return jsonify(result), 200
 
 
-@api.route("/alerts/<int:alert_id>", methods=["PUT"])
+@dashboard_bp.route("/alerts/<int:alert_id>", methods=["PUT"])
 @token_required
 def update_alert(alert_id):
-    alert = Alert.query.get(alert_id)
+    alert = Alert.query.filter(
+        Alert.alert_id == alert_id,
+        Alert.dashboard_id == request.current_user.dashboard_id,
+    ).first()
     if alert is None:
         return jsonify({"success": False, "message": "Alert not found"}), 404
 
@@ -316,55 +465,9 @@ def update_alert(alert_id):
     return jsonify({"success": True, "message": "Alert updated successfully"}), 200
 
 
-# ---------------------------------------------------------------------------
-# Devices endpoint
-# ---------------------------------------------------------------------------
-
-@api.route("/devices", methods=["GET"])
+@dashboard_bp.route("/settings/threshold", methods=["PUT"])
 @token_required
-def get_devices():
-    devices = EmbeddedDevice.query.all()
-    result = [
-        {
-            "device_id": d.device_id,
-            "status": d.status,
-            "is_active": d.is_active,
-            "last_heartbeat": d.last_heartbeat.isoformat() if d.last_heartbeat else None,
-            "firmware_version": d.firmware_version,
-        }
-        for d in devices
-    ]
-    return jsonify(result), 200
-
-
-# ---------------------------------------------------------------------------
-# Users endpoint (Owner only)
-# ---------------------------------------------------------------------------
-
-@api.route("/users", methods=["GET"])
-@token_required
-@roles_required("OWNER")
-def get_users():
-    users = User.query.all()
-    result = [
-        {
-            "user_id": u.user_id,
-            "username": u.username,
-            "role": u.role,
-            "account_status": "active",
-        }
-        for u in users
-    ]
-    return jsonify(result), 200
-
-
-# ---------------------------------------------------------------------------
-# Threshold settings endpoint (Owner only)
-# ---------------------------------------------------------------------------
-
-@api.route("/settings/threshold", methods=["PUT"])
-@token_required
-@roles_required("OWNER")
+@roles_required("OWNER", "ADMIN")
 def update_threshold():
     data = request.get_json(silent=True) or {}
     warning_threshold = data.get("warning_threshold")
@@ -373,9 +476,12 @@ def update_threshold():
     if warning_threshold is None or critical_threshold is None:
         return jsonify({"success": False, "message": "Missing threshold values"}), 400
 
-    config = ThresholdConfig.query.filter_by(is_active=True).first()
+    config = ThresholdConfig.query.filter_by(
+        dashboard_id=request.current_user.dashboard_id, is_active=True
+    ).first()
     if config is None:
         config = ThresholdConfig(
+            dashboard_id=request.current_user.dashboard_id,
             warning_value=warning_threshold,
             critical_value=critical_threshold,
             is_active=True,

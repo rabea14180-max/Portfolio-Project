@@ -3,19 +3,30 @@
 
 USE temperature_monitoring_system;
 
--- Users
+-- Owner (dashboard_id set after the dashboard row is inserted below)
 INSERT INTO users (username, password_hash, email, role)
 VALUES
-('owner_user', 'hashed_password', 'owner@flexsight.com', 'OWNER'),
-('admin_user', 'hashed_password', 'admin@flexsight.com', 'ADMIN'),
-('inspector_user', 'hashed_password', 'inspector@flexsight.com', 'INSPECTOR');
+('owner_user', 'hashed_password', 'owner@flexsight.com', 'OWNER');
+
+-- Dashboard owned by owner_user (user_id 1)
+INSERT INTO dashboards (owner_id)
+VALUES
+(1);
+
+UPDATE users SET dashboard_id = 1 WHERE user_id = 1;
+
+-- Admin and Inspector belong to the same dashboard as the Owner who created them
+INSERT INTO users (username, password_hash, email, role, dashboard_id)
+VALUES
+('admin_user', 'hashed_password', 'admin@flexsight.com', 'ADMIN', 1),
+('inspector_user', 'hashed_password', 'inspector@flexsight.com', 'INSPECTOR', 1);
 
 -- Embedded Devices
-INSERT INTO embedded_devices (status, is_active, last_heartbeat, firmware_version, managed_by)
+INSERT INTO embedded_devices (dashboard_id, status, is_active, last_heartbeat, firmware_version, managed_by)
 VALUES
-('ONLINE', TRUE, NOW(), 'v1.0.0', 1),
-('ONLINE', TRUE, NOW(), 'v1.0.0', 2),
-('OFFLINE', TRUE, NULL, 'v1.0.0', 2);
+(1, 'ONLINE', TRUE, NOW(), 'v1.0.0', 1),
+(1, 'ONLINE', TRUE, NOW(), 'v1.0.0', 2),
+(1, 'OFFLINE', TRUE, NULL, 'v1.0.0', 2);
 
 -- Temperature Sensors
 INSERT INTO temperature_sensors (device_id, current_temperature, calibration_offset, min_range, max_range)
@@ -25,9 +36,9 @@ VALUES
 (3, NULL, 0.00, 0.00, 60.00);
 
 -- Threshold Configuration
-INSERT INTO threshold_configs (warning_value, critical_value, is_active)
+INSERT INTO threshold_configs (dashboard_id, warning_value, critical_value, is_active)
 VALUES
-(45.00, 50.00, TRUE);
+(1, 45.00, 50.00, TRUE);
 
 -- Temperature Logs
 INSERT INTO temperature_logs (sensor_id, temperature, recorded_at)
@@ -37,21 +48,16 @@ VALUES
 (2, 52.00, NOW());
 
 -- Alerts
-INSERT INTO alerts (device_id, temperature, status, severity, created_at)
+INSERT INTO alerts (dashboard_id, device_id, temperature, status, severity, created_at)
 VALUES
-(2, 47.00, 'OPEN', 'WARNING', NOW()),
-(2, 52.00, 'OPEN', 'CRITICAL', NOW());
-
--- Dashboards
-INSERT INTO dashboards (current_user_id)
-VALUES
-(1);
+(1, 2, 47.00, 'OPEN', 'WARNING', NOW()),
+(1, 2, 52.00, 'OPEN', 'CRITICAL', NOW());
 
 -- Notifications
-INSERT INTO notifications (alert_id, user_id, notification_type, sent_at, status)
+INSERT INTO notifications (dashboard_id, alert_id, user_id, notification_type, sent_at, status)
 VALUES
-(1, 2, 'EMAIL', NOW(), 'SENT'),
-(2, 1, 'EMAIL', NOW(), 'PENDING');
+(1, 1, 2, 'EMAIL', NOW(), 'SENT'),
+(1, 2, 1, 'EMAIL', NOW(), 'PENDING');
 
 -- Device Threshold Relationships
 INSERT INTO device_thresholds (device_id, config_id)

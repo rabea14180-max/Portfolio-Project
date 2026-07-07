@@ -14,7 +14,7 @@ function Login() {
     setError("");
     setLoading(true);
 
-    const result = await apiRequest("/api/login", {
+    const result = await apiRequest("/auth/login", {
       method: "POST",
       body: JSON.stringify({ username, password }),
     });

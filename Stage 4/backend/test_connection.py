@@ -29,42 +29,41 @@ def make_request(path, method="GET", data=None, token=None):
         return 0, {"message": str(e)}
 
 def run_tests():
-    print("--- 1. Testing Signup ---")
+    print("--- 1. Testing Owner Registration ---")
     signup_data = {
         "username": "api_test_user",
         "email": "api_test@flexsight.com",
         "password": "password123",
-        "role": "OWNER"
     }
-    status, signup_res = make_request("/api/signup", method="POST", data=signup_data)
-    print(f"Signup Response (Status {status}):", signup_res)
+    status, signup_res = make_request("/auth/register-owner", method="POST", data=signup_data)
+    print(f"Register Owner Response (Status {status}):", signup_res)
 
     print("\n--- 2. Testing Login ---")
     login_data = {
         "username": "api_test_user",
         "password": "password123"
     }
-    status, login_res = make_request("/api/login", method="POST", data=login_data)
+    status, login_res = make_request("/auth/login", method="POST", data=login_data)
     print(f"Login Response (Status {status}):", login_res)
-    
+
     if status != 200 or not login_res.get("success"):
         print("Login failed, aborting remaining tests.")
         return
-        
+
     token = login_res.get("token")
-    
+
     print("\n--- 3. Testing Get Devices (Dashboard component) ---")
-    status, devices_res = make_request("/api/devices", token=token)
+    status, devices_res = make_request("/dashboard/devices", token=token)
     print(f"Get Devices Response (Status {status}):")
     print(json.dumps(devices_res, indent=2))
 
     print("\n--- 4. Testing Get Alerts (Dashboard component) ---")
-    status, alerts_res = make_request("/api/alerts", token=token)
+    status, alerts_res = make_request("/dashboard/alerts", token=token)
     print(f"Get Alerts Response (Status {status}):")
     print(json.dumps(alerts_res, indent=2))
 
     print("\n--- 5. Testing Get Readings (Dashboard component) ---")
-    status, readings_res = make_request("/api/readings", token=token)
+    status, readings_res = make_request("/dashboard/readings", token=token)
     print(f"Get Readings Response (Status {status}):")
     print(json.dumps(readings_res, indent=2))
 

@@ -4,7 +4,7 @@ from flask_mail import Mail
 
 from config import config_by_name
 from models import db
-from routes import api
+from routes import api, auth, users_bp, dashboard_bp
 
 
 def create_app(env="development"):
@@ -18,6 +18,9 @@ def create_app(env="development"):
 
     # --- Routes ---
     app.register_blueprint(api)
+    app.register_blueprint(auth)
+    app.register_blueprint(users_bp)
+    app.register_blueprint(dashboard_bp)
 
     @app.route("/api/health", methods=["GET"])
     def health_check():

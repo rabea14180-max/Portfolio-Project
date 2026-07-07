@@ -15,7 +15,7 @@ function Devices() {
       setLoading(true);
       setError("");
 
-      const result = await apiRequest("/api/devices");
+      const result = await apiRequest("/dashboard/devices");
 
       if (!result.ok) {
         setError(result.data?.message || "Unable to connect to server");

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { apiRequest, getRole } from "../api";
 import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
@@ -9,35 +9,51 @@ function Users() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [actionLoading, setActionLoading] = useState(null);
   const role = getRole();
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    setError("");
+
+    const result = await apiRequest("/users");
+
+    if (result.status === 403) {
+      setError("Unauthorized access");
+      setLoading(false);
+      return;
+    }
+
+    if (!result.ok) {
+      setError(result.data?.message || "Unable to connect to server");
+      setLoading(false);
+      return;
+    }
+
+    setUsers(Array.isArray(result.data) ? result.data : []);
+    setLoading(false);
+  }, []);
 
   useEffect(() => {
     if (role !== "OWNER") return;
+    fetchUsers();
+  }, [role, fetchUsers]);
 
-    async function fetchUsers() {
-      setLoading(true);
-      setError("");
+  async function handleDelete(userId) {
+    setActionLoading(userId);
+    setError("");
 
-      const result = await apiRequest("/api/users");
+    const result = await apiRequest(`/users/${userId}`, { method: "DELETE" });
 
-      if (result.status === 403) {
-        setError("Unauthorized access");
-        setLoading(false);
-        return;
-      }
+    setActionLoading(null);
 
-      if (!result.ok) {
-        setError(result.data?.message || "Unable to connect to server");
-        setLoading(false);
-        return;
-      }
-
-      setUsers(Array.isArray(result.data) ? result.data : []);
-      setLoading(false);
+    if (result.ok && result.data?.success) {
+      await fetchUsers();
+      return;
     }
 
-    fetchUsers();
-  }, [role]);
+    setError(result.data?.message || "Failed to delete user");
+  }
 
   if (role !== "OWNER") {
     return (
@@ -50,12 +66,13 @@ function Users() {
   }
 
   if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} />;
+  if (error && users.length === 0) return <ErrorState message={error} />;
   if (users.length === 0) return <EmptyState />;
 
   return (
     <div className="card">
       <h2 className="card-title">System Users</h2>
+      {error && <div className="alert alert-error">{error}</div>}
       <div className="table-wrapper">
         <table className="data-table">
           <thead>
@@ -64,6 +81,7 @@ function Users() {
               <th>Username</th>
               <th>Role</th>
               <th>Account Status</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -76,6 +94,18 @@ function Users() {
                 </td>
                 <td>
                   <StatusBadge value={user.account_status} />
+                </td>
+                <td>
+                  {user.role !== "OWNER" && (
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-danger"
+                      disabled={actionLoading === user.user_id}
+                      onClick={() => handleDelete(user.user_id)}
+                    >
+                      Delete
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}

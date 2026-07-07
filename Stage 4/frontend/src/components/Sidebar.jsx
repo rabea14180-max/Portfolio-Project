@@ -1,17 +1,20 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import { logoutRequest } from "../api";
+import { logoutRequest, getRole } from "../api";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: "▦" },
-  { to: "/devices", label: "Devices", icon: "⬡" },
+  { to: "/devices", label: "Devices", icon: "⬡", roles: ["OWNER", "ADMIN"] },
   { to: "/alerts", label: "Alerts", icon: "⚠️" },
-  { to: "/readings", label: "Readings", icon: "◈" },
-  { to: "/users", label: "Users", icon: "👤" },
-  { to: "/settings", label: "Settings", icon: "⚙️" },
+  { to: "/readings", label: "Readings", icon: "◈", roles: ["OWNER", "ADMIN"] },
+  { to: "/users", label: "Users", icon: "👤", roles: ["OWNER"] },
+  { to: "/users/new", label: "Add User", icon: "➕", roles: ["OWNER"] },
+  { to: "/settings", label: "Settings", icon: "⚙️", roles: ["OWNER", "ADMIN"] },
 ];
 
 function Sidebar() {
   const navigate = useNavigate();
+  const role = getRole();
+  const visibleNavItems = navItems.filter((item) => !item.roles || item.roles.includes(role));
 
   async function handleLogout() {
     await logoutRequest();
@@ -29,7 +32,7 @@ function Sidebar() {
       </div>
 
       <nav className="sidebar-nav">
-        {navItems.map((item) => (
+        {visibleNavItems.map((item) => (
           <NavLink
             key={item.to}
             to={item.to}

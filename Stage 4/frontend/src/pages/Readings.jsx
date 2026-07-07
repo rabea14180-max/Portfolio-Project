@@ -23,7 +23,7 @@ function Readings() {
     if (params.end_date) query.append("end_date", params.end_date);
 
     const queryString = query.toString();
-    const endpoint = queryString ? `/api/readings?${queryString}` : "/api/readings";
+    const endpoint = queryString ? `/dashboard/readings?${queryString}` : "/dashboard/readings";
 
     const result = await apiRequest(endpoint);
 

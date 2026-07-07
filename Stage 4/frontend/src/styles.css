@@ -444,6 +444,16 @@ a:hover {
   background-color: rgba(250, 204, 21, 0.25);
 }
 
+.btn-danger {
+  background-color: rgba(239, 68, 68, 0.15);
+  color: var(--red);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.btn-danger:hover:not(:disabled) {
+  background-color: rgba(239, 68, 68, 0.25);
+}
+
 .btn-sm {
   padding: 5px 12px;
   font-size: 12px;

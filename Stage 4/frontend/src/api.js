@@ -63,7 +63,7 @@ export async function apiRequest(endpoint, options = {}) {
 export async function logoutRequest() {
   const token = getToken();
   if (token) {
-    await apiRequest("/api/logout", { method: "POST" });
+    await apiRequest("/auth/logout", { method: "POST" });
   }
   clearAuth();
 }

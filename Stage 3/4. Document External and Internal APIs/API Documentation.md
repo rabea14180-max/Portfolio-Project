@@ -52,30 +52,43 @@ flowchart LR
 
 ---
 
+## Multi-Tenant Dashboard Architecture
+
+FlexSight is multi-tenant: every Owner gets their own private Dashboard when
+they register. Admin and Inspector accounts are created by an Owner and always
+inherit that Owner's `dashboard_id`. Every device, sensor reading, alert,
+threshold configuration, and notification belongs to exactly one dashboard, and
+every authenticated endpoint filters its data by the caller's `dashboard_id` -
+users can never see or modify another dashboard's data.
+
 ## User Roles
 
 | Role | Description |
 |---|---|
-| Owner | Full access to users, devices, readings, alerts, and system settings. |
-| Admin | Monitors readings, device status, alerts, and operational conditions. |
-| Inspector | Follows up on assigned alerts and updates incident status. |
+| Owner | Registers publicly and owns one Dashboard. Manages dashboard users (creates Admins and Inspectors), manages devices, manages thresholds, views all readings and alerts. |
+| Admin | Created by an Owner. Monitors readings and device status, views alerts, manages thresholds. Cannot create users or access other dashboards. |
+| Inspector | Created by an Owner. Views and acknowledges alerts and updates alert status only. Cannot manage users, manage settings, or access other dashboards. |
 
 ---
 
 ## Internal API Overview
 
-| Endpoint | Method | Purpose |
-|---|---|---|
-| /api/signup | POST | Create a new user account. |
-| /api/login | POST | Authenticate users and return access information. |
-| /api/logout | POST | End the user session. |
-| /api/readings | POST | Receive hourly temperature readings from ESP32 devices. |
-| /api/readings | GET | Retrieve stored sensor readings. |
-| /api/alerts | GET | Retrieve active and historical alerts. |
-| /api/alerts/{id} | PUT | Update alert status. |
-| /api/devices | GET | Retrieve device information and status. |
-| /api/users | GET | Retrieve users and roles. |
-| /api/settings/threshold | PUT | Update warning and critical temperature thresholds. |
+| Endpoint | Method | Auth | Purpose |
+|---|---|---|---|
+| /auth/register-owner | POST | Public | Self-register a new Owner account and its private Dashboard. |
+| /auth/login | POST | Public | Authenticate users and return access information. |
+| /auth/logout | POST | Token | End the user session. |
+| /api/readings | POST | System | Receive hourly temperature readings from ESP32 devices. |
+| /users/admin | POST | Owner | Create an Admin account under the Owner's dashboard. |
+| /users/inspector | POST | Owner | Create an Inspector account under the Owner's dashboard. |
+| /users | GET | Owner | Retrieve the users belonging to the Owner's dashboard. |
+| /users/{id} | DELETE | Owner | Remove an Admin or Inspector from the Owner's dashboard. |
+| /dashboard | GET | Token | Retrieve summary info for the caller's dashboard. |
+| /dashboard/devices | GET | Owner, Admin | Retrieve device information and status for the dashboard. |
+| /dashboard/readings | GET | Owner, Admin | Retrieve stored sensor readings for the dashboard. |
+| /dashboard/alerts | GET | Token | Retrieve active and historical alerts for the dashboard. |
+| /dashboard/alerts/{id} | PUT | Token | Update alert status. |
+| /dashboard/settings/threshold | PUT | Owner, Admin | Update warning and critical temperature thresholds for the dashboard. |
 
 ---
 
@@ -114,20 +127,22 @@ sequenceDiagram
 
 # API Endpoint Specifications
 
-## 1. POST /api/signup
+## 1. POST /auth/register-owner
 
 ### Purpose
 
-Creates a new user account in the FlexSight system.
+Public, unauthenticated. Self-registers a new Owner account and, in the same
+transaction, creates the private Dashboard that Owner owns. This is the only
+way an Owner account is created - there is no one above an Owner to create it
+for them.
 
 ### Request Body
 
 ```json
 {
-  "username": "inspector",
-  "email": "inspector@flexsight.com",
-  "password": "password123",
-  "role": "Inspector"
+  "username": "owner",
+  "email": "owner@flexsight.com",
+  "password": "password123"
 }
 ```
 
@@ -139,7 +154,46 @@ Creates a new user account in the FlexSight system.
 | username | String | Yes | User account name. |
 | email | String | Yes | User email address. |
 | password | String | Yes | User password. |
-| role | String | Yes | User role such as Owner, Admin, or Inspector. |
+
+### Successful Response
+
+```json
+{
+  "success": true,
+  "message": "Owner account created successfully"
+}
+```
+
+
+---
+
+## 2. POST /users/admin, POST /users/inspector
+
+### Purpose
+
+Owner-only. Creates an Admin (`/users/admin`) or Inspector (`/users/inspector`)
+account that automatically inherits the caller's `dashboard_id`. Admin and
+Inspector accounts belong to the Owner who created them and can never create
+accounts of their own.
+
+### Request Body
+
+```json
+{
+  "username": "inspector",
+  "email": "inspector@flexsight.com",
+  "password": "password123"
+}
+```
+
+
+### Request Fields
+
+| Field | Type | Required | Description |
+|---|---|---|---|
+| username | String | Yes | User account name. |
+| email | String | Yes | User email address. |
+| password | String | Yes | User password. |
 
 ### Successful Response
 
@@ -153,7 +207,7 @@ Creates a new user account in the FlexSight system.
 
 ---
 
-## 2. POST /api/login
+## 3. POST /auth/login
 
 ### Purpose
 
@@ -189,7 +243,7 @@ Authenticates a user and allows access to the dashboard based on the assigned ro
 
 ---
 
-## 3. POST /api/logout
+## 4. POST /auth/logout
 
 ### Purpose
 
@@ -206,7 +260,7 @@ Ends the user session and returns the user to the login page.
 
 ---
 
-## 4. POST /api/readings
+## 5. POST /api/readings
 
 ### Purpose
 
@@ -253,11 +307,12 @@ Receives temperature readings from ESP32 monitoring devices.
 
 ---
 
-## 5. GET /api/readings
+## 6. GET /dashboard/readings
 
 ### Purpose
 
-Retrieves stored temperature readings for dashboard display and historical review.
+Owner/Admin only. Retrieves temperature readings for devices belonging to the
+caller's dashboard, for display and historical review.
 
 ### Query Parameters
 
@@ -282,11 +337,12 @@ Retrieves stored temperature readings for dashboard display and historical revie
 
 ---
 
-## 6. GET /api/alerts
+## 7. GET /dashboard/alerts
 
 ### Purpose
 
-Retrieves active and historical alerts for dashboard monitoring and incident follow-up.
+Retrieves active and historical alerts belonging to the caller's dashboard, for
+monitoring and incident follow-up.
 
 ### Successful Response
 
@@ -306,11 +362,13 @@ Retrieves active and historical alerts for dashboard monitoring and incident fol
 
 ---
 
-## 7. PUT /api/alerts/{id}
+## 8. PUT /dashboard/alerts/{id}
 
 ### Purpose
 
-Updates the status of an alert after review or follow-up.
+Updates the status of an alert after review or follow-up. Only alerts
+belonging to the caller's dashboard can be updated. This is the one write
+action available to the Inspector role.
 
 ### Request Body
 
@@ -341,11 +399,12 @@ Updates the status of an alert after review or follow-up.
 
 ---
 
-## 8. GET /api/devices
+## 9. GET /dashboard/devices
 
 ### Purpose
 
-Retrieves registered ESP32 monitoring devices and their current status.
+Owner/Admin only. Retrieves the ESP32 monitoring devices registered under the
+caller's dashboard and their current status.
 
 ### Successful Response
 
@@ -363,11 +422,11 @@ Retrieves registered ESP32 monitoring devices and their current status.
 
 ---
 
-## 9. GET /api/users
+## 10. GET /users
 
 ### Purpose
 
-Retrieves system users and assigned roles for access management.
+Owner-only. Retrieves the users belonging to the caller's dashboard.
 
 ### Successful Response
 
@@ -385,11 +444,51 @@ Retrieves system users and assigned roles for access management.
 
 ---
 
-## 10. PUT /api/settings/threshold
+## 11. DELETE /users/{id}
 
 ### Purpose
 
-Updates warning and critical temperature thresholds used by the alert logic.
+Owner-only. Removes an Admin or Inspector account from the caller's dashboard.
+Returns 404 if the target user does not belong to the caller's dashboard, and
+400 if the target is the dashboard's Owner (an Owner cannot be deleted this way).
+
+### Successful Response
+
+```json
+{
+  "success": true,
+  "message": "User deleted successfully"
+}
+```
+
+
+---
+
+## 12. GET /dashboard
+
+### Purpose
+
+Returns a summary of the caller's dashboard. Available to all three roles.
+
+### Successful Response
+
+```json
+{
+  "dashboard_id": 1,
+  "created_at": "2026-06-01T14:00:00Z",
+  "owner_username": "owner_user"
+}
+```
+
+
+---
+
+## 13. PUT /dashboard/settings/threshold
+
+### Purpose
+
+Owner or Admin. Updates the warning and critical temperature thresholds used by
+the alert logic for the caller's dashboard.
 
 ### Request Body
 
@@ -398,11 +497,12 @@ Updates warning and critical temperature thresholds used by the alert logic.
   "warning_threshold": 45,
   "critical_threshold": 50
 }
+```
 
 
 ### Successful Response
 
-json
+```json
 {
   "success": true,
   "message": "Threshold updated successfully"
@@ -416,16 +516,20 @@ json
 
 | Endpoint | Owner | Admin | Inspector |
 |---|---|---|---|
-| POST /api/signup | ✓ | ✓ | ✓ |
-| POST /api/login | ✓ | ✓ | ✓ |
-| POST /api/logout | ✓ | ✓ | ✓ |
-| GET /api/readings | ✓ | ✓ | ✓ |
+| POST /auth/register-owner | Public | Public | Public |
+| POST /auth/login | ✓ | ✓ | ✓ |
+| POST /auth/logout | ✓ | ✓ | ✓ |
 | POST /api/readings | System | System | System |
-| GET /api/alerts | ✓ | ✓ | ✓ |
-| PUT /api/alerts/{id} | ✓ | ✓ | ✓ |
-| GET /api/devices | ✓ | ✓ | ✓ |
-| GET /api/users | ✓ | ✗ | ✗ |
-| PUT /api/settings/threshold | ✓ | ✗ | ✗ |
+| POST /users/admin | ✓ | ✗ | ✗ |
+| POST /users/inspector | ✓ | ✗ | ✗ |
+| GET /users | ✓ | ✗ | ✗ |
+| DELETE /users/{id} | ✓ | ✗ | ✗ |
+| GET /dashboard | ✓ | ✓ | ✓ |
+| GET /dashboard/devices | ✓ | ✓ | ✗ |
+| GET /dashboard/readings | ✓ | ✓ | ✗ |
+| GET /dashboard/alerts | ✓ | ✓ | ✓ |
+| PUT /dashboard/alerts/{id} | ✓ | ✓ | ✓ |
+| PUT /dashboard/settings/threshold | ✓ | ✓ | ✗ |
 
 ---
 

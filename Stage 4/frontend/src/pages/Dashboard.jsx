@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
-import { apiRequest, formatDate, getReadingStatus } from "../api";
+import { apiRequest, formatDate, getReadingStatus, getRole } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import StatusBadge from "../components/StatusBadge";
 
 function Dashboard() {
+  const role = getRole();
+  const canViewDevicesAndReadings = role === "OWNER" || role === "ADMIN";
+
   const [devices, setDevices] = useState([]);
   const [readings, setReadings] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -16,61 +19,72 @@ function Dashboard() {
       setLoading(true);
       setError("");
 
-      const [devicesRes, readingsRes, alertsRes] = await Promise.all([
-        apiRequest("/api/devices"),
-        apiRequest("/api/readings"),
-        apiRequest("/api/alerts"),
-      ]);
+      const requests = [apiRequest("/dashboard/alerts")];
+      if (canViewDevicesAndReadings) {
+        requests.push(apiRequest("/dashboard/devices"), apiRequest("/dashboard/readings"));
+      }
 
-      if (!devicesRes.ok || !readingsRes.ok || !alertsRes.ok) {
+      const [alertsRes, devicesRes, readingsRes] = await Promise.all(requests);
+
+      if (!alertsRes.ok || (devicesRes && !devicesRes.ok) || (readingsRes && !readingsRes.ok)) {
         const message =
-          devicesRes.data?.message ||
-          readingsRes.data?.message ||
           alertsRes.data?.message ||
+          devicesRes?.data?.message ||
+          readingsRes?.data?.message ||
           "Unable to connect to server";
         setError(message);
         setLoading(false);
         return;
       }
 
-      setDevices(Array.isArray(devicesRes.data) ? devicesRes.data : []);
-      setReadings(Array.isArray(readingsRes.data) ? readingsRes.data : []);
       setAlerts(Array.isArray(alertsRes.data) ? alertsRes.data : []);
+      setDevices(devicesRes && Array.isArray(devicesRes.data) ? devicesRes.data : []);
+      setReadings(readingsRes && Array.isArray(readingsRes.data) ? readingsRes.data : []);
       setLoading(false);
     }
 
     fetchData();
-  }, []);
+  }, [canViewDevicesAndReadings]);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
 
-  const onlineDevices = devices.filter(
-    (d) => String(d.status).toLowerCase() === "online"
-  ).length;
-  const activeDevices = devices.filter((d) => d.is_active).length;
   const activeAlerts = alerts.filter((a) => a.status === "OPEN").length;
   const criticalAlerts = alerts.filter((a) => a.severity === "CRITICAL").length;
-
-  const sortedReadings = [...readings].sort(
-    (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-  );
-  const latestReading = sortedReadings[0];
-  const recentReadings = sortedReadings.slice(0, 5);
   const recentAlerts = alerts.slice(0, 5);
 
   const metrics = [
-    { label: "Total Devices", value: devices.length, icon: "⬡" },
-    { label: "Online Devices", value: onlineDevices, icon: "●" },
-    { label: "Active Devices", value: activeDevices, icon: "✓" },
     { label: "Active Alerts", value: activeAlerts, icon: "⚠️" },
     { label: "Critical Alerts", value: criticalAlerts, icon: "!" },
-    {
+  ];
+
+  if (canViewDevicesAndReadings) {
+    const onlineDevices = devices.filter(
+      (d) => String(d.status).toLowerCase() === "online"
+    ).length;
+    const activeDevices = devices.filter((d) => d.is_active).length;
+    const sortedReadings = [...readings].sort(
+      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    );
+    const latestReading = sortedReadings[0];
+
+    metrics.unshift(
+      { label: "Total Devices", value: devices.length, icon: "⬡" },
+      { label: "Online Devices", value: onlineDevices, icon: "●" },
+      { label: "Active Devices", value: activeDevices, icon: "✓" }
+    );
+    metrics.push({
       label: "Latest Temperature",
       value: latestReading ? `${latestReading.temperature}°C` : "—",
       icon: "◈",
-    },
-  ];
+    });
+  }
+
+  const recentReadings = canViewDevicesAndReadings
+    ? [...readings]
+        .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+        .slice(0, 5)
+    : [];
 
   return (
     <div className="dashboard">
@@ -87,37 +101,39 @@ function Dashboard() {
       </div>
 
       <div className="dashboard-tables">
-        <div className="card">
-          <h2 className="card-title">Recent Readings</h2>
-          {recentReadings.length === 0 ? (
-            <p className="muted-text">No readings available</p>
-          ) : (
-            <div className="table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Device ID</th>
-                    <th>Temperature</th>
-                    <th>Status</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {recentReadings.map((reading, index) => (
-                    <tr key={`${reading.device_id}-${reading.timestamp}-${index}`}>
-                      <td>{reading.device_id}</td>
-                      <td>{reading.temperature}°C</td>
-                      <td>
-                        <StatusBadge value={getReadingStatus(reading.temperature)} />
-                      </td>
-                      <td>{formatDate(reading.timestamp)}</td>
+        {canViewDevicesAndReadings && (
+          <div className="card">
+            <h2 className="card-title">Recent Readings</h2>
+            {recentReadings.length === 0 ? (
+              <p className="muted-text">No readings available</p>
+            ) : (
+              <div className="table-wrapper">
+                <table className="data-table">
+                  <thead>
+                    <tr>
+                      <th>Device ID</th>
+                      <th>Temperature</th>
+                      <th>Status</th>
+                      <th>Timestamp</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody>
+                    {recentReadings.map((reading, index) => (
+                      <tr key={`${reading.device_id}-${reading.timestamp}-${index}`}>
+                        <td>{reading.device_id}</td>
+                        <td>{reading.temperature}°C</td>
+                        <td>
+                          <StatusBadge value={getReadingStatus(reading.temperature)} />
+                        </td>
+                        <td>{formatDate(reading.timestamp)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        )}
 
         <div className="card">
           <h2 className="card-title">Recent Alerts</h2>
