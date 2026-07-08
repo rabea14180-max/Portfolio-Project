@@ -54,8 +54,8 @@ function Dashboard() {
   const recentAlerts = alerts.slice(0, 5);
 
   const metrics = [
-    { label: "Active Alerts", value: activeAlerts, icon: "⚠️" },
-    { label: "Critical Alerts", value: criticalAlerts, icon: "!" },
+    { label: "Active Alerts", value: activeAlerts },
+    { label: "Critical Alerts", value: criticalAlerts },
   ];
 
   if (canViewDevicesAndReadings) {
