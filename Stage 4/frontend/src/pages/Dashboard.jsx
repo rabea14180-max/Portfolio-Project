@@ -47,8 +47,12 @@ function Dashboard() {
       }
 
       setAlerts(Array.isArray(alertsRes.data) ? alertsRes.data : []);
-      setDevices(devicesRes && Array.isArray(devicesRes.data) ? devicesRes.data : []);
-      setReadings(readingsRes && Array.isArray(readingsRes.data) ? readingsRes.data : []);
+      setDevices(
+        devicesRes && Array.isArray(devicesRes.data) ? devicesRes.data : []
+      );
+      setReadings(
+        readingsRes && Array.isArray(readingsRes.data) ? readingsRes.data : []
+      );
       setLoading(false);
     }
 
@@ -136,7 +140,9 @@ function Dashboard() {
                         <td>{reading.device_id}</td>
                         <td>{reading.temperature}°C</td>
                         <td>
-                          <StatusBadge value={getReadingStatus(reading.temperature)} />
+                          <StatusBadge
+                            value={getReadingStatus(reading.temperature)}
+                          />
                         </td>
                         <td>{formatDate(reading.timestamp)}</td>
                       </tr>
