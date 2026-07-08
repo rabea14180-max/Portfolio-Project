@@ -88,7 +88,7 @@ function Dashboard() {
 
     metrics.push({
       label: "Latest Temperature",
-      value: latestReading ? ${latestReading.temperature}°C : "—",
+      value: latestReading ? String(latestReading.temperature) + "°C" : "—",
     });
   }
 
