@@ -3,12 +3,12 @@ import { logoutRequest, getRole } from "../api";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: "▦" },
-  { to: "/devices", label: "Devices", icon: "⬡", roles: ["OWNER", "ADMIN"] },
-  { to: "/alerts", label: "Alerts" },
-  { to: "/readings", label: "Readings", icon: "◈", roles: ["OWNER", "ADMIN"] },
-  { to: "/users", label: "Users", icon: "👤", roles: ["OWNER"] },
-  { to: "/users/new", label: "Add User", icon: "➕", roles: ["OWNER"] },
-  { to: "/settings", label: "Settings", icon: "⚙️", roles: ["OWNER", "ADMIN"] },
+  { to: "/devices", label: "Devices", icon: "⬡" },
+  { to: "/alerts", label: "Alerts", icon: "!" },
+  { to: "/readings", label: "Readings", icon: "◇" },
+  { to: "/users", label: "Users", icon: "○" },
+  { to: "/users/new", label: "Add User", icon: "+" },
+  { to: "/settings", label: "Settings", icon: "⚙️︎" },
 ];
 
 function Sidebar() {
