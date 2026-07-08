@@ -1,0 +1,50 @@
+
+/* Add Device card */
+.devices-page {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.add-device-card {
+  width: 300px;
+  min-height: 120px;
+  padding: 20px;
+  border: 1px solid rgba(103, 232, 249, 0.35);
+  border-radius: 18px;
+  background: rgba(20, 45, 75, 0.85);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+}
+
+.add-device-card h3 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.add-device-card p {
+  margin: 0;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.add-device-plus {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  background: #67e8f9;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.devices-empty-text {
+  text-align: center;
+  padding: 64px 0;
+}
