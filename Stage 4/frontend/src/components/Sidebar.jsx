@@ -4,7 +4,7 @@ import { logoutRequest, getRole } from "../api";
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: "▦" },
   { to: "/devices", label: "Devices", icon: "⬡", roles: ["OWNER", "ADMIN"] },
-  { to: "/alerts", label: "Alerts", icon: "⚠️" },
+  { to: "/alerts", label: "Alerts" },
   { to: "/readings", label: "Readings", icon: "◈", roles: ["OWNER", "ADMIN"] },
   { to: "/users", label: "Users", icon: "👤", roles: ["OWNER"] },
   { to: "/users/new", label: "Add User", icon: "➕", roles: ["OWNER"] },
