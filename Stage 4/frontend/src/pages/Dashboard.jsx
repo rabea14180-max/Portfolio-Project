@@ -136,13 +136,11 @@ function Dashboard() {
 
                   <tbody>
                     {recentReadings.map((reading, index) => (
-                      <tr key={${reading.device_id}-${reading.timestamp}-${index}}>
+                      <tr key={String(reading.device_id) + "-" + String(reading.timestamp) + "-" + String(index)}>
                         <td>{reading.device_id}</td>
                         <td>{reading.temperature}°C</td>
                         <td>
-                          <StatusBadge
-                            value={getReadingStatus(reading.temperature)}
-                          />
+                          <StatusBadge value={getReadingStatus(reading.temperature)} />
                         </td>
                         <td>{formatDate(reading.timestamp)}</td>
                       </tr>
@@ -175,7 +173,7 @@ function Dashboard() {
 
                 <tbody>
                   {recentAlerts.map((alert) => (
-                    <tr key={alert.alert_id}>
+                    <tr key={String(alert.alert_id)}>
                       <td>{alert.alert_id}</td>
                       <td>{alert.device_id}</td>
                       <td>{alert.temperature}°C</td>
