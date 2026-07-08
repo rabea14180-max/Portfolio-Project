@@ -20,18 +20,27 @@ function Dashboard() {
       setError("");
 
       const requests = [apiRequest("/dashboard/alerts")];
+
       if (canViewDevicesAndReadings) {
-        requests.push(apiRequest("/dashboard/devices"), apiRequest("/dashboard/readings"));
+        requests.push(
+          apiRequest("/dashboard/devices"),
+          apiRequest("/dashboard/readings")
+        );
       }
 
       const [alertsRes, devicesRes, readingsRes] = await Promise.all(requests);
 
-      if (!alertsRes.ok || (devicesRes && !devicesRes.ok) || (readingsRes && !readingsRes.ok)) {
+      if (
+        !alertsRes.ok ||
+        (devicesRes && !devicesRes.ok) ||
+        (readingsRes && !readingsRes.ok)
+      ) {
         const message =
           alertsRes.data?.message ||
           devicesRes?.data?.message ||
           readingsRes?.data?.message ||
           "Unable to connect to server";
+
         setError(message);
         setLoading(false);
         return;
@@ -62,21 +71,24 @@ function Dashboard() {
     const onlineDevices = devices.filter(
       (d) => String(d.status).toLowerCase() === "online"
     ).length;
+
     const activeDevices = devices.filter((d) => d.is_active).length;
+
     const sortedReadings = [...readings].sort(
       (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
     );
+
     const latestReading = sortedReadings[0];
 
     metrics.unshift(
-      { label: "Total Devices", value: devices.length, icon: "⬡" },
-      { label: "Online Devices", value: onlineDevices, icon: "●" },
-      { label: "Active Devices", value: activeDevices, icon: "✓" }
+      { label: "Total Devices", value: devices.length },
+      { label: "Online Devices", value: onlineDevices },
+      { label: "Active Devices", value: activeDevices }
     );
+
     metrics.push({
       label: "Latest Temperature",
-      value: latestReading ? `${latestReading.temperature}°C` : "—",
-      icon: "◈",
+      value: latestReading ? ${latestReading.temperature}°C : "—",
     });
   }
 
@@ -91,7 +103,6 @@ function Dashboard() {
       <div className="metrics-grid">
         {metrics.map((metric) => (
           <div key={metric.label} className="metric-card">
-            <div className="metric-icon">{metric.icon}</div>
             <div className="metric-info">
               <span className="metric-label">{metric.label}</span>
               <span className="metric-value">{metric.value}</span>
@@ -104,6 +115,7 @@ function Dashboard() {
         {canViewDevicesAndReadings && (
           <div className="card">
             <h2 className="card-title">Recent Readings</h2>
+
             {recentReadings.length === 0 ? (
               <p className="muted-text">No readings available</p>
             ) : (
@@ -117,9 +129,10 @@ function Dashboard() {
                       <th>Timestamp</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {recentReadings.map((reading, index) => (
-                      <tr key={`${reading.device_id}-${reading.timestamp}-${index}`}>
+                      <tr key={${reading.device_id}-${reading.timestamp}-${index}}>
                         <td>{reading.device_id}</td>
                         <td>{reading.temperature}°C</td>
                         <td>
@@ -137,6 +150,7 @@ function Dashboard() {
 
         <div className="card">
           <h2 className="card-title">Recent Alerts</h2>
+
           {recentAlerts.length === 0 ? (
             <p className="muted-text">No alerts available</p>
           ) : (
@@ -152,6 +166,7 @@ function Dashboard() {
                     <th>Triggered At</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {recentAlerts.map((alert) => (
                     <tr key={alert.alert_id}>
