@@ -85,10 +85,27 @@ export function formatDate(value) {
   }
 }
 
-export function getReadingStatus(temperature) {
+// Per-device Warning/Critical thresholds now live in the backend
+// (threshold_configs, linked per-device via device_thresholds), and
+// GET /dashboard/readings already returns a calculated `status` for every
+// reading using that device's own threshold. This helper no longer assumes
+// any default values - it only calculates a status when the caller passes
+// explicit threshold arguments; otherwise callers should just use
+// reading.status directly.
+export function getReadingStatus(temperature, warningThreshold, criticalThreshold) {
   const temp = Number(temperature);
   if (Number.isNaN(temp)) return "UNKNOWN";
-  if (temp >= 50) return "CRITICAL";
-  if (temp >= 45) return "WARNING";
+
+  if (warningThreshold === undefined || warningThreshold === null ||
+      criticalThreshold === undefined || criticalThreshold === null) {
+    return "UNKNOWN";
+  }
+
+  const warning = Number(warningThreshold);
+  const critical = Number(criticalThreshold);
+  if (Number.isNaN(warning) || Number.isNaN(critical)) return "UNKNOWN";
+
+  if (temp >= critical) return "CRITICAL";
+  if (temp >= warning) return "WARNING";
   return "NORMAL";
 }

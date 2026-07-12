@@ -32,13 +32,22 @@ ALTER TABLE dashboards ADD FOREIGN KEY (owner_id) REFERENCES users(user_id);
 CREATE TABLE embedded_devices (
     device_id INT AUTO_INCREMENT PRIMARY KEY,
     dashboard_id INT NOT NULL,
+    -- Nullable so a device row created before this feature existed (with no
+    -- name/IP/location yet) never has to be deleted or backfilled with fake
+    -- data; the app requires all three when creating a device going forward.
+    name VARCHAR(100) NULL,
+    ip_address VARCHAR(45) NULL,
+    location VARCHAR(255) NULL,
     status VARCHAR(50) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
     last_heartbeat DATETIME NULL,
     firmware_version VARCHAR(100),
     managed_by INT,
     FOREIGN KEY (dashboard_id) REFERENCES dashboards(dashboard_id),
-    FOREIGN KEY (managed_by) REFERENCES users(user_id)
+    FOREIGN KEY (managed_by) REFERENCES users(user_id),
+    -- The same private IP may be reused across different dashboards, so
+    -- uniqueness is scoped to (dashboard_id, ip_address), never global.
+    UNIQUE KEY uq_embedded_devices_dashboard_ip (dashboard_id, ip_address)
 );
 
 CREATE TABLE temperature_sensors (

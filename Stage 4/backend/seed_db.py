@@ -43,9 +43,9 @@ with app.app_context():
     db.session.commit()
 
     # Add Embedded Devices
-    dev1 = EmbeddedDevice(dashboard_id=dashboard.dashboard_id, status='ONLINE', is_active=True, last_heartbeat=datetime.utcnow(), firmware_version='v1.0.0', managed_by=owner.user_id)
-    dev2 = EmbeddedDevice(dashboard_id=dashboard.dashboard_id, status='ONLINE', is_active=True, last_heartbeat=datetime.utcnow(), firmware_version='v1.0.0', managed_by=admin.user_id)
-    dev3 = EmbeddedDevice(dashboard_id=dashboard.dashboard_id, status='OFFLINE', is_active=True, last_heartbeat=None, firmware_version='v1.0.0', managed_by=admin.user_id)
+    dev1 = EmbeddedDevice(dashboard_id=dashboard.dashboard_id, name='Cold Room 1', ip_address='192.168.1.10', location='Warehouse A - Cold Room 1', status='ONLINE', is_active=True, last_heartbeat=datetime.utcnow(), firmware_version='v1.0.0', managed_by=owner.user_id)
+    dev2 = EmbeddedDevice(dashboard_id=dashboard.dashboard_id, name='Cold Room 2', ip_address='192.168.1.11', location='Warehouse A - Cold Room 2', status='ONLINE', is_active=True, last_heartbeat=datetime.utcnow(), firmware_version='v1.0.0', managed_by=admin.user_id)
+    dev3 = EmbeddedDevice(dashboard_id=dashboard.dashboard_id, name='Loading Dock', ip_address='192.168.1.12', location='Warehouse A - Loading Dock', status='OFFLINE', is_active=True, last_heartbeat=None, firmware_version='v1.0.0', managed_by=admin.user_id)
     db.session.add_all([dev1, dev2, dev3])
     db.session.commit()
 

@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiRequest, formatDate, getReadingStatus, getRole } from "../api";
+import { apiRequest, formatDate, getRole } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import StatusBadge from "../components/StatusBadge";
@@ -140,7 +140,7 @@ function Dashboard() {
                         <td>{reading.device_id}</td>
                         <td>{reading.temperature}°C</td>
                         <td>
-                          <StatusBadge value={getReadingStatus(reading.temperature)} />
+                          <StatusBadge value={reading.status} />
                         </td>
                         <td>{formatDate(reading.timestamp)}</td>
                       </tr>

@@ -1,100 +1,179 @@
 import { useState } from "react";
-import { apiRequest, getRole } from "../api";
+import { Link, useNavigate } from "react-router-dom";
+import { apiRequest, clearAuth, getRole } from "../api";
 
 function Settings() {
+  const navigate = useNavigate();
   const role = getRole();
-  const [warningThreshold, setWarningThreshold] = useState("");
-  const [criticalThreshold, setCriticalThreshold] = useState("");
-  const [message, setMessage] = useState("");
-  const [isError, setIsError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [changeMessage, setChangeMessage] = useState("");
+  const [changeIsError, setChangeIsError] = useState(false);
+  const [changeLoading, setChangeLoading] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteMessage, setDeleteMessage] = useState("");
+  const [deleteLoading, setDeleteLoading] = useState(false);
 
-  async function handleSubmit(e) {
+  async function handleChangePassword(e) {
     e.preventDefault();
-    setMessage("");
-    setIsError(false);
-    setLoading(true);
+    setChangeMessage("");
+    setChangeIsError(false);
 
-    const result = await apiRequest("/dashboard/settings/threshold", {
-      method: "PUT",
+    if (newPassword.length < 8) {
+      setChangeIsError(true);
+      setChangeMessage("New password must be at least 8 characters");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setChangeIsError(true);
+      setChangeMessage("New password and confirmation do not match");
+      return;
+    }
+
+    setChangeLoading(true);
+    const result = await apiRequest("/auth/change-password", {
+      method: "POST",
       body: JSON.stringify({
-        warning_threshold: Number(warningThreshold),
-        critical_threshold: Number(criticalThreshold),
+        current_password: currentPassword,
+        new_password: newPassword,
       }),
     });
+    setChangeLoading(false);
 
-    setLoading(false);
-
-    if (result.status === 403) {
-      setIsError(true);
-      setMessage("Unauthorized access");
+    if (!result.ok || !result.data?.success) {
+      setChangeIsError(true);
+      setChangeMessage(result.data?.message || "Unable to change password");
       return;
     }
 
-    if (result.ok && result.data?.success) {
-      setIsError(false);
-      setMessage(result.data.message || "Threshold updated successfully");
-      return;
-    }
-
-    setIsError(true);
-    setMessage(result.data?.message || "Failed to update thresholds");
+    setChangeMessage("Password changed successfully. Redirecting to sign in...");
+    setCurrentPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    window.setTimeout(() => {
+      clearAuth();
+      navigate("/login", { replace: true });
+    }, 1200);
   }
 
-  if (!["OWNER", "ADMIN"].includes(role)) {
-    return (
-      <div className="card unauthorized-card">
-        <p className="unauthorized-message">
-          Unauthorized access. This page is restricted to Owner and Admin users.
-        </p>
-      </div>
-    );
+  async function handleDeleteAccount(e) {
+    e.preventDefault();
+    setDeleteMessage("");
+
+    const ownerWarning =
+      "Deleting an Owner account permanently deletes its dashboard, users, devices, readings, alerts, and settings. This cannot be undone.";
+    const memberWarning = "Deleting your account is permanent and cannot be undone.";
+
+    if (!window.confirm(role === "OWNER" ? ownerWarning : memberWarning)) return;
+
+    setDeleteLoading(true);
+    const result = await apiRequest("/auth/account", {
+      method: "DELETE",
+      body: JSON.stringify({ current_password: deletePassword }),
+    });
+    setDeleteLoading(false);
+
+    if (!result.ok || !result.data?.success) {
+      setDeleteMessage(result.data?.message || "Unable to delete account");
+      return;
+    }
+
+    clearAuth();
+    navigate("/login", { replace: true });
   }
 
   return (
-    <div className="card settings-card">
-      <h2 className="card-title">Threshold Settings</h2>
-      <p className="settings-description">
-        Configure warning and critical temperature thresholds for alert generation.
-      </p>
+    <div className="security-settings">
+      <div className="card settings-card">
+        <h2 className="card-title">Change Password</h2>
+        <p className="settings-description">
+          Update your password. You will need to sign in again after saving.
+        </p>
 
-      <form className="settings-form" onSubmit={handleSubmit}>
-        {message && (
-          <div className={`alert ${isError ? "alert-error" : "alert-success"}`}>
-            {message}
+        <form className="settings-form" onSubmit={handleChangePassword}>
+          {changeMessage && (
+            <div className={`alert ${changeIsError ? "alert-error" : "alert-success"}`}>
+              {changeMessage}
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="current_password">Current Password</label>
+            <input
+              id="current_password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
           </div>
-        )}
 
-        <div className="form-group">
-          <label htmlFor="warning_threshold">Warning Threshold (°C)</label>
-          <input
-            id="warning_threshold"
-            type="number"
-            step="0.1"
-            value={warningThreshold}
-            onChange={(e) => setWarningThreshold(e.target.value)}
-            placeholder="e.g. 45"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label htmlFor="new_password">New Password</label>
+            <input
+              id="new_password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
+          </div>
 
-        <div className="form-group">
-          <label htmlFor="critical_threshold">Critical Threshold (°C)</label>
-          <input
-            id="critical_threshold"
-            type="number"
-            step="0.1"
-            value={criticalThreshold}
-            onChange={(e) => setCriticalThreshold(e.target.value)}
-            placeholder="e.g. 50"
-            required
-          />
-        </div>
+          <div className="form-group">
+            <label htmlFor="confirm_password">Confirm New Password</label>
+            <input
+              id="confirm_password"
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              autoComplete="new-password"
+              minLength={8}
+              required
+            />
+          </div>
 
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? "Saving..." : "Save Thresholds"}
-        </button>
-      </form>
+          <button type="submit" className="btn btn-primary" disabled={changeLoading}>
+            {changeLoading ? "Saving..." : "Save Changes"}
+          </button>
+
+          <Link to="/forgot-password" className="settings-forgot-link">
+            Forgot your password?
+          </Link>
+        </form>
+      </div>
+
+      <div className="card settings-card danger-zone">
+        <h2 className="card-title danger-title">Delete Account</h2>
+        <p className="settings-description">
+          {role === "OWNER"
+            ? "Permanently delete your account and all dashboard data, users, devices, readings, and alerts."
+            : "Permanently delete your FlexSight account."}
+        </p>
+
+        <form className="settings-form" onSubmit={handleDeleteAccount}>
+          {deleteMessage && <div className="alert alert-error">{deleteMessage}</div>}
+
+          <div className="form-group">
+            <label htmlFor="delete_password">Current Password</label>
+            <input
+              id="delete_password"
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-danger" disabled={deleteLoading}>
+            {deleteLoading ? "Deleting..." : "Delete Account"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

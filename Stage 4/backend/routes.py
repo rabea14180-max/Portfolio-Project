@@ -1,3 +1,4 @@
+import ipaddress
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -120,7 +121,11 @@ def send_alert_email(alert, device):
 
 def check_threshold_and_alert(device, sensor, temperature):
     """Compares the reading against the active threshold linked to this
-    device (via device_thresholds) and creates/sends an alert if needed."""
+    device (via device_thresholds) and creates/sends an alert if needed.
+
+    Deliberately looked up by device_id (not dashboard_id) so each device's
+    own Warning/Critical values are used, never an unrelated device's or
+    the dashboard's legacy shared threshold."""
 
     device_threshold = DeviceThreshold.query.filter_by(device_id=device.device_id).first()
     if device_threshold is None:
@@ -368,20 +373,150 @@ def get_dashboard():
 @token_required
 @roles_required("OWNER", "ADMIN")
 def get_devices():
-    devices = EmbeddedDevice.query.filter(
-        EmbeddedDevice.dashboard_id == request.current_user.dashboard_id
-    ).all()
+    # Outer-joined to each device's active threshold in a single query
+    # (via device_thresholds) instead of querying per-device in a loop.
+    rows = (
+        db.session.query(
+            EmbeddedDevice,
+            ThresholdConfig.warning_value,
+            ThresholdConfig.critical_value,
+        )
+        .outerjoin(DeviceThreshold, DeviceThreshold.device_id == EmbeddedDevice.device_id)
+        .outerjoin(
+            ThresholdConfig,
+            db.and_(
+                ThresholdConfig.config_id == DeviceThreshold.config_id,
+                ThresholdConfig.is_active.is_(True),
+            ),
+        )
+        .filter(EmbeddedDevice.dashboard_id == request.current_user.dashboard_id)
+        .all()
+    )
+
     result = [
         {
             "device_id": d.device_id,
+            "name": d.name,
+            "ip_address": d.ip_address,
+            "location": d.location,
             "status": d.status,
             "is_active": d.is_active,
             "last_heartbeat": d.last_heartbeat.isoformat() if d.last_heartbeat else None,
             "firmware_version": d.firmware_version,
+            "warning_threshold": float(warning_value) if warning_value is not None else None,
+            "critical_threshold": float(critical_value) if critical_value is not None else None,
         }
-        for d in devices
+        for d, warning_value, critical_value in rows
     ]
     return jsonify(result), 200
+
+
+@dashboard_bp.route("/devices", methods=["POST"])
+@token_required
+@roles_required("OWNER", "ADMIN")
+def create_device():
+    data = request.get_json(silent=True) or {}
+
+    name = (data.get("name") or "").strip()
+    ip_address_raw = (data.get("ip_address") or "").strip()
+    location = (data.get("location") or "").strip()
+    warning_threshold = data.get("warning_threshold")
+    critical_threshold = data.get("critical_threshold")
+
+    if not name or not ip_address_raw or not location or warning_threshold is None or critical_threshold is None:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    try:
+        ipaddress.ip_address(ip_address_raw)
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid IP address"}), 400
+
+    try:
+        warning_value = float(warning_threshold)
+        critical_value = float(critical_threshold)
+    except (TypeError, ValueError):
+        return jsonify({"success": False, "message": "Threshold values must be numeric"}), 400
+
+    if critical_value <= warning_value:
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Critical Threshold must be greater than Warning Threshold",
+                }
+            ),
+            400,
+        )
+
+    dashboard_id = request.current_user.dashboard_id
+
+    duplicate = EmbeddedDevice.query.filter(
+        EmbeddedDevice.dashboard_id == dashboard_id,
+        EmbeddedDevice.ip_address == ip_address_raw,
+    ).first()
+    if duplicate is not None:
+        return (
+            jsonify({"success": False, "message": "A device with this IP address already exists"}),
+            409,
+        )
+
+    try:
+        device = EmbeddedDevice(
+            dashboard_id=dashboard_id,
+            name=name,
+            ip_address=ip_address_raw,
+            location=location,
+            status="offline",
+            is_active=True,
+            last_heartbeat=None,
+            managed_by=request.current_user.user_id,
+        )
+        db.session.add(device)
+        db.session.flush()  # assigns device.device_id for the rows below
+
+        # /api/readings rejects readings when a device has no sensor, so one
+        # is always created alongside the device.
+        sensor = TemperatureSensor(device_id=device.device_id)
+        db.session.add(sensor)
+
+        config = ThresholdConfig(
+            dashboard_id=dashboard_id,
+            warning_value=warning_value,
+            critical_value=critical_value,
+            is_active=True,
+        )
+        db.session.add(config)
+        db.session.flush()  # assigns config.config_id for the link below
+
+        link = DeviceThreshold(device_id=device.device_id, config_id=config.config_id)
+        db.session.add(link)
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Failed to create device"}), 500
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Device added successfully",
+                "device": {
+                    "device_id": device.device_id,
+                    "name": device.name,
+                    "ip_address": device.ip_address,
+                    "location": device.location,
+                    "status": device.status,
+                    "is_active": device.is_active,
+                    "last_heartbeat": device.last_heartbeat,
+                    "firmware_version": device.firmware_version,
+                    "warning_threshold": warning_value,
+                    "critical_threshold": critical_value,
+                },
+            }
+        ),
+        201,
+    )
 
 
 @dashboard_bp.route("/readings", methods=["GET"])
@@ -392,9 +527,26 @@ def get_readings():
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
+    # Each reading's device-specific active threshold (via device_thresholds)
+    # is pulled in the same query, so status can be calculated per-row
+    # without an N+1 query per reading.
     query = (
-        TemperatureLog.query.join(TemperatureSensor)
-        .join(EmbeddedDevice)
+        db.session.query(
+            TemperatureLog,
+            TemperatureSensor.device_id,
+            ThresholdConfig.warning_value,
+            ThresholdConfig.critical_value,
+        )
+        .join(TemperatureSensor, TemperatureLog.sensor_id == TemperatureSensor.sensor_id)
+        .join(EmbeddedDevice, TemperatureSensor.device_id == EmbeddedDevice.device_id)
+        .outerjoin(DeviceThreshold, DeviceThreshold.device_id == EmbeddedDevice.device_id)
+        .outerjoin(
+            ThresholdConfig,
+            db.and_(
+                ThresholdConfig.config_id == DeviceThreshold.config_id,
+                ThresholdConfig.is_active.is_(True),
+            ),
+        )
         .filter(EmbeddedDevice.dashboard_id == request.current_user.dashboard_id)
     )
 
@@ -405,16 +557,30 @@ def get_readings():
     if end_date:
         query = query.filter(TemperatureLog.recorded_at <= end_date)
 
-    logs = query.order_by(TemperatureLog.recorded_at.desc()).all()
+    rows = query.order_by(TemperatureLog.recorded_at.desc()).all()
 
-    result = [
-        {
-            "device_id": log.sensor.device_id,
-            "temperature": float(log.temperature),
-            "timestamp": log.recorded_at.isoformat(),
-        }
-        for log in logs
-    ]
+    result = []
+    for log, log_device_id, warning_value, critical_value in rows:
+        temperature = float(log.temperature)
+
+        if warning_value is None or critical_value is None:
+            status = "UNKNOWN"
+        elif temperature >= float(critical_value):
+            status = "CRITICAL"
+        elif temperature >= float(warning_value):
+            status = "WARNING"
+        else:
+            status = "NORMAL"
+
+        result.append(
+            {
+                "device_id": log_device_id,
+                "temperature": temperature,
+                "status": status,
+                "timestamp": log.recorded_at.isoformat(),
+            }
+        )
+
     return jsonify(result), 200
 
 

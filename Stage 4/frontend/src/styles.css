@@ -734,137 +734,87 @@ a:hover {
   .auth-card {
     padding: 28px 20px;
   }
-}\n\n/* START Add Device card */
+}
+
+/* ===== Devices Page ===== */
 .devices-page {
   display: flex;
   flex-direction: column;
   gap: 24px;
-}
-
-.add-device-card {
-  width: 240px;
-  height: 140px;
-  padding: 18px;
-  border: 1px solid rgba(103, 232, 249, 0.35);
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(27, 49, 84, 0.95), rgba(19, 36, 66, 0.95));
-  color: #ffffff;
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: center;
-  gap: 14px;
-  cursor: pointer;
-  text-align: left;
-  transition: 0.2s ease;
-}
-
-.add-device-card:hover {
-  transform: translateY(-2px);
-  border-color: rgba(103, 232, 249, 0.65);
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.25);
-}
-
-.add-device-card:active {
-  transform: scale(0.98);
-}
-
-.add-device-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: 12px;
-  background: #67e8f9;
-  color: #0f172a;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: 700;
-}
-
-.add-device-card h3 {
-  margin: 0 0 6px;
-  font-size: 20px;
-  font-weight: 700;
-}
-
-.add-device-card p {
-  margin: 0;
-  font-size: 13px;
-  line-height: 1.4;
-  color: rgba(255, 255, 255, 0.7);
 }
 
 .devices-empty-text {
   text-align: center;
   padding: 56px 0;
 }
-/* END Add Device card */\n\n/* START Final Add Device button */
-.devices-page {
+
+/* Small square "+" button below the All Devices card, right-aligned,
+   used to open/close the Add Device form. */
+.add-device-toolbar {
   display: flex;
-  flex-direction: column;
-  gap: 24px;
+  justify-content: flex-end;
 }
 
-.add-device-card {
-  display: none;
-}
-
-.add-device-form-card {
-  display: none;
-}
-
-.add-device-bar {
-  width: 165px;
-  height: 165px;
-  padding: 16px;
+.add-device-toggle {
+  width: 44px;
+  height: 44px;
+  padding: 0;
   border: 1px solid rgba(103, 232, 249, 0.55);
-  border-radius: 20px;
+  border-radius: var(--radius-sm);
   background: rgba(22, 42, 75, 0.92);
   color: #ffffff;
   display: inline-flex;
-  flex-direction: row;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  cursor: pointer;
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 700;
-  text-align: center;
-  white-space: nowrap;
-  box-shadow: none;
+  line-height: 1;
+  cursor: pointer;
   transition: 0.2s ease;
 }
 
-.add-device-bar:hover {
+.add-device-toggle:hover {
   border-color: rgba(103, 232, 249, 0.85);
   background: rgba(28, 55, 95, 0.96);
   transform: translateY(-1px);
 }
 
-.add-device-bar:active {
-  transform: scale(0.98);
+.add-device-toggle:active {
+  transform: scale(0.96);
 }
 
-.add-device-small-icon {
-  width: 32px;
-  height: 32px;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  border-radius: 9px;
-  color: #ffffff;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1;
-  flex-shrink: 0;
+/* Add Device form card, styled to match the Threshold Settings card. */
+.add-device-form-card {
+  max-width: 480px;
 }
 
-.devices-empty-text {
-  text-align: center;
-  padding: 56px 0;
+.add-device-form {
+  max-width: 360px;
+  display: flex;
+  flex-direction: column;
 }
-/* END Final Add Device button */
 
+.add-device-form-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}
 
+@media (max-width: 480px) {
+  .add-device-toolbar {
+    justify-content: center;
+  }
+
+  .add-device-form-card,
+  .add-device-form {
+    max-width: 100%;
+  }
+
+  .add-device-form-actions {
+    flex-direction: column;
+  }
+
+  .add-device-form-actions .btn {
+    width: 100%;
+  }
+}

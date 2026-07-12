@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { apiRequest, formatDate, getReadingStatus } from "../api";
+import { apiRequest, formatDate } from "../api";
 import LoadingState from "../components/LoadingState";
 import EmptyState from "../components/EmptyState";
 import ErrorState from "../components/ErrorState";
@@ -116,7 +116,7 @@ function Readings() {
                 <tr>
                   <th>Device ID</th>
                   <th>Temperature</th>
-                  <th>Calculated Status</th>
+                  <th>Status</th>
                   <th>Timestamp</th>
                 </tr>
               </thead>
@@ -126,7 +126,7 @@ function Readings() {
                     <td>{reading.device_id}</td>
                     <td>{reading.temperature}°C</td>
                     <td>
-                      <StatusBadge value={getReadingStatus(reading.temperature)} />
+                      <StatusBadge value={reading.status} />
                     </td>
                     <td>{formatDate(reading.timestamp)}</td>
                   </tr>

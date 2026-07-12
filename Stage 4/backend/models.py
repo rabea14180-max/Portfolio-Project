@@ -22,9 +22,19 @@ class User(db.Model):
 
 class EmbeddedDevice(db.Model):
     __tablename__ = "embedded_devices"
+    __table_args__ = (
+        # Same private IP may exist on separate dashboards - uniqueness is
+        # scoped to (dashboard_id, ip_address), not global. Nullable so
+        # rows migrated from before this feature (with no ip_address yet)
+        # don't collide with each other.
+        db.UniqueConstraint("dashboard_id", "ip_address", name="uq_embedded_devices_dashboard_ip"),
+    )
 
     device_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     dashboard_id = db.Column(db.Integer, db.ForeignKey("dashboards.dashboard_id"), nullable=False)
+    name = db.Column(db.String(100), nullable=True)
+    ip_address = db.Column(db.String(45), nullable=True)
+    location = db.Column(db.String(255), nullable=True)
     status = db.Column(db.String(50), nullable=False)
     is_active = db.Column(db.Boolean, default=True)
     last_heartbeat = db.Column(db.DateTime, nullable=True)
