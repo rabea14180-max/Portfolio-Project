@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiRequest, formatDate } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -12,6 +12,27 @@ const EMPTY_FORM = {
   critical_threshold: "",
 };
 
+// Validates the shared Add/Update Device field set. Returns an error
+// message, or an object with the parsed numeric threshold values when valid.
+function validateDeviceFields(name, ipAddress, location, warningThreshold, criticalThreshold) {
+  if (!name || !ipAddress || !location || !warningThreshold || !criticalThreshold) {
+    return { error: "All fields are required" };
+  }
+
+  const warningValue = Number(warningThreshold);
+  const criticalValue = Number(criticalThreshold);
+
+  if (Number.isNaN(warningValue) || Number.isNaN(criticalValue)) {
+    return { error: "Warning and Critical thresholds must be valid numbers" };
+  }
+
+  if (criticalValue <= warningValue) {
+    return { error: "Critical Threshold must be greater than Warning Threshold" };
+  }
+
+  return { warningValue, criticalValue };
+}
+
 function Devices() {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -22,6 +43,23 @@ function Devices() {
   const [submitting, setSubmitting] = useState(false);
   const [formMessage, setFormMessage] = useState("");
   const [formIsError, setFormIsError] = useState(false);
+
+  // Sensor Settings: per-row action menu
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const menuRef = useRef(null);
+
+  // Sensor Settings: row-level feedback (Update/Delete/Turn On/Turn Off)
+  const [rowMessage, setRowMessage] = useState("");
+  const [rowIsError, setRowIsError] = useState(false);
+  const [statusLoadingId, setStatusLoadingId] = useState(null);
+  const [deleteLoadingId, setDeleteLoadingId] = useState(null);
+
+  // Sensor Settings: Update Device modal (reuses the Add Device form fields)
+  const [editingDevice, setEditingDevice] = useState(null);
+  const [editForm, setEditForm] = useState(EMPTY_FORM);
+  const [editSubmitting, setEditSubmitting] = useState(false);
+  const [editMessage, setEditMessage] = useState("");
+  const [editIsError, setEditIsError] = useState(false);
 
   async function fetchDevices() {
     setLoading(true);
@@ -42,6 +80,160 @@ function Devices() {
   useEffect(() => {
     fetchDevices();
   }, []);
+
+  // Closes the open Sensor Settings menu when clicking anywhere outside it.
+  useEffect(() => {
+    if (openMenuId === null) return undefined;
+
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpenMenuId(null);
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [openMenuId]);
+
+  function toggleRowMenu(deviceId) {
+    setOpenMenuId((current) => (current === deviceId ? null : deviceId));
+  }
+
+  function openEditForm(device) {
+    setEditingDevice(device);
+    setEditForm({
+      name: device.name || "",
+      ip_address: device.ip_address || "",
+      location: device.location || "",
+      warning_threshold:
+        device.warning_threshold !== null && device.warning_threshold !== undefined
+          ? String(device.warning_threshold)
+          : "",
+      critical_threshold:
+        device.critical_threshold !== null && device.critical_threshold !== undefined
+          ? String(device.critical_threshold)
+          : "",
+    });
+    setEditMessage("");
+    setEditIsError(false);
+    setOpenMenuId(null);
+  }
+
+  function closeEditForm() {
+    if (editSubmitting) return;
+    setEditingDevice(null);
+    setEditForm(EMPTY_FORM);
+    setEditMessage("");
+    setEditIsError(false);
+  }
+
+  function handleEditChange(field) {
+    return (e) => setEditForm((prev) => ({ ...prev, [field]: e.target.value }));
+  }
+
+  async function handleEditSubmit(e) {
+    e.preventDefault();
+    if (!editingDevice) return;
+
+    setEditMessage("");
+    setEditIsError(false);
+
+    const name = editForm.name.trim();
+    const ipAddress = editForm.ip_address.trim();
+    const location = editForm.location.trim();
+
+    const validation = validateDeviceFields(
+      name,
+      ipAddress,
+      location,
+      editForm.warning_threshold,
+      editForm.critical_threshold
+    );
+    if (validation.error) {
+      setEditIsError(true);
+      setEditMessage(validation.error);
+      return;
+    }
+
+    setEditSubmitting(true);
+
+    const result = await apiRequest(`/dashboard/devices/${editingDevice.device_id}`, {
+      method: "PUT",
+      body: JSON.stringify({
+        name,
+        ip_address: ipAddress,
+        location,
+        warning_threshold: validation.warningValue,
+        critical_threshold: validation.criticalValue,
+      }),
+    });
+
+    setEditSubmitting(false);
+
+    if (result.ok && result.data?.success) {
+      setEditingDevice(null);
+      setEditForm(EMPTY_FORM);
+      setRowIsError(false);
+      setRowMessage("Device updated successfully");
+      await fetchDevices();
+      return;
+    }
+
+    setEditIsError(true);
+    setEditMessage(result.data?.message || "Failed to update device");
+  }
+
+  async function handleDeleteDevice(device) {
+    setOpenMenuId(null);
+
+    const confirmed = window.confirm(
+      `Delete device "${device.name || device.device_id}"? This will permanently remove the device and its related sensor records. This cannot be undone.`
+    );
+    if (!confirmed) return;
+
+    setRowMessage("");
+    setDeleteLoadingId(device.device_id);
+
+    const result = await apiRequest(`/dashboard/devices/${device.device_id}`, {
+      method: "DELETE",
+    });
+
+    setDeleteLoadingId(null);
+
+    if (result.ok && result.data?.success) {
+      setRowIsError(false);
+      setRowMessage("Device deleted successfully");
+      await fetchDevices();
+      return;
+    }
+
+    setRowIsError(true);
+    setRowMessage(result.data?.message || "Failed to delete device");
+  }
+
+  async function handleToggleActive(device) {
+    setOpenMenuId(null);
+    setRowMessage("");
+    setStatusLoadingId(device.device_id);
+
+    const nextActive = !device.is_active;
+    const result = await apiRequest(`/dashboard/devices/${device.device_id}/status`, {
+      method: "PATCH",
+      body: JSON.stringify({ is_active: nextActive }),
+    });
+
+    setStatusLoadingId(null);
+
+    if (result.ok && result.data?.success) {
+      setRowIsError(false);
+      setRowMessage(nextActive ? "Device turned on successfully" : "Device turned off successfully");
+      await fetchDevices();
+      return;
+    }
+
+    setRowIsError(true);
+    setRowMessage(result.data?.message || "Failed to update device status");
+  }
 
   function resetForm() {
     setForm(EMPTY_FORM);
@@ -155,6 +347,12 @@ function Devices() {
       <div className="card">
         <h2 className="card-title">All Devices</h2>
 
+        {rowMessage && (
+          <div className={`alert ${rowIsError ? "alert-error" : "alert-success"} devices-row-alert`}>
+            {rowMessage}
+          </div>
+        )}
+
         {devices.length === 0 ? (
           <p className="muted-text devices-empty-text">No data available</p>
         ) : (
@@ -172,6 +370,7 @@ function Devices() {
                   <th>Firmware Version</th>
                   <th>Warning Threshold</th>
                   <th>Critical Threshold</th>
+                  <th>Sensor Settings</th>
                 </tr>
               </thead>
 
@@ -199,6 +398,55 @@ function Devices() {
                       {device.critical_threshold !== null && device.critical_threshold !== undefined
                         ? `${device.critical_threshold}°C`
                         : "—"}
+                    </td>
+                    <td>
+                      <div
+                        className="device-actions"
+                        ref={openMenuId === device.device_id ? menuRef : null}
+                      >
+                        <button
+                          type="button"
+                          className="device-actions-toggle"
+                          aria-haspopup="true"
+                          aria-expanded={openMenuId === device.device_id}
+                          aria-label={`Sensor settings for ${device.name || device.device_id}`}
+                          disabled={statusLoadingId === device.device_id || deleteLoadingId === device.device_id}
+                          onClick={() => toggleRowMenu(device.device_id)}
+                        >
+                          {statusLoadingId === device.device_id || deleteLoadingId === device.device_id
+                            ? "..."
+                            : "⋮"}
+                        </button>
+
+                        {openMenuId === device.device_id && (
+                          <div className="device-actions-menu" role="menu">
+                            <button
+                              type="button"
+                              className="device-actions-item"
+                              role="menuitem"
+                              onClick={() => openEditForm(device)}
+                            >
+                              Update
+                            </button>
+                            <button
+                              type="button"
+                              className="device-actions-item device-actions-item-danger"
+                              role="menuitem"
+                              onClick={() => handleDeleteDevice(device)}
+                            >
+                              Delete
+                            </button>
+                            <button
+                              type="button"
+                              className="device-actions-item"
+                              role="menuitem"
+                              onClick={() => handleToggleActive(device)}
+                            >
+                              {device.is_active ? "Turn Off" : "Turn On"}
+                            </button>
+                          </div>
+                        )}
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -302,6 +550,96 @@ function Devices() {
               </button>
             </div>
           </form>
+        </div>
+      )}
+
+      {editingDevice && (
+        <div className="modal-overlay" onClick={closeEditForm}>
+          <div
+            className="card add-device-form-card modal-card"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 className="card-title">Update Device</h2>
+
+            <form className="add-device-form" onSubmit={handleEditSubmit}>
+              {editMessage && (
+                <div className={`alert ${editIsError ? "alert-error" : "alert-success"}`}>
+                  {editMessage}
+                </div>
+              )}
+
+              <div className="form-group">
+                <label htmlFor="edit_device_name">Device Name</label>
+                <input
+                  id="edit_device_name"
+                  type="text"
+                  value={editForm.name}
+                  onChange={handleEditChange("name")}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit_device_ip_address">IP Address</label>
+                <input
+                  id="edit_device_ip_address"
+                  type="text"
+                  value={editForm.ip_address}
+                  onChange={handleEditChange("ip_address")}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit_device_location">Location</label>
+                <input
+                  id="edit_device_location"
+                  type="text"
+                  value={editForm.location}
+                  onChange={handleEditChange("location")}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit_device_warning_threshold">Warning Threshold (°C)</label>
+                <input
+                  id="edit_device_warning_threshold"
+                  type="number"
+                  step="0.1"
+                  value={editForm.warning_threshold}
+                  onChange={handleEditChange("warning_threshold")}
+                  required
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="edit_device_critical_threshold">Critical Threshold (°C)</label>
+                <input
+                  id="edit_device_critical_threshold"
+                  type="number"
+                  step="0.1"
+                  value={editForm.critical_threshold}
+                  onChange={handleEditChange("critical_threshold")}
+                  required
+                />
+              </div>
+
+              <div className="add-device-form-actions">
+                <button type="submit" className="btn btn-primary" disabled={editSubmitting}>
+                  {editSubmitting ? "Saving..." : "Save Changes"}
+                </button>
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={closeEditForm}
+                  disabled={editSubmitting}
+                >
+                  Cancel
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

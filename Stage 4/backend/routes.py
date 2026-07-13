@@ -11,6 +11,7 @@ from models import (
     Alert,
     Dashboard,
     EmbeddedDevice,
+    Notification,
     ThresholdConfig,
     DeviceThreshold,
     TemperatureLog,
@@ -516,6 +517,218 @@ def create_device():
             }
         ),
         201,
+    )
+
+
+@dashboard_bp.route("/devices/<int:device_id>", methods=["PUT"])
+@token_required
+@roles_required("OWNER", "ADMIN")
+def update_device(device_id):
+    dashboard_id = request.current_user.dashboard_id
+
+    device = EmbeddedDevice.query.filter(
+        EmbeddedDevice.device_id == device_id,
+        EmbeddedDevice.dashboard_id == dashboard_id,
+    ).first()
+    if device is None:
+        return jsonify({"success": False, "message": "Device not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+
+    name = (data.get("name") or "").strip()
+    ip_address_raw = (data.get("ip_address") or "").strip()
+    location = (data.get("location") or "").strip()
+    warning_threshold = data.get("warning_threshold")
+    critical_threshold = data.get("critical_threshold")
+
+    if not name or not ip_address_raw or not location or warning_threshold is None or critical_threshold is None:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    try:
+        ipaddress.ip_address(ip_address_raw)
+    except ValueError:
+        return jsonify({"success": False, "message": "Invalid IP address"}), 400
+
+    try:
+        warning_value = float(warning_threshold)
+        critical_value = float(critical_threshold)
+    except (TypeError, ValueError):
+        return jsonify({"success": False, "message": "Threshold values must be numeric"}), 400
+
+    if critical_value <= warning_value:
+        return (
+            jsonify(
+                {
+                    "success": False,
+                    "message": "Critical Threshold must be greater than Warning Threshold",
+                }
+            ),
+            400,
+        )
+
+    duplicate = EmbeddedDevice.query.filter(
+        EmbeddedDevice.dashboard_id == dashboard_id,
+        EmbeddedDevice.ip_address == ip_address_raw,
+        EmbeddedDevice.device_id != device_id,
+    ).first()
+    if duplicate is not None:
+        return (
+            jsonify({"success": False, "message": "A device with this IP address already exists"}),
+            409,
+        )
+
+    try:
+        device.name = name
+        device.ip_address = ip_address_raw
+        device.location = location
+
+        link = DeviceThreshold.query.filter_by(device_id=device.device_id).first()
+        config = ThresholdConfig.query.get(link.config_id) if link else None
+
+        if config is None:
+            config = ThresholdConfig(
+                dashboard_id=dashboard_id,
+                warning_value=warning_value,
+                critical_value=critical_value,
+                is_active=True,
+            )
+            db.session.add(config)
+            db.session.flush()  # assigns config.config_id for the link below
+
+            if link is None:
+                link = DeviceThreshold(device_id=device.device_id, config_id=config.config_id)
+                db.session.add(link)
+        else:
+            config.warning_value = warning_value
+            config.critical_value = critical_value
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Failed to update device"}), 500
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Device updated successfully",
+                "device": {
+                    "device_id": device.device_id,
+                    "name": device.name,
+                    "ip_address": device.ip_address,
+                    "location": device.location,
+                    "status": device.status,
+                    "is_active": device.is_active,
+                    "last_heartbeat": device.last_heartbeat.isoformat() if device.last_heartbeat else None,
+                    "firmware_version": device.firmware_version,
+                    "warning_threshold": warning_value,
+                    "critical_threshold": critical_value,
+                },
+            }
+        ),
+        200,
+    )
+
+
+@dashboard_bp.route("/devices/<int:device_id>", methods=["DELETE"])
+@token_required
+@roles_required("OWNER", "ADMIN")
+def delete_device(device_id):
+    dashboard_id = request.current_user.dashboard_id
+
+    device = EmbeddedDevice.query.filter(
+        EmbeddedDevice.device_id == device_id,
+        EmbeddedDevice.dashboard_id == dashboard_id,
+    ).first()
+    if device is None:
+        return jsonify({"success": False, "message": "Device not found"}), 404
+
+    try:
+        # Clean up dependent rows in FK-safe order before removing the device
+        # itself, all inside a single transaction so a failure at any step
+        # leaves nothing partially deleted.
+        sensor_ids = [
+            sid
+            for (sid,) in db.session.query(TemperatureSensor.sensor_id)
+            .filter(TemperatureSensor.device_id == device.device_id)
+            .all()
+        ]
+        if sensor_ids:
+            TemperatureLog.query.filter(TemperatureLog.sensor_id.in_(sensor_ids)).delete(
+                synchronize_session=False
+            )
+
+        alert_ids = [
+            aid
+            for (aid,) in db.session.query(Alert.alert_id)
+            .filter(Alert.device_id == device.device_id)
+            .all()
+        ]
+        if alert_ids:
+            Notification.query.filter(Notification.alert_id.in_(alert_ids)).delete(
+                synchronize_session=False
+            )
+            Alert.query.filter(Alert.device_id == device.device_id).delete(
+                synchronize_session=False
+            )
+
+        DeviceThreshold.query.filter_by(device_id=device.device_id).delete(synchronize_session=False)
+        TemperatureSensor.query.filter_by(device_id=device.device_id).delete(synchronize_session=False)
+
+        db.session.delete(device)
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Failed to delete device"}), 500
+
+    return jsonify({"success": True, "message": "Device deleted successfully"}), 200
+
+
+@dashboard_bp.route("/devices/<int:device_id>/status", methods=["PATCH"])
+@token_required
+@roles_required("OWNER", "ADMIN")
+def update_device_status(device_id):
+    dashboard_id = request.current_user.dashboard_id
+
+    device = EmbeddedDevice.query.filter(
+        EmbeddedDevice.device_id == device_id,
+        EmbeddedDevice.dashboard_id == dashboard_id,
+    ).first()
+    if device is None:
+        return jsonify({"success": False, "message": "Device not found"}), 404
+
+    data = request.get_json(silent=True) or {}
+    is_active = data.get("is_active")
+
+    if not isinstance(is_active, bool):
+        return jsonify({"success": False, "message": "is_active must be true or false"}), 400
+
+    try:
+        device.is_active = is_active
+        if not is_active:
+            # Turning a device off means it can no longer be reporting in -
+            # reflect that immediately rather than waiting on a stale heartbeat.
+            device.status = "offline"
+        # Turning a device back on deliberately does NOT mark it "online" -
+        # that only happens once a new heartbeat/reading arrives.
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Failed to update device status"}), 500
+
+    return (
+        jsonify(
+            {
+                "success": True,
+                "message": "Device turned on successfully" if is_active else "Device turned off successfully",
+                "device": {
+                    "device_id": device.device_id,
+                    "status": device.status,
+                    "is_active": device.is_active,
+                },
+            }
+        ),
+        200,
     )
 
 

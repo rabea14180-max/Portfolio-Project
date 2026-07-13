@@ -148,11 +148,6 @@ function Settings() {
 
       <div className="card settings-card danger-zone">
         <h2 className="card-title danger-title">Delete Account</h2>
-        <p className="settings-description">
-          {role === "OWNER"
-            ? "Permanently delete your account and all dashboard data, users, devices, readings, and alerts."
-            : "Permanently delete your FlexSight account."}
-        </p>
 
         <form className="settings-form" onSubmit={handleDeleteAccount}>
           {deleteMessage && <div className="alert alert-error">{deleteMessage}</div>}
