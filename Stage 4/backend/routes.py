@@ -224,6 +224,116 @@ def logout():
     return jsonify({"success": True, "message": "Logged out successfully"}), 200
 
 
+@auth.route("/change-password", methods=["POST"])
+@token_required
+def change_password():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password") or ""
+    new_password = data.get("new_password") or ""
+    user = request.current_user
+
+    if not current_password or not new_password:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if not check_password_hash(user.password_hash, current_password):
+        return jsonify({"success": False, "message": "Current password is incorrect"}), 400
+
+    if len(new_password) < 8:
+        return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
+
+    if check_password_hash(user.password_hash, new_password):
+        return jsonify({"success": False, "message": "New password must be different"}), 400
+
+    user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
+    db.session.commit()
+    return jsonify({"success": True, "message": "Password changed successfully"}), 200
+
+
+@auth.route("/account", methods=["DELETE"])
+@token_required
+def delete_account():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password") or ""
+    user = request.current_user
+
+    if not current_password:
+        return jsonify({"success": False, "message": "Current password is required"}), 400
+
+    if not check_password_hash(user.password_hash, current_password):
+        return jsonify({"success": False, "message": "Current password is incorrect"}), 400
+
+    try:
+        if user.role != "OWNER":
+            Notification.query.filter_by(user_id=user.user_id).delete(synchronize_session=False)
+            EmbeddedDevice.query.filter_by(managed_by=user.user_id).update(
+                {EmbeddedDevice.managed_by: None}, synchronize_session=False
+            )
+            Alert.query.filter_by(resolved_by=user.user_id).update(
+                {Alert.resolved_by: None}, synchronize_session=False
+            )
+            db.session.delete(user)
+            db.session.commit()
+            return jsonify({"success": True, "message": "Account deleted successfully"}), 200
+
+        dashboard_id = user.dashboard_id
+        if dashboard_id is None:
+            return jsonify({"success": False, "message": "Dashboard not found"}), 404
+
+        member_ids = [
+            member_id
+            for (member_id,) in db.session.query(User.user_id)
+            .filter(User.dashboard_id == dashboard_id)
+            .all()
+        ]
+        device_ids = [
+            device_id
+            for (device_id,) in db.session.query(EmbeddedDevice.device_id)
+            .filter(EmbeddedDevice.dashboard_id == dashboard_id)
+            .all()
+        ]
+        sensor_ids = []
+        if device_ids:
+            sensor_ids = [
+                sensor_id
+                for (sensor_id,) in db.session.query(TemperatureSensor.sensor_id)
+                .filter(TemperatureSensor.device_id.in_(device_ids))
+                .all()
+            ]
+
+        Notification.query.filter_by(dashboard_id=dashboard_id).delete(synchronize_session=False)
+
+        if sensor_ids:
+            TemperatureLog.query.filter(TemperatureLog.sensor_id.in_(sensor_ids)).delete(
+                synchronize_session=False
+            )
+
+        if device_ids:
+            DeviceThreshold.query.filter(DeviceThreshold.device_id.in_(device_ids)).delete(
+                synchronize_session=False
+            )
+            TemperatureSensor.query.filter(TemperatureSensor.device_id.in_(device_ids)).delete(
+                synchronize_session=False
+            )
+
+        Alert.query.filter_by(dashboard_id=dashboard_id).delete(synchronize_session=False)
+        ThresholdConfig.query.filter_by(dashboard_id=dashboard_id).delete(synchronize_session=False)
+        EmbeddedDevice.query.filter_by(dashboard_id=dashboard_id).delete(synchronize_session=False)
+
+        User.query.filter(User.dashboard_id == dashboard_id).update(
+            {User.dashboard_id: None}, synchronize_session=False
+        )
+        Dashboard.query.filter_by(dashboard_id=dashboard_id).delete(synchronize_session=False)
+        if member_ids:
+            User.query.filter(User.user_id.in_(member_ids)).delete(synchronize_session=False)
+
+        db.session.commit()
+    except Exception:
+        db.session.rollback()
+        return jsonify({"success": False, "message": "Unable to delete account"}), 500
+
+    return jsonify({"success": True, "message": "Account deleted successfully"}), 200
+
+
 # ---------------------------------------------------------------------------
 # User management endpoints (/users) - Owner only
 # ---------------------------------------------------------------------------
