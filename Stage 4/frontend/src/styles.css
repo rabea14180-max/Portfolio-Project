@@ -529,6 +529,11 @@ a:hover {
 }
 
 /* ===== Settings ===== */
+.security-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
 .settings-card {
   max-width: 480px;
 }
