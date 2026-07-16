@@ -36,6 +36,7 @@ function Sidebar() {
           <NavLink
             key={item.to}
             to={item.to}
+            end
             className={({ isActive }) =>
               `sidebar-link${isActive ? " sidebar-link-active" : ""}`
             }
