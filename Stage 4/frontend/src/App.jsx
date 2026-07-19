@@ -21,7 +21,7 @@ function App() {
       <Route
         path="/users/new"
         element={
-          <ProtectedRoute roles={["OWNER"]}>
+          <ProtectedRoute roles={["OWNER", "ADMIN"]}>
             <Layout title="Add User">
               <AddUser />
             </Layout>
@@ -72,7 +72,7 @@ function App() {
       <Route
         path="/users"
         element={
-          <ProtectedRoute roles={["OWNER"]}>
+          <ProtectedRoute roles={["OWNER", "ADMIN"]}>
             <Layout title="Users">
               <Users />
             </Layout>

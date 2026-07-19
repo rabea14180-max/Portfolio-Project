@@ -375,14 +375,14 @@ def create_admin():
 
 @users_bp.route("/inspector", methods=["POST"])
 @token_required
-@roles_required("OWNER")
+@roles_required("OWNER", "ADMIN")
 def create_inspector():
     return _create_dashboard_user("INSPECTOR")
 
 
 @users_bp.route("", methods=["GET"])
 @token_required
-@roles_required("OWNER")
+@roles_required("OWNER", "ADMIN")
 def get_users():
     members = User.query.filter(
         User.dashboard_id == request.current_user.dashboard_id
