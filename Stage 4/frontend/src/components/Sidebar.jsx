@@ -11,7 +11,7 @@ const navItems = [
   { to: "/settings", label: "Settings", icon: "⚙️︎" },
 ];
 
-function Sidebar() {
+function Sidebar({ open, onClose }) {
   const navigate = useNavigate();
   const role = getRole();
   const visibleNavItems = navItems.filter((item) => !item.roles || item.roles.includes(role));
@@ -22,13 +22,21 @@ function Sidebar() {
   }
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar${open ? " sidebar-open" : ""}`}>
       <div className="sidebar-brand">
         <div className="sidebar-logo">FS</div>
         <div className="sidebar-brand-text">
           <span className="sidebar-brand-name">FlexSight</span>
           <span className="sidebar-brand-tagline">Temperature Monitoring</span>
         </div>
+        <button
+          type="button"
+          className="sidebar-close-btn"
+          aria-label="Close navigation menu"
+          onClick={onClose}
+        >
+          ✕
+        </button>
       </div>
 
       <nav className="sidebar-nav">

@@ -87,6 +87,15 @@ a:hover {
   display: flex;
   flex-direction: column;
   z-index: 100;
+  transition: transform var(--transition);
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+.sidebar-close-btn {
+  display: none;
 }
 
 .sidebar-brand {
@@ -197,10 +206,41 @@ a:hover {
   z-index: 50;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.topbar-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.topbar-menu-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-highlight);
+}
+
 .topbar-title {
   font-size: 20px;
   font-weight: 600;
   color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-right {
@@ -698,12 +738,50 @@ a:hover {
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-  :root {
-    --sidebar-width: 0px;
-  }
-
+  /* Sidebar becomes an off-canvas drawer; it keeps its normal width so it
+     still looks like a sidebar once toggled open, it just starts translated
+     out of view. --sidebar-width itself is left alone so its own width
+     doesn't collapse to 0 alongside it. */
   .sidebar {
     transform: translateX(-100%);
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow);
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-left: auto;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .sidebar-close-btn:hover {
+    color: var(--text-main);
+    border-color: var(--primary);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(5, 10, 19, 0.6);
+    z-index: 90;
+  }
+
+  .topbar-menu-btn {
+    display: inline-flex;
   }
 
   .layout-main {
