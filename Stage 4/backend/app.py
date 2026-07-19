@@ -1,3 +1,5 @@
+import os
+
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask_mail import Mail
@@ -37,7 +39,7 @@ def create_app(env="development"):
     return app
 
 
-app = create_app()
+app = create_app(os.getenv("FLASK_ENV", "production"))
 
 if __name__ == "__main__":
     with app.app_context():
