@@ -35,7 +35,7 @@ def run_tests():
         "email": "api_test@flexsight.com",
         "password": "password123",
     }
-    status, signup_res = make_request("/auth/register-owner", method="POST", data=signup_data)
+    status, signup_res = make_request("/api/auth/register-owner", method="POST", data=signup_data)
     print(f"Register Owner Response (Status {status}):", signup_res)
 
     print("\n--- 2. Testing Login ---")
@@ -43,7 +43,7 @@ def run_tests():
         "username": "api_test_user",
         "password": "password123"
     }
-    status, login_res = make_request("/auth/login", method="POST", data=login_data)
+    status, login_res = make_request("/api/auth/login", method="POST", data=login_data)
     print(f"Login Response (Status {status}):", login_res)
 
     if status != 200 or not login_res.get("success"):
@@ -53,17 +53,17 @@ def run_tests():
     token = login_res.get("token")
 
     print("\n--- 3. Testing Get Devices (Dashboard component) ---")
-    status, devices_res = make_request("/dashboard/devices", token=token)
+    status, devices_res = make_request("/api/dashboard/devices", token=token)
     print(f"Get Devices Response (Status {status}):")
     print(json.dumps(devices_res, indent=2))
 
     print("\n--- 4. Testing Get Alerts (Dashboard component) ---")
-    status, alerts_res = make_request("/dashboard/alerts", token=token)
+    status, alerts_res = make_request("/api/dashboard/alerts", token=token)
     print(f"Get Alerts Response (Status {status}):")
     print(json.dumps(alerts_res, indent=2))
 
     print("\n--- 5. Testing Get Readings (Dashboard component) ---")
-    status, readings_res = make_request("/dashboard/readings", token=token)
+    status, readings_res = make_request("/api/dashboard/readings", token=token)
     print(f"Get Readings Response (Status {status}):")
     print(json.dumps(readings_res, indent=2))
 

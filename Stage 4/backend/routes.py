@@ -20,12 +20,15 @@ from models import (
     db,
 )
 
-# POST /api/readings is the only endpoint left under /api - it's the ESP32/MQTT
-# device ingestion contract, not part of the user-facing dashboard API surface.
+# All user-facing blueprints live under /api so nginx can proxy exactly one
+# prefix to Flask and fall back to the React SPA's index.html for everything
+# else. Without this, a browser refresh on a route like /dashboard or /users
+# (which React Router also owns) hit these blueprints directly instead of
+# the SPA shell.
 api = Blueprint("api", __name__, url_prefix="/api")
-auth = Blueprint("auth", __name__, url_prefix="/auth")
-users_bp = Blueprint("users", __name__, url_prefix="/users")
-dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
+auth = Blueprint("auth", __name__, url_prefix="/api/auth")
+users_bp = Blueprint("users", __name__, url_prefix="/api/users")
+dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/api/dashboard")
 
 
 # ---------------------------------------------------------------------------
