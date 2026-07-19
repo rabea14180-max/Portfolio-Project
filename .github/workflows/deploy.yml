@@ -1,3 +1,5 @@
+# Deploys "Stage 4" (backend + frontend) to the DigitalOcean droplet on every
+# push to main via a restricted SSH deploy key.
 name: Deploy to DigitalOcean
 
 on:
