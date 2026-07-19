@@ -32,6 +32,10 @@
 html,
 body {
   height: 100%;
+  /* Safety net: nothing on the page (wide tables, long text, etc.) should
+     ever be able to force a horizontal scrollbar on the whole page - it
+     should scroll inside its own container instead. */
+  overflow-x: hidden;
 }
 
 body {
@@ -63,6 +67,12 @@ a:hover {
 
 .layout-main {
   flex: 1;
+  /* Flex items default to min-width:auto, which lets wide content (a data
+     table, a long unwrapped string) push this wider than the viewport
+     instead of shrinking - that's what was forcing the whole page to
+     scroll sideways. min-width:0 lets it shrink so overflow is handled by
+     .table-wrapper/.card locally instead of the page. */
+  min-width: 0;
   margin-left: var(--sidebar-width);
   display: flex;
   flex-direction: column;
@@ -71,6 +81,7 @@ a:hover {
 
 .layout-content {
   flex: 1;
+  min-width: 0;
   padding: 24px 32px 32px;
   overflow-y: auto;
 }
@@ -271,6 +282,9 @@ a:hover {
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
+  /* Same min-width:auto shrink issue as .layout-main, but for cards sitting
+     in a grid (e.g. .dashboard-tables) instead of a flex row. */
+  min-width: 0;
 }
 
 .card-title {
