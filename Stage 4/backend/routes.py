@@ -173,7 +173,16 @@ RESET_TOKEN_TTL_MINUTES = 30
 
 def send_reset_email(user, raw_token):
     mail = current_app.extensions.get("mail")
-    if mail is None:
+    # MAIL_USERNAME unset means the SMTP server isn't actually configured
+    # yet (Mail(app) is always registered regardless). Sending would try to
+    # open a real SMTP connection with no credentials and can hang well
+    # past gunicorn's worker timeout, killing the request with a bare 500
+    # instead of the JSON error responses this API otherwise always returns.
+    if mail is None or not current_app.config.get("MAIL_USERNAME"):
+        current_app.logger.warning(
+            "Skipping password reset email for user_id=%s: MAIL_USERNAME is not configured.",
+            user.user_id,
+        )
         return
 
     reset_link = f"{current_app.config['FRONTEND_URL']}/reset-password?token={raw_token}"
