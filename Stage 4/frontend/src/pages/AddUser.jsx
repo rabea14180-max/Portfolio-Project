@@ -1,11 +1,14 @@
 import { useState } from "react";
-import { apiRequest } from "../api";
+import { apiRequest, getRole } from "../api";
 
 function AddUser() {
+  const currentRole = getRole();
+  const canCreateAdmin = currentRole === "OWNER";
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("ADMIN");
+  const [role, setRole] = useState(canCreateAdmin ? "ADMIN" : "INSPECTOR");
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
@@ -99,7 +102,7 @@ function AddUser() {
             onChange={(e) => setRole(e.target.value)}
             required
           >
-            <option value="ADMIN">ADMIN</option>
+            {canCreateAdmin && <option value="ADMIN">ADMIN</option>}
             <option value="INSPECTOR">INSPECTOR</option>
           </select>
         </div>

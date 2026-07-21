@@ -1,4 +1,6 @@
+import hashlib
 import ipaddress
+import secrets
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -20,12 +22,15 @@ from models import (
     db,
 )
 
-# POST /api/readings is the only endpoint left under /api - it's the ESP32/MQTT
-# device ingestion contract, not part of the user-facing dashboard API surface.
+# All user-facing blueprints live under /api so nginx can proxy exactly one
+# prefix to Flask and fall back to the React SPA's index.html for everything
+# else. Without this, a browser refresh on a route like /dashboard or /users
+# (which React Router also owns) hit these blueprints directly instead of
+# the SPA shell.
 api = Blueprint("api", __name__, url_prefix="/api")
-auth = Blueprint("auth", __name__, url_prefix="/auth")
-users_bp = Blueprint("users", __name__, url_prefix="/users")
-dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/dashboard")
+auth = Blueprint("auth", __name__, url_prefix="/api/auth")
+users_bp = Blueprint("users", __name__, url_prefix="/api/users")
+dashboard_bp = Blueprint("dashboard", __name__, url_prefix="/api/dashboard")
 
 
 # ---------------------------------------------------------------------------
@@ -206,6 +211,41 @@ def check_threshold_and_alert(device, sensor, temperature):
 
 
 # ---------------------------------------------------------------------------
+# Password reset email
+# ---------------------------------------------------------------------------
+
+RESET_TOKEN_TTL_MINUTES = 30
+
+
+def send_reset_email(user, raw_token):
+    mail = current_app.extensions.get("mail")
+    # MAIL_USERNAME unset means the SMTP server isn't actually configured
+    # yet (Mail(app) is always registered regardless). Sending would try to
+    # open a real SMTP connection with no credentials and can hang well
+    # past gunicorn's worker timeout, killing the request with a bare 500
+    # instead of the JSON error responses this API otherwise always returns.
+    if mail is None or not current_app.config.get("MAIL_USERNAME"):
+        current_app.logger.warning(
+            "Skipping password reset email for user_id=%s: MAIL_USERNAME is not configured.",
+            user.user_id,
+        )
+        return
+
+    reset_link = f"{current_app.config['FRONTEND_URL']}/reset-password?token={raw_token}"
+    msg = Message(
+        subject="[FlexSight] Reset your password",
+        recipients=[user.email],
+        body=(
+            "We received a request to reset your FlexSight password.\n\n"
+            f"Reset your password: {reset_link}\n\n"
+            f"This link expires in {RESET_TOKEN_TTL_MINUTES} minutes. "
+            "If you didn't request this, you can safely ignore this email."
+        ),
+    )
+    mail.send(msg)
+
+
+# ---------------------------------------------------------------------------
 # Auth endpoints (/auth)
 # ---------------------------------------------------------------------------
 
@@ -260,6 +300,71 @@ def login():
 
     token = generate_token(user)
     return jsonify({"success": True, "role": user.role, "token": token}), 200
+
+
+@auth.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip()
+
+    if not email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
+
+    # Always return the same generic response whether or not the email is
+    # registered, so this endpoint can't be used to discover which emails
+    # have accounts.
+    generic_response = jsonify(
+        {"success": True, "message": "If that email is registered, a reset link has been sent."}
+    )
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return generic_response, 200
+
+    raw_token = secrets.token_urlsafe(32)
+    user.reset_token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    user.reset_token_expires_at = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)
+    db.session.commit()
+
+    try:
+        send_reset_email(user, raw_token)
+    except Exception:
+        # Email delivery failing (e.g. SMTP not configured yet) shouldn't
+        # surface to the client - the response stays generic either way -
+        # but it should be visible in the server logs.
+        current_app.logger.exception("Failed to send password reset email to user_id=%s", user.user_id)
+
+    return generic_response, 200
+
+
+@auth.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    token = data.get("token") or ""
+    new_password = data.get("new_password") or ""
+
+    if not token or not new_password:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if len(new_password) < 8:
+        return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
+
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    user = User.query.filter_by(reset_token_hash=token_hash).first()
+
+    if (
+        user is None
+        or user.reset_token_expires_at is None
+        or user.reset_token_expires_at < datetime.utcnow()
+    ):
+        return jsonify({"success": False, "message": "This reset link is invalid or has expired"}), 400
+
+    user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
+    user.reset_token_hash = None
+    user.reset_token_expires_at = None
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Password reset successfully"}), 200
 
 
 @auth.route("/logout", methods=["POST"])
@@ -418,14 +523,14 @@ def create_admin():
 
 @users_bp.route("/inspector", methods=["POST"])
 @token_required
-@roles_required("OWNER")
+@roles_required("OWNER", "ADMIN")
 def create_inspector():
     return _create_dashboard_user("INSPECTOR")
 
 
 @users_bp.route("", methods=["GET"])
 @token_required
-@roles_required("OWNER")
+@roles_required("OWNER", "ADMIN")
 def get_users():
     members = User.query.filter(
         User.dashboard_id == request.current_user.dashboard_id

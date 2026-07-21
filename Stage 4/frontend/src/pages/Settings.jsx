@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { apiRequest, clearAuth, getRole } from "../api";
 
 function Settings() {
@@ -139,10 +139,6 @@ function Settings() {
           <button type="submit" className="btn btn-primary" disabled={changeLoading}>
             {changeLoading ? "Saving..." : "Save Changes"}
           </button>
-
-          <Link to="/forgot-password" className="settings-forgot-link">
-            Forgot your password?
-          </Link>
         </form>
       </div>
 

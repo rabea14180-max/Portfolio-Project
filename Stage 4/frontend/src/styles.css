@@ -32,6 +32,10 @@
 html,
 body {
   height: 100%;
+  /* Safety net: nothing on the page (wide tables, long text, etc.) should
+     ever be able to force a horizontal scrollbar on the whole page - it
+     should scroll inside its own container instead. */
+  overflow-x: hidden;
 }
 
 body {
@@ -63,6 +67,12 @@ a:hover {
 
 .layout-main {
   flex: 1;
+  /* Flex items default to min-width:auto, which lets wide content (a data
+     table, a long unwrapped string) push this wider than the viewport
+     instead of shrinking - that's what was forcing the whole page to
+     scroll sideways. min-width:0 lets it shrink so overflow is handled by
+     .table-wrapper/.card locally instead of the page. */
+  min-width: 0;
   margin-left: var(--sidebar-width);
   display: flex;
   flex-direction: column;
@@ -71,6 +81,7 @@ a:hover {
 
 .layout-content {
   flex: 1;
+  min-width: 0;
   padding: 24px 32px 32px;
   overflow-y: auto;
 }
@@ -87,6 +98,15 @@ a:hover {
   display: flex;
   flex-direction: column;
   z-index: 100;
+  transition: transform var(--transition);
+}
+
+.sidebar-overlay {
+  display: none;
+}
+
+.sidebar-close-btn {
+  display: none;
 }
 
 .sidebar-brand {
@@ -197,10 +217,41 @@ a:hover {
   z-index: 50;
 }
 
+.topbar-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.topbar-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 16px;
+  cursor: pointer;
+  transition: border-color var(--transition), color var(--transition);
+}
+
+.topbar-menu-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary-highlight);
+}
+
 .topbar-title {
   font-size: 20px;
   font-weight: 600;
   color: var(--text-main);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .topbar-right {
@@ -231,6 +282,9 @@ a:hover {
   border-radius: var(--radius);
   padding: 24px;
   box-shadow: var(--shadow);
+  /* Same min-width:auto shrink issue as .layout-main, but for cards sitting
+     in a grid (e.g. .dashboard-tables) instead of a flex row. */
+  min-width: 0;
 }
 
 .card-title {
@@ -617,6 +671,12 @@ a:hover {
   color: var(--text-muted);
 }
 
+.auth-forgot {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
 .auth-link {
   color: var(--primary);
   font-weight: 600;
@@ -698,12 +758,50 @@ a:hover {
 
 /* ===== Responsive ===== */
 @media (max-width: 768px) {
-  :root {
-    --sidebar-width: 0px;
-  }
-
+  /* Sidebar becomes an off-canvas drawer; it keeps its normal width so it
+     still looks like a sidebar once toggled open, it just starts translated
+     out of view. --sidebar-width itself is left alone so its own width
+     doesn't collapse to 0 alongside it. */
   .sidebar {
     transform: translateX(-100%);
+  }
+
+  .sidebar-open {
+    transform: translateX(0);
+    box-shadow: var(--shadow);
+  }
+
+  .sidebar-close-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    margin-left: auto;
+    flex-shrink: 0;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    color: var(--text-muted);
+    font-size: 14px;
+    cursor: pointer;
+  }
+
+  .sidebar-close-btn:hover {
+    color: var(--text-main);
+    border-color: var(--primary);
+  }
+
+  .sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(5, 10, 19, 0.6);
+    z-index: 90;
+  }
+
+  .topbar-menu-btn {
+    display: inline-flex;
   }
 
   .layout-main {
@@ -823,8 +921,6 @@ a:hover {
     width: 100%;
   }
 }
-
-.settings-form{display:flex;flex-direction:column}.settings-form>.settings-forgot-link{display:block!important;order:1;margin:0 0 16px!important}.settings-form>button{order:2;align-self:flex-start}
 
 /* Row-level success/error feedback for Sensor Settings actions
    (Update / Delete / Turn On / Turn Off), shown above the All Devices table. */

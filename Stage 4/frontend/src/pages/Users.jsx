@@ -34,10 +34,12 @@ function Users() {
     setLoading(false);
   }, []);
 
+  const canManage = role === "OWNER" || role === "ADMIN";
+
   useEffect(() => {
-    if (role !== "OWNER") return;
+    if (!canManage) return;
     fetchUsers();
-  }, [role, fetchUsers]);
+  }, [canManage, fetchUsers]);
 
   async function handleDelete(userId) {
     setActionLoading(userId);
@@ -55,11 +57,11 @@ function Users() {
     setError(result.data?.message || "Failed to delete user");
   }
 
-  if (role !== "OWNER") {
+  if (!canManage) {
     return (
       <div className="card unauthorized-card">
         <p className="unauthorized-message">
-          Unauthorized access. This page is restricted to Owner users.
+          Unauthorized access. This page is restricted to Owner and Admin users.
         </p>
       </div>
     );
@@ -96,7 +98,7 @@ function Users() {
                   <StatusBadge value={user.account_status} />
                 </td>
                 <td>
-                  {user.role !== "OWNER" && (
+                  {role === "OWNER" && user.role !== "OWNER" && (
                     <button
                       type="button"
                       className="btn btn-sm btn-danger"
