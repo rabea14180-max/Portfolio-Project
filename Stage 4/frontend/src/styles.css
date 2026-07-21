@@ -671,6 +671,12 @@ a:hover {
   color: var(--text-muted);
 }
 
+.auth-forgot {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 14px;
+}
+
 .auth-link {
   color: var(--primary);
   font-weight: 600;
@@ -915,8 +921,6 @@ a:hover {
     width: 100%;
   }
 }
-
-.settings-form{display:flex;flex-direction:column}.settings-form>.settings-forgot-link{display:block!important;order:1;margin:0 0 16px!important}.settings-form>button{order:2;align-self:flex-start}
 
 /* Row-level success/error feedback for Sensor Settings actions
    (Update / Delete / Turn On / Turn Off), shown above the All Devices table. */

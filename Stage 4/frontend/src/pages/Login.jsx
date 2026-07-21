@@ -74,6 +74,12 @@ function Login() {
           <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
+
+          <p className="auth-forgot">
+            <Link to="/forgot-password" className="auth-link">
+              Forgot your password?
+            </Link>
+          </p>
         </form>
 
         <p className="auth-footer">
