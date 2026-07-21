@@ -39,6 +39,9 @@ class Config:
     MAIL_PASSWORD = os.getenv("MAIL_PASSWORD")
     MAIL_DEFAULT_SENDER = os.getenv("MAIL_DEFAULT_SENDER", MAIL_USERNAME)
 
+    # --- Frontend (used to build links sent in emails, e.g. password reset) ---
+    FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5173")
+
     # --- Temperature Thresholds (fallback defaults; real values come from
     # the threshold_configs table, these are only used if the table is empty) ---
     DEFAULT_WARNING_TEMP = float(os.getenv("DEFAULT_WARNING_TEMP", 35.0))

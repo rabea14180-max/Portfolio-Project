@@ -1,4 +1,6 @@
+import hashlib
 import ipaddress
+import secrets
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -163,6 +165,32 @@ def check_threshold_and_alert(device, sensor, temperature):
 
 
 # ---------------------------------------------------------------------------
+# Password reset email
+# ---------------------------------------------------------------------------
+
+RESET_TOKEN_TTL_MINUTES = 30
+
+
+def send_reset_email(user, raw_token):
+    mail = current_app.extensions.get("mail")
+    if mail is None:
+        return
+
+    reset_link = f"{current_app.config['FRONTEND_URL']}/reset-password?token={raw_token}"
+    msg = Message(
+        subject="[FlexSight] Reset your password",
+        recipients=[user.email],
+        body=(
+            "We received a request to reset your FlexSight password.\n\n"
+            f"Reset your password: {reset_link}\n\n"
+            f"This link expires in {RESET_TOKEN_TTL_MINUTES} minutes. "
+            "If you didn't request this, you can safely ignore this email."
+        ),
+    )
+    mail.send(msg)
+
+
+# ---------------------------------------------------------------------------
 # Auth endpoints (/auth)
 # ---------------------------------------------------------------------------
 
@@ -217,6 +245,71 @@ def login():
 
     token = generate_token(user)
     return jsonify({"success": True, "role": user.role, "token": token}), 200
+
+
+@auth.route("/forgot-password", methods=["POST"])
+def forgot_password():
+    data = request.get_json(silent=True) or {}
+    email = (data.get("email") or "").strip()
+
+    if not email:
+        return jsonify({"success": False, "message": "Email is required"}), 400
+
+    # Always return the same generic response whether or not the email is
+    # registered, so this endpoint can't be used to discover which emails
+    # have accounts.
+    generic_response = jsonify(
+        {"success": True, "message": "If that email is registered, a reset link has been sent."}
+    )
+
+    user = User.query.filter_by(email=email).first()
+    if user is None:
+        return generic_response, 200
+
+    raw_token = secrets.token_urlsafe(32)
+    user.reset_token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
+    user.reset_token_expires_at = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)
+    db.session.commit()
+
+    try:
+        send_reset_email(user, raw_token)
+    except Exception:
+        # Email delivery failing (e.g. SMTP not configured yet) shouldn't
+        # surface to the client - the response stays generic either way -
+        # but it should be visible in the server logs.
+        current_app.logger.exception("Failed to send password reset email to user_id=%s", user.user_id)
+
+    return generic_response, 200
+
+
+@auth.route("/reset-password", methods=["POST"])
+def reset_password():
+    data = request.get_json(silent=True) or {}
+    token = data.get("token") or ""
+    new_password = data.get("new_password") or ""
+
+    if not token or not new_password:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if len(new_password) < 8:
+        return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
+
+    token_hash = hashlib.sha256(token.encode()).hexdigest()
+    user = User.query.filter_by(reset_token_hash=token_hash).first()
+
+    if (
+        user is None
+        or user.reset_token_expires_at is None
+        or user.reset_token_expires_at < datetime.utcnow()
+    ):
+        return jsonify({"success": False, "message": "This reset link is invalid or has expired"}), 400
+
+    user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
+    user.reset_token_hash = None
+    user.reset_token_expires_at = None
+    db.session.commit()
+
+    return jsonify({"success": True, "message": "Password reset successfully"}), 200
 
 
 @auth.route("/logout", methods=["POST"])
