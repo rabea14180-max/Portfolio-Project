@@ -106,7 +106,7 @@ def send_alert_email(alert, device):
         u.email
         for u in User.query.filter(
             User.dashboard_id == device.dashboard_id,
-            User.role.in_(["OWNER", "ADMIN"]),
+            User.role.in_(["OWNER", "ADMIN", "INSPECTOR"]),
         ).all()
     ]
 
