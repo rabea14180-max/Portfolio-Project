@@ -97,7 +97,9 @@ def roles_required(*roles):
 
 def send_alert_email(alert, device):
     mail = current_app.extensions.get("mail")
+
     if mail is None:
+        print("Mail extension not found.")
         return
 
     recipients = [
@@ -107,46 +109,85 @@ def send_alert_email(alert, device):
             User.role.in_(["OWNER", "ADMIN"]),
         ).all()
     ]
+
     if not recipients:
+        print("No recipients found.")
         return
 
     msg = Message(
-        subject=f"[FlexSight] {alert.severity} alert - Device {device.device_id}",
+        subject=f"[FlexSight] {alert.severity} Alert - Device {device.device_id}",
+        sender=current_app.config.get("MAIL_DEFAULT_SENDER"),
         recipients=recipients,
         body=(
-            f"A {alert.severity} temperature alert was triggered.\n\n"
+            f"Temperature Alert\n\n"
             f"Device ID: {device.device_id}\n"
-            f"Temperature: {alert.temperature}\n"
+            f"Temperature: {alert.temperature}°C\n"
+            f"Severity: {alert.severity}\n"
             f"Time: {alert.created_at}\n"
         ),
     )
-    mail.send(msg)
 
-
+    try:
+        mail.send(msg)
+        print("Email sent successfully.")
+    except Exception as e:
+        print(f"Email sending failed: {e}")
+        
 def check_threshold_and_alert(device, sensor, temperature):
-    """Compares the reading against the active threshold linked to this
-    device (via device_thresholds) and creates/sends an alert if needed.
+    """Checks the temperature against the device threshold.
 
-    Deliberately looked up by device_id (not dashboard_id) so each device's
-    own Warning/Critical values are used, never an unrelated device's or
-    the dashboard's legacy shared threshold."""
+    Creates one alert and sends one email when the temperature crosses
+    the warning or critical threshold. It also resolves active alerts
+    automatically when the temperature returns to normal.
+    """
 
-    device_threshold = DeviceThreshold.query.filter_by(device_id=device.device_id).first()
+    device_threshold = DeviceThreshold.query.filter_by(
+        device_id=device.device_id
+    ).first()
+
     if device_threshold is None:
         return None
 
     config = ThresholdConfig.query.get(device_threshold.config_id)
+
     if config is None or not config.is_active:
         return None
 
-    severity = None
-    if temperature >= float(config.critical_value):
+    warning_value = float(config.warning_value)
+    critical_value = float(config.critical_value)
+
+    # Temperature returned to normal:
+    # automatically resolve any active alerts for this device.
+    if temperature < warning_value:
+        active_alerts = Alert.query.filter(
+            Alert.dashboard_id == device.dashboard_id,
+            Alert.device_id == device.device_id,
+            Alert.status.in_(["OPEN", "ACKNOWLEDGED"]),
+        ).all()
+
+        if active_alerts:
+            for active_alert in active_alerts:
+                active_alert.status = "RESOLVED"
+                active_alert.resolved_at = datetime.utcnow()
+
+            db.session.commit()
+
+        return None
+
+    if temperature >= critical_value:
         severity = "CRITICAL"
-    elif temperature >= float(config.warning_value):
+    else:
         severity = "WARNING"
 
-    if severity is None:
-        return None
+    # Do not create another alert while an OPEN or ACKNOWLEDGED alert exists.
+    existing_alert = Alert.query.filter(
+        Alert.dashboard_id == device.dashboard_id,
+        Alert.device_id == device.device_id,
+        Alert.status.in_(["OPEN", "ACKNOWLEDGED"]),
+    ).first()
+
+    if existing_alert:
+        return existing_alert
 
     alert = Alert(
         dashboard_id=device.dashboard_id,
@@ -155,10 +196,15 @@ def check_threshold_and_alert(device, sensor, temperature):
         severity=severity,
         status="OPEN",
     )
+
     db.session.add(alert)
     db.session.commit()
 
-    send_alert_email(alert, device)
+    try:
+        send_alert_email(alert, device)
+    except Exception as e:
+        print(f"Email Error: {e}")
+
     return alert
 
 

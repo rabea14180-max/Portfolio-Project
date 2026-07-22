@@ -47,4 +47,4 @@ if __name__ == "__main__":
         # The core schema should still be created via database/schema.sql.
         db.create_all()
 
-    app.run(host="0.0.0.0", port=5000, debug=app.config["DEBUG"])
+    app.run(host="0.0.0.0", port=5001, debug=app.config["DEBUG"])
