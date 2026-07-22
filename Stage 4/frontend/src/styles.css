@@ -671,12 +671,6 @@ a:hover {
   color: var(--text-muted);
 }
 
-.auth-forgot {
-  text-align: center;
-  margin-top: 16px;
-  font-size: 14px;
-}
-
 .auth-link {
   color: var(--primary);
   font-weight: 600;
