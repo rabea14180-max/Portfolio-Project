@@ -912,7 +912,7 @@ def update_device_status(device_id):
 
 @dashboard_bp.route("/readings", methods=["GET"])
 @token_required
-@roles_required("OWNER", "ADMIN")
+@roles_required("OWNER", "ADMIN", "INSPECTOR")
 def get_readings():
     device_id = request.args.get("device_id", type=int)
     start_date = request.args.get("start_date")

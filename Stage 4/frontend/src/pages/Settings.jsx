@@ -142,29 +142,31 @@ function Settings() {
         </form>
       </div>
 
-      <div className="card settings-card danger-zone">
-        <h2 className="card-title danger-title">Delete Account</h2>
+      {role !== "INSPECTOR" && (
+        <div className="card settings-card danger-zone">
+          <h2 className="card-title danger-title">Delete Account</h2>
 
-        <form className="settings-form" onSubmit={handleDeleteAccount}>
-          {deleteMessage && <div className="alert alert-error">{deleteMessage}</div>}
+          <form className="settings-form" onSubmit={handleDeleteAccount}>
+            {deleteMessage && <div className="alert alert-error">{deleteMessage}</div>}
 
-          <div className="form-group">
-            <label htmlFor="delete_password">Current Password</label>
-            <input
-              id="delete_password"
-              type="password"
-              value={deletePassword}
-              onChange={(e) => setDeletePassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="delete_password">Current Password</label>
+              <input
+                id="delete_password"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </div>
 
-          <button type="submit" className="btn btn-danger" disabled={deleteLoading}>
-            {deleteLoading ? "Deleting..." : "Delete Account"}
-          </button>
-        </form>
-      </div>
+            <button type="submit" className="btn btn-danger" disabled={deleteLoading}>
+              {deleteLoading ? "Deleting..." : "Delete Account"}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }
