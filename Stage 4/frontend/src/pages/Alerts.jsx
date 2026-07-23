@@ -67,6 +67,7 @@ function Alerts() {
               <th>Severity</th>
               <th>Status</th>
               <th>Triggered At</th>
+              <th>Resolved By</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -83,6 +84,7 @@ function Alerts() {
                   <StatusBadge value={alert.status} />
                 </td>
                 <td>{formatDate(alert.triggered_at)}</td>
+                <td>{alert.resolved_by || "—"}</td>
                 <td>
                   <div className="action-buttons">
                     {alert.status === "OPEN" && (

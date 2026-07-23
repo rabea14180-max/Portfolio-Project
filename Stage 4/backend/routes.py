@@ -991,6 +991,8 @@ def get_alerts():
             "temperature": float(a.temperature),
             "status": a.status,
             "triggered_at": a.created_at.isoformat(),
+            "resolved_by": a.resolver.username if a.resolver else None,
+            "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
         }
         for a in alerts
     ]
