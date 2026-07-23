@@ -550,7 +550,7 @@ def get_dashboard():
 
 @dashboard_bp.route("/devices", methods=["GET"])
 @token_required
-@roles_required("OWNER", "ADMIN")
+@roles_required("OWNER", "ADMIN", "INSPECTOR")
 def get_devices():
     # Outer-joined to each device's active threshold in a single query
     # (via device_thresholds) instead of querying per-device in a loop.
