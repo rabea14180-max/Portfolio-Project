@@ -1,4 +1,5 @@
 import ipaddress
+import re
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -89,6 +90,15 @@ def roles_required(*roles):
         return decorated
 
     return wrapper
+
+
+PASSWORD_PATTERN = re.compile(r"^[A-Za-z0-9]+$")
+
+
+def is_valid_password(password):
+    """Letters and digits only, matching the Access Control Matrix's
+    password policy - no spaces or special characters."""
+    return bool(password) and bool(PASSWORD_PATTERN.fullmatch(password))
 
 
 # ---------------------------------------------------------------------------
@@ -226,6 +236,9 @@ def register_owner():
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
 
+    if not is_valid_password(password):
+        return jsonify({"success": False, "message": "Password must contain only letters and numbers"}), 400
+
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
 
@@ -289,6 +302,9 @@ def change_password():
 
     if len(new_password) < 8:
         return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
+
+    if not is_valid_password(new_password):
+        return jsonify({"success": False, "message": "Password must contain only letters and numbers"}), 400
 
     if check_password_hash(user.password_hash, new_password):
         return jsonify({"success": False, "message": "New password must be different"}), 400
@@ -395,6 +411,9 @@ def _create_dashboard_user(role):
 
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if not is_valid_password(password):
+        return jsonify({"success": False, "message": "Password must contain only letters and numbers"}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
