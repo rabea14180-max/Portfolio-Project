@@ -24,6 +24,7 @@ function Login() {
     if (result.ok && result.data?.success) {
       localStorage.setItem("flexsight_token", result.data.token);
       localStorage.setItem("flexsight_role", result.data.role);
+      localStorage.setItem("flexsight_username", username);
       navigate("/dashboard");
       return;
     }

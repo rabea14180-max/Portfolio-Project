@@ -260,17 +260,18 @@ a:hover {
   gap: 10px;
 }
 
-.topbar-role-label {
-  font-size: 13px;
-  color: var(--text-muted);
+.topbar-username {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-main);
 }
 
 .topbar-role-badge {
   background: linear-gradient(135deg, var(--primary), var(--primary-highlight));
   color: var(--bg-main);
-  font-size: 12px;
+  font-size: 10px;
   font-weight: 700;
-  padding: 4px 12px;
+  padding: 2px 8px;
   border-radius: 20px;
   letter-spacing: 0.5px;
 }
