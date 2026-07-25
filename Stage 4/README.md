@@ -73,29 +73,81 @@ FlexSight is a temperature monitoring MVP. An ESP32 connected to a DHT11 sensor 
 
 ## Project Structure
 
-text
+## Project Structure
+
+```text
 Stage 4/
+├── assets/
+│   └── database-testing/
 ├── backend/
+│   ├── .gitignore
+│   ├── README.md
 │   ├── app.py
 │   ├── config.py
-│   ├── models.py
-│   ├── routes.py
 │   ├── flexsight_test.py
+│   ├── models.py
 │   ├── requirements.txt
-│   └── README.md
+│   ├── routes.py
+│   ├── seed_db.py
+│   └── test_connection.py
+├── database/
+│   ├── migration_add_device_fields.sql
+│   ├── migration_multi_tenant.sql
+│   ├── schema.sql
+│   ├── seed.sql
+│   └── test-queries.sql
+├── deploy/
+│   └── deploy.sh
 ├── frontend/
 │   ├── src/
+│   │   ├── components/
+│   │   │   ├── EmptyState.jsx
+│   │   │   ├── ErrorState.jsx
+│   │   │   ├── Layout.jsx
+│   │   │   ├── LoadingState.jsx
+│   │   │   ├── ProtectedRoute.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── StatusBadge.jsx
+│   │   │   └── Topbar.jsx
+│   │   ├── pages/
+│   │   │   ├── AddUser.jsx
+│   │   │   ├── Alerts.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Devices.jsx
+│   │   │   ├── Login.jsx
+│   │   │   ├── Readings.jsx
+│   │   │   ├── Settings.jsx
+│   │   │   ├── Signup.jsx
+│   │   │   └── Users.jsx
+│   │   ├── App.jsx
+│   │   ├── api.js
+│   │   ├── index.css
+│   │   ├── main.jsx
+│   │   └── styles.css
 │   ├── test/
-│   ├── package.json
+│   │   ├── api.test.js
+│   │   ├── protected-route.test.jsx
+│   │   └── status-badge.test.jsx
+│   ├── .env.production
+│   ├── .gitignore
+│   ├── README.md
+│   ├── index.html
 │   ├── package-lock.json
-│   └── README.md
-├── sprint-plan.md
-├── development-execution.md
-├── monitor-progress.md
-├── sprint-reviews-retrospectives.md
-├── final-integration-qa-testing.md
+│   ├── package.json
+│   └── vite.config.js
+├── sensor/
+│   └── esp32_temperature.ino
+├── README.md
+├── alerts-table.png
+├── database-testing-evidance.md
 ├── deliverables.md
-└── README.md
+├── development- execution.md
+├── final-integration-qa-testing.md
+├── monitor-progress.md
+├── sprint-plan.md
+└── sprint-reviews-retrospectives.md
+```
+
 
 
 ## Quick Start
