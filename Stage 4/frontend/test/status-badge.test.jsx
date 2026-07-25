@@ -24,7 +24,7 @@ describe("StatusBadge", () => {
 
     expect(screen.getByText(value)).toHaveClass(
       "badge",
-      badge-${color},
+      "badge-" + color,
     );
   });
 
@@ -48,7 +48,7 @@ describe("StatusBadge", () => {
 
       expect(screen.getByText(expectedText)).toHaveClass(
         "badge",
-        badge-${expectedColor},
+        "badge-" + expectedColor,
       );
     },
   );
