@@ -86,3 +86,4 @@ describe("ProtectedRoute", () => {
       screen.queryByText("Protected content"),
     ).not.toBeInTheDocument();
   });
+});
