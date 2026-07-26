@@ -1,72 +1,80 @@
 ## Task 1: Execute Development Tasks
-
-## Objective
-
-The objective of this task was to implement the planned FlexSight MVP features during the three sprints. The team worked on the database, backend, frontend, sensor integration, testing, and deployment.
-
-## Team Responsibilities
-
-| Team Member | Role | Responsibility |
+## Purpose
+The purpose of this task was to implement the FlexSight MVP features according to the approved sprint plan. Development included the database, Flask backend, React frontend, ESP32 integration, role-based access, testing files, and production deployment.
+## Team Execution Responsibilities
+| Team Member | Role | Executed Responsibilities |
 |---|---|---|
-| Hamsa Bnian Alammar | Project Manager | Followed the sprint plan, coordinated the team, and worked on the ESP32 sensor |
-| Rabea Thabit | SCM and Backend Developer | Managed the repository, worked on the backend and database connection, and deployed the project |
-| Munirah Alotaibi | QA and Frontend Developer | Developed the React interface and tested the completed features |
-
-## Development Work
-
-### Sprint 1
-
-The team created the database tables and sample data, implemented the Flask backend structure, added authentication, and created the initial React application.
-
-Completed work:
-
-- Database schema and test data
-- Backend models and configuration
-- Sign up, login, and logout
-- React routes and shared components
-- Initial database testing
-
-### Sprint 2
-
-The team completed the main dashboard pages and connected them to the backend APIs.
-
-Completed work:
-
-- Dashboard
-- Devices
-- Temperature readings
-- Alerts
-- Users
-- Settings and temperature thresholds
-- Role-based access for Owner, Admin, and Inspector
-- Initial DHT11 sensor setup
-
-### Sprint 3
-
-The team completed the ESP32 integration, fixed the remaining issues, and deployed the MVP.
-
-Completed work:
-
-- ESP32 Wi-Fi connection
-- Sending temperature readings to the API
-- Frontend, backend, and database integration
-- Account and permission fixes
-- Final deployment
-
-## Source Control
-
-The team used Git and GitHub to store and track the project files. Each member committed their completed work to the shared repository. Rabea Thabit, as the SCM, checked the integrated code and managed the final deployment version.
-
-Most Stage 4 work was committed directly to the main branch. The commit history is available in the project repository.
-
+| Hamsa Bnian Alammar | Project Manager and ESP32 Developer | Coordinated sprint execution, monitored deadlines, connected the DHT11 sensor to the ESP32, configured Wi-Fi, and sent temperature readings to the API |
+| Rabea Thabit | SCM and Backend Developer | Managed repository integration, developed backend models and APIs, implemented authentication and permissions, and configured deployment |
+| Munirah Alotaibi | QA, UI/UX, and Frontend Developer | Developed the React interface, tested database and integrated functions, verified completed features, and prepared Stage 4 documentation |
+## Sprint 1 Execution: 30 June–6 July 2026
+| Implemented Task | Responsible | Implementation Evidence | Status |
+|---|---|---|---|
+| Create the database schema and sample data | Munirah Alotaibi and Rabea | Database schema, seed data, and test queries under database/ | Completed |
+| Implement backend models and configuration | Rabea | backend/models.py, backend/config.py, and backend/app.py | Completed |
+| Implement sign up, login, and logout | Rabea | Authentication routes in backend/routes.py | Completed |
+| Create the initial React application | Munirah Alotaibi | React pages, routes, layout, and shared components under frontend/src/ | Completed |
+| Test the database and initial functions | Munirah Alotaibi | Database queries, screenshots, and database-testing-evidance.md | Completed |
+## Sprint 2 Execution: 7–13 July 2026
+| Implemented Task | Responsible | Implementation Evidence | Status |
+|---|---|---|---|
+| Connect the DHT11 sensor to the ESP32 | Hamsa | sensor/esp32_temperature.ino | Completed |
+| Complete Dashboard, Devices, Readings, and Alerts | Munirah Alotaibi and Rabea | React pages connected to Flask APIs | Completed |
+| Complete Users and Settings | Munirah Alotaibi and Rabea | User-management and account-settings pages and APIs | Completed |
+| Add role-based access | Munirah Alotaibi and Rabea | Protected frontend routes and backend role checks | Completed |
+| Add device actions | Munirah Alotaibi and Rabea | Add, update, activate, deactivate, and delete device functions | Completed |
+| Add configurable thresholds | Munirah Alotaibi and Rabea | Warning and critical threshold fields and APIs | Completed |
+| Add account password and deletion functions | Munirah Alotaibi and Rabea | Change-password and account-deletion functions | Completed |
+## Sprint 3 Execution: 14–20 July 2026
+| Implemented Task | Responsible | Implementation Evidence | Status |
+|---|---|---|---|
+| Connect the ESP32 to Wi-Fi | Hamsa | Wi-Fi configuration in the ESP32 program | Completed |
+| Send temperature readings to the API | Hamsa | HTTP POST implementation in esp32_temperature.ino | Completed |
+| Complete frontend, backend, and database integration | Team | React API requests connected to the Flask backend and database | Completed |
+| Complete account and permission updates | Rabea and Munirah Alotaibi | Account settings and role-access changes | Completed |
+| Configure production deployment | Rabea | Gunicorn, production API configuration, and deploy/deploy.sh | Completed |
+| Fix mobile navigation and page overflow | Rabea | Responsive Sidebar, Topbar, Layout, and CSS updates | Completed |
+| Allow Admin users to manage Inspector accounts | Rabea | User API and protected-route updates | Completed |
+| Review the integrated MVP | Hamsa and team | Review of the implemented Sprint 3 features | Completed |
+## Additional Updates After Sprint 3: 21–23 July 2026
+| Implemented Task | Responsible | Implementation Evidence | Status |
+|---|---|---|---|
+| Add unit and production integration test cases | Munirah Alotaibi | backend/flexsight_test.py | Test file added |
+| Remove the local database file from the repository | Munirah Alotaibi | backend/instance/flexsight.db was deleted | Completed |
+| Update frontend and backend integration | Hamsa and Rabea | Backend application, routes, API configuration, and Dashboard updates | Completed |
+| Prepare Stage 4 documentation | Munirah Alotaibi | Sprint planning, development execution, and progress documentation | Completed |
+| Remove the password-reset implementation from the final version | Rabea | Password-reset pages, routes, fields, and migration were removed | Completed |
+| Update authentication to use usernames | Rabea | Login API and React Login page updates | Completed |
+| Display the signed-in username | Rabea | Frontend authentication storage and Topbar updates | Completed |
+| Add alert-resolution information | Rabea | resolved_by and resolved_at added to the alerts response and table | Completed |
+| Update route permissions and navigation visibility | Rabea | Backend role checks, protected routes, Sidebar, and Settings updates | Completed |
+| Update Dashboard data fetching | Rabea | Dashboard and device API handling updates | Completed |
+## Development Practices
+| Area | Applied Practice |
+|---|---|
+| Backend structure | Application setup, configuration, models, and routes were stored in separate files |
+| Frontend structure | Pages, reusable components, styles, and API functions were organized separately |
+| Access control | Protected React routes and backend role checks were used |
+| Configuration | Environment-based configuration was used for the backend and production environment |
+| Documentation | Planning, execution, progress, database testing, and deployment files were stored in the repository |
+## Source Control Management
+| SCM Activity | Actual Implementation |
+|---|---|
+| Repository | The team used a shared GitHub repository |
+| Main branch | Most Stage 4 development was committed directly to main |
+| Commit tracking | Team members committed backend, frontend, sensor, testing, documentation, and deployment changes |
+| Integration | Merge commits were used to synchronize and integrate team updates |
+| SCM responsibility | Rabea managed repository integration and the deployment version |
+| Pull requests | A formal Pull Request workflow is not documented in the Stage 4 repository history |
 ## QA During Development
-
-QA checked completed features during development and reported issues to the team. The checks included the database, login, dashboard pages, user roles, and frontend-to-backend connection. Fixed issues were checked again before deployment.
-
-The full test cases and results will be included in Task 4.
-
-## Result
-
-The planned MVP features were implemented and integrated successfully. FlexSight is deployed and available at:
-
-[http://64.227.153.34/login](http://64.227.153.34/login)
+| QA Activity | Evidence |
+|---|---|
+| Database testing | Test queries, results, and database screenshots were added |
+| Frontend checking | React pages and completed interface functions were checked during integration |
+| Backend and API testing | A Python file containing unit and production integration test cases was added |
+| Integration checking | Frontend, backend, database, and API connections were checked during development |
+| Issue reporting | QA reported implementation and interface issues to the team |
+| Debugging details | Progress issues and adjustments are documented under Task 2 |
+| Final testing | Detailed final QA tests and results are documented under Task 4 |
+## Task Result
+The planned database, backend, frontend, sensor, access-control, and deployment functions were implemented during the three sprints. Additional repository updates were completed from 21 to 23 July 2026. Detailed debugging, testing results, and final deliverable links are documented in their corresponding Stage 4 tasks.
