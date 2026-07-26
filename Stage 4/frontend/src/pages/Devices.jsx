@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import { apiRequest, formatDate } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -45,13 +44,9 @@ function Devices() {
   const [formMessage, setFormMessage] = useState("");
   const [formIsError, setFormIsError] = useState(false);
 
-  // Sensor Settings: per-row action menu. The menu itself renders in a
-  // portal (see below) so it isn't clipped by the table's horizontal
-  // scroll container, so its screen position is tracked separately.
+  // Sensor Settings: per-row action menu
   const [openMenuId, setOpenMenuId] = useState(null);
-  const [menuPosition, setMenuPosition] = useState(null);
   const menuRef = useRef(null);
-  const menuPortalRef = useRef(null);
 
   // Sensor Settings: row-level feedback (Update/Delete/Turn On/Turn Off)
   const [rowMessage, setRowMessage] = useState("");
@@ -86,45 +81,22 @@ function Devices() {
     fetchDevices();
   }, []);
 
-  // Closes the open Sensor Settings menu when clicking anywhere outside it
-  // (the toggle button or the portal menu itself), and when the page
-  // scrolls or resizes since the menu's screen position would go stale.
+  // Closes the open Sensor Settings menu when clicking anywhere outside it.
   useEffect(() => {
     if (openMenuId === null) return undefined;
 
     function handleClickOutside(e) {
-      const inToggle = menuRef.current && menuRef.current.contains(e.target);
-      const inMenu = menuPortalRef.current && menuPortalRef.current.contains(e.target);
-      if (!inToggle && !inMenu) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
         setOpenMenuId(null);
       }
     }
 
-    function handleReposition() {
-      setOpenMenuId(null);
-    }
-
     document.addEventListener("mousedown", handleClickOutside);
-    window.addEventListener("scroll", handleReposition, true);
-    window.addEventListener("resize", handleReposition);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("scroll", handleReposition, true);
-      window.removeEventListener("resize", handleReposition);
-    };
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [openMenuId]);
 
-  function toggleRowMenu(deviceId, e) {
-    setOpenMenuId((current) => {
-      if (current === deviceId) return null;
-
-      const rect = e.currentTarget.getBoundingClientRect();
-      setMenuPosition({
-        top: rect.bottom + 6,
-        right: window.innerWidth - rect.right,
-      });
-      return deviceId;
-    });
+  function toggleRowMenu(deviceId) {
+    setOpenMenuId((current) => (current === deviceId ? null : deviceId));
   }
 
   function openEditForm(device) {
@@ -439,49 +411,41 @@ function Devices() {
                           aria-expanded={openMenuId === device.device_id}
                           aria-label={`Sensor settings for ${device.name || device.device_id}`}
                           disabled={statusLoadingId === device.device_id || deleteLoadingId === device.device_id}
-                          onClick={(e) => toggleRowMenu(device.device_id, e)}
+                          onClick={() => toggleRowMenu(device.device_id)}
                         >
                           {statusLoadingId === device.device_id || deleteLoadingId === device.device_id
                             ? "..."
                             : "⋮"}
                         </button>
 
-                        {openMenuId === device.device_id &&
-                          menuPosition &&
-                          createPortal(
-                            <div
-                              className="device-actions-menu"
-                              role="menu"
-                              ref={menuPortalRef}
-                              style={{ top: menuPosition.top, right: menuPosition.right }}
+                        {openMenuId === device.device_id && (
+                          <div className="device-actions-menu" role="menu">
+                            <button
+                              type="button"
+                              className="device-actions-item"
+                              role="menuitem"
+                              onClick={() => openEditForm(device)}
                             >
-                              <button
-                                type="button"
-                                className="device-actions-item"
-                                role="menuitem"
-                                onClick={() => openEditForm(device)}
-                              >
-                                Update
-                              </button>
-                              <button
-                                type="button"
-                                className="device-actions-item device-actions-item-danger"
-                                role="menuitem"
-                                onClick={() => handleDeleteDevice(device)}
-                              >
-                                Delete
-                              </button>
-                              <button
-                                type="button"
-                                className="device-actions-item"
-                                role="menuitem"
-                                onClick={() => handleToggleActive(device)}
-                              >
-                                {device.is_active ? "Turn Off" : "Turn On"}
-                              </button>
-                            </div>,
-                            document.body
-                          )}
+                              Update
+                            </button>
+                            <button
+                              type="button"
+                              className="device-actions-item device-actions-item-danger"
+                              role="menuitem"
+                              onClick={() => handleDeleteDevice(device)}
+                            >
+                              Delete
+                            </button>
+                            <button
+                              type="button"
+                              className="device-actions-item"
+                              role="menuitem"
+                              onClick={() => handleToggleActive(device)}
+                            >
+                              {device.is_active ? "Turn Off" : "Turn On"}
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </td>
                   </tr>
