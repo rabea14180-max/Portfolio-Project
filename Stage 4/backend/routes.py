@@ -92,12 +92,12 @@ def roles_required(*roles):
     return wrapper
 
 
-PASSWORD_PATTERN = re.compile(r"^[A-Za-z0-9]+$")
+PASSWORD_PATTERN = re.compile(r"^[A-Za-z0-9]{8,}$")
 
 
 def is_valid_password(password):
-    """Letters and digits only, matching the Access Control Matrix's
-    password policy - no spaces or special characters."""
+    """At least 8 characters, letters and digits only, matching the Access
+    Control Matrix's password policy - no spaces or special characters."""
     return bool(password) and bool(PASSWORD_PATTERN.fullmatch(password))
 
 
@@ -237,7 +237,7 @@ def register_owner():
         return jsonify({"success": False, "message": "Missing required fields"}), 400
 
     if not is_valid_password(password):
-        return jsonify({"success": False, "message": "Password must contain only letters and numbers"}), 400
+        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
@@ -300,11 +300,8 @@ def change_password():
     if not check_password_hash(user.password_hash, current_password):
         return jsonify({"success": False, "message": "Current password is incorrect"}), 400
 
-    if len(new_password) < 8:
-        return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
-
     if not is_valid_password(new_password):
-        return jsonify({"success": False, "message": "Password must contain only letters and numbers"}), 400
+        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
 
     if check_password_hash(user.password_hash, new_password):
         return jsonify({"success": False, "message": "New password must be different"}), 400
@@ -413,7 +410,7 @@ def _create_dashboard_user(role):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
 
     if not is_valid_password(password):
-        return jsonify({"success": False, "message": "Password must contain only letters and numbers"}), 400
+        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
