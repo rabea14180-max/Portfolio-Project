@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { apiRequest, formatDate } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
@@ -46,7 +46,6 @@ function Devices() {
 
   // Sensor Settings: per-row action menu
   const [openMenuId, setOpenMenuId] = useState(null);
-  const menuRef = useRef(null);
 
   // Sensor Settings: row-level feedback (Update/Delete/Turn On/Turn Off)
   const [rowMessage, setRowMessage] = useState("");
@@ -80,20 +79,6 @@ function Devices() {
   useEffect(() => {
     fetchDevices();
   }, []);
-
-  // Closes the open Sensor Settings menu when clicking anywhere outside it.
-  useEffect(() => {
-    if (openMenuId === null) return undefined;
-
-    function handleClickOutside(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
-        setOpenMenuId(null);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [openMenuId]);
 
   function toggleRowMenu(deviceId) {
     setOpenMenuId((current) => (current === deviceId ? null : deviceId));
@@ -400,10 +385,7 @@ function Devices() {
                         : "—"}
                     </td>
                     <td>
-                      <div
-                        className="device-actions"
-                        ref={openMenuId === device.device_id ? menuRef : null}
-                      >
+                      <div className="device-actions">
                         <button
                           type="button"
                           className="device-actions-toggle"
