@@ -311,6 +311,34 @@ def change_password():
     return jsonify({"success": True, "message": "Password changed successfully"}), 200
 
 
+@auth.route("/change-username", methods=["POST"])
+@token_required
+def change_username():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password") or ""
+    new_username = (data.get("new_username") or "").strip()
+    user = request.current_user
+
+    if not current_password or not new_username:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if not check_password_hash(user.password_hash, current_password):
+        return jsonify({"success": False, "message": "Current password is incorrect"}), 400
+
+    if len(new_username) > 100:
+        return jsonify({"success": False, "message": "Username must be at most 100 characters"}), 400
+
+    if new_username == user.username:
+        return jsonify({"success": False, "message": "New username must be different"}), 400
+
+    if User.query.filter(User.username == new_username, User.user_id != user.user_id).first():
+        return jsonify({"success": False, "message": "Username is already taken"}), 409
+
+    user.username = new_username
+    db.session.commit()
+    return jsonify({"success": True, "message": "Username changed successfully", "username": user.username}), 200
+
+
 @auth.route("/account", methods=["DELETE"])
 @token_required
 def delete_account():
