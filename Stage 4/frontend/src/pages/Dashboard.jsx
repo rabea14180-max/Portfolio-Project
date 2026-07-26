@@ -117,11 +117,12 @@ function Dashboard() {
     { label: "Active Devices", value: activeDevices }
   );
 
-  metrics.push({
+  metrics.unshift({
     label: "Latest Temperature",
     value: latestReading
       ? `${latestReading.temperature}°C`
       : "—",
+    featured: true,
   });
 
   const recentReadings = sortedReadings.slice(0, 5);
@@ -158,7 +159,12 @@ function Dashboard() {
 
       <div className="metrics-grid">
         {metrics.map((metric) => (
-          <div key={metric.label} className="metric-card">
+          <div
+            key={metric.label}
+            className={
+              metric.featured ? "metric-card metric-card-featured" : "metric-card"
+            }
+          >
             <div className="metric-info">
               <span className="metric-label">
                 {metric.label}

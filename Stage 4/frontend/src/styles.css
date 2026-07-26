@@ -324,6 +324,19 @@ a:hover {
   transform: translateY(-2px);
 }
 
+.metric-card-featured {
+  padding: 28px;
+  border-color: var(--primary);
+}
+
+.metric-card-featured .metric-value {
+  font-size: 34px;
+}
+
+.metric-card-featured .metric-label {
+  font-size: 13px;
+}
+
 .metric-icon {
   width: 44px;
   height: 44px;
