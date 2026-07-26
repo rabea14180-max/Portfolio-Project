@@ -971,9 +971,7 @@ a:hover {
   cursor: not-allowed;
 }
 .device-actions-menu {
-  position: absolute;
-  top: calc(100% + 6px);
-  right: 0;
+  position: fixed;
   min-width: 140px;
   background-color: var(--bg-card);
   border: 1px solid var(--border);
@@ -983,7 +981,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  z-index: 20;
+  z-index: 120;
 }
 .device-actions-item {
   display: block;
@@ -1025,10 +1023,4 @@ a:hover {
   width: 100%;
   max-height: calc(100vh - 40px);
   overflow-y: auto;
-}
-@media (max-width: 480px) {
-  .device-actions-menu {
-    right: auto;
-    left: 0;
-  }
 }
