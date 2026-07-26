@@ -404,6 +404,12 @@ a:hover {
   border-bottom: none;
 }
 
+.data-table tbody tr.latest-reading-row td {
+  font-size: 18px;
+  font-weight: 600;
+  padding: 16px 14px;
+}
+
 /* ===== Badges ===== */
 .badge {
   display: inline-block;

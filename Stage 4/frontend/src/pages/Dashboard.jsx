@@ -196,6 +196,7 @@ function Dashboard() {
                   {recentReadings.map((reading, index) => (
                     <tr
                       key={`${reading.device_id}-${reading.timestamp}-${index}`}
+                      className={index === 0 ? "latest-reading-row" : undefined}
                     >
                       <td>{reading.device_id}</td>
 
