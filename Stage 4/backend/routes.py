@@ -1000,6 +1000,17 @@ def get_readings():
     return jsonify(result), 200
 
 
+def _can_view_resolver(viewer, resolver):
+    """Resolver names are visible top-down through the role hierarchy:
+    Owner sees everyone's, Admin sees their own and Inspectors', and an
+    Inspector only sees their own."""
+    if viewer.role == "OWNER":
+        return True
+    if viewer.role == "ADMIN":
+        return resolver.user_id == viewer.user_id or resolver.role == "INSPECTOR"
+    return resolver.user_id == viewer.user_id
+
+
 @dashboard_bp.route("/alerts", methods=["GET"])
 @token_required
 def get_alerts():
@@ -1016,7 +1027,9 @@ def get_alerts():
             "temperature": float(a.temperature),
             "status": a.status,
             "triggered_at": a.created_at.isoformat(),
-            "resolved_by": a.resolver.username if a.resolver else None,
+            "resolved_by": a.resolver.username
+            if a.resolver and _can_view_resolver(request.current_user, a.resolver)
+            else None,
             "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
         }
         for a in alerts
