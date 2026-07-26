@@ -940,6 +940,7 @@ def update_device_status(device_id):
 @roles_required("OWNER", "ADMIN", "INSPECTOR")
 def get_readings():
     device_id = request.args.get("device_id", type=int)
+    device_name = request.args.get("device_name")
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
@@ -950,6 +951,7 @@ def get_readings():
         db.session.query(
             TemperatureLog,
             TemperatureSensor.device_id,
+            EmbeddedDevice.name,
             ThresholdConfig.warning_value,
             ThresholdConfig.critical_value,
         )
@@ -968,6 +970,8 @@ def get_readings():
 
     if device_id:
         query = query.filter(TemperatureSensor.device_id == device_id)
+    if device_name:
+        query = query.filter(EmbeddedDevice.name.ilike(f"%{device_name}%"))
     if start_date:
         query = query.filter(TemperatureLog.recorded_at >= start_date)
     if end_date:
@@ -976,7 +980,7 @@ def get_readings():
     rows = query.order_by(TemperatureLog.recorded_at.desc()).all()
 
     result = []
-    for log, log_device_id, warning_value, critical_value in rows:
+    for log, log_device_id, device_name_value, warning_value, critical_value in rows:
         temperature = float(log.temperature)
 
         if warning_value is None or critical_value is None:
@@ -991,6 +995,7 @@ def get_readings():
         result.append(
             {
                 "device_id": log_device_id,
+                "device_name": device_name_value,
                 "temperature": temperature,
                 "status": status,
                 "timestamp": log.recorded_at.isoformat(),
