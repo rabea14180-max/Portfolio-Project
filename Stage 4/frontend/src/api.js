@@ -8,9 +8,18 @@ export function getRole() {
   return localStorage.getItem("flexsight_role");
 }
 
+export function getUsername() {
+  return localStorage.getItem("flexsight_username");
+}
+
+export function setUsername(username) {
+  localStorage.setItem("flexsight_username", username);
+}
+
 export function clearAuth() {
   localStorage.removeItem("flexsight_token");
   localStorage.removeItem("flexsight_role");
+  localStorage.removeItem("flexsight_username");
 }
 
 export async function apiRequest(endpoint, options = {}) {

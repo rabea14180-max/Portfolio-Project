@@ -10,6 +10,7 @@ function Readings() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deviceId, setDeviceId] = useState("");
+  const [deviceName, setDeviceName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
 
@@ -19,6 +20,7 @@ function Readings() {
 
     const query = new URLSearchParams();
     if (params.device_id) query.append("device_id", params.device_id);
+    if (params.device_name) query.append("device_name", params.device_name);
     if (params.start_date) query.append("start_date", params.start_date);
     if (params.end_date) query.append("end_date", params.end_date);
 
@@ -45,6 +47,7 @@ function Readings() {
     e.preventDefault();
     const params = {};
     if (deviceId.trim()) params.device_id = deviceId.trim();
+    if (deviceName.trim()) params.device_name = deviceName.trim();
     if (startDate) params.start_date = startDate;
     if (endDate) params.end_date = endDate;
     fetchReadings(params);
@@ -52,6 +55,7 @@ function Readings() {
 
   function handleClearFilters() {
     setDeviceId("");
+    setDeviceName("");
     setStartDate("");
     setEndDate("");
     fetchReadings();
@@ -70,6 +74,16 @@ function Readings() {
               value={deviceId}
               onChange={(e) => setDeviceId(e.target.value)}
               placeholder="e.g. 1"
+            />
+          </div>
+          <div className="form-group">
+            <label htmlFor="device_name">Device Name</label>
+            <input
+              id="device_name"
+              type="text"
+              value={deviceName}
+              onChange={(e) => setDeviceName(e.target.value)}
+              placeholder="e.g. Fridge 1"
             />
           </div>
           <div className="form-group">
@@ -115,6 +129,7 @@ function Readings() {
               <thead>
                 <tr>
                   <th>Device ID</th>
+                  <th>Device Name</th>
                   <th>Temperature</th>
                   <th>Status</th>
                   <th>Timestamp</th>
@@ -124,6 +139,7 @@ function Readings() {
                 {readings.map((reading, index) => (
                   <tr key={`${reading.device_id}-${reading.timestamp}-${index}`}>
                     <td>{reading.device_id}</td>
+                    <td>{reading.device_name || "—"}</td>
                     <td>{reading.temperature}°C</td>
                     <td>
                       <StatusBadge value={reading.status} />

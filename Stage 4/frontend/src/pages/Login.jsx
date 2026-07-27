@@ -24,6 +24,7 @@ function Login() {
     if (result.ok && result.data?.success) {
       localStorage.setItem("flexsight_token", result.data.token);
       localStorage.setItem("flexsight_role", result.data.role);
+      localStorage.setItem("flexsight_username", username);
       navigate("/dashboard");
       return;
     }
@@ -74,12 +75,6 @@ function Login() {
           <button type="submit" className="btn btn-primary btn-full" disabled={loading}>
             {loading ? "Signing in..." : "Sign In"}
           </button>
-
-          <p className="auth-forgot">
-            <Link to="/forgot-password" className="auth-link">
-              Forgot your password?
-            </Link>
-          </p>
         </form>
 
         <p className="auth-footer">

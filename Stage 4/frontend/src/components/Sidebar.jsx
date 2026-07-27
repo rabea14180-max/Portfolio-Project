@@ -3,11 +3,11 @@ import { logoutRequest, getRole } from "../api";
 
 const navItems = [
   { to: "/dashboard", label: "Dashboard", icon: "▦" },
-  { to: "/devices", label: "Devices", icon: "⬡" },
+  { to: "/devices", label: "Devices", icon: "⬡", roles: ["OWNER", "ADMIN"] },
   { to: "/alerts", label: "Alerts", icon: "!" },
   { to: "/readings", label: "Readings", icon: "◇" },
-  { to: "/users", label: "Users", icon: "○" },
-  { to: "/users/new", label: "Add User", icon: "+" },
+  { to: "/users", label: "Users", icon: "○", roles: ["OWNER", "ADMIN"] },
+  { to: "/users/new", label: "Add User", icon: "+", roles: ["OWNER", "ADMIN"] },
   { to: "/settings", label: "Settings", icon: "⚙️︎" },
 ];
 

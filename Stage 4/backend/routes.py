@@ -1,6 +1,5 @@
-import hashlib
 import ipaddress
-import secrets
+import re
 from datetime import datetime, timedelta
 from functools import wraps
 
@@ -93,6 +92,15 @@ def roles_required(*roles):
     return wrapper
 
 
+PASSWORD_PATTERN = re.compile(r"^[A-Za-z0-9]{8,}$")
+
+
+def is_valid_password(password):
+    """At least 8 characters, letters and digits only, matching the Access
+    Control Matrix's password policy - no spaces or special characters."""
+    return bool(password) and bool(PASSWORD_PATTERN.fullmatch(password))
+
+
 # ---------------------------------------------------------------------------
 # Alert email notifications
 # ---------------------------------------------------------------------------
@@ -108,7 +116,7 @@ def send_alert_email(alert, device):
         u.email
         for u in User.query.filter(
             User.dashboard_id == device.dashboard_id,
-            User.role.in_(["OWNER", "ADMIN"]),
+            User.role.in_(["OWNER", "ADMIN", "INSPECTOR"]),
         ).all()
     ]
 
@@ -211,41 +219,6 @@ def check_threshold_and_alert(device, sensor, temperature):
 
 
 # ---------------------------------------------------------------------------
-# Password reset email
-# ---------------------------------------------------------------------------
-
-RESET_TOKEN_TTL_MINUTES = 30
-
-
-def send_reset_email(user, raw_token):
-    mail = current_app.extensions.get("mail")
-    # MAIL_USERNAME unset means the SMTP server isn't actually configured
-    # yet (Mail(app) is always registered regardless). Sending would try to
-    # open a real SMTP connection with no credentials and can hang well
-    # past gunicorn's worker timeout, killing the request with a bare 500
-    # instead of the JSON error responses this API otherwise always returns.
-    if mail is None or not current_app.config.get("MAIL_USERNAME"):
-        current_app.logger.warning(
-            "Skipping password reset email for user_id=%s: MAIL_USERNAME is not configured.",
-            user.user_id,
-        )
-        return
-
-    reset_link = f"{current_app.config['FRONTEND_URL']}/reset-password?token={raw_token}"
-    msg = Message(
-        subject="[FlexSight] Reset your password",
-        recipients=[user.email],
-        body=(
-            "We received a request to reset your FlexSight password.\n\n"
-            f"Reset your password: {reset_link}\n\n"
-            f"This link expires in {RESET_TOKEN_TTL_MINUTES} minutes. "
-            "If you didn't request this, you can safely ignore this email."
-        ),
-    )
-    mail.send(msg)
-
-
-# ---------------------------------------------------------------------------
 # Auth endpoints (/auth)
 # ---------------------------------------------------------------------------
 
@@ -262,6 +235,9 @@ def register_owner():
 
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if not is_valid_password(password):
+        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
@@ -302,71 +278,6 @@ def login():
     return jsonify({"success": True, "role": user.role, "token": token}), 200
 
 
-@auth.route("/forgot-password", methods=["POST"])
-def forgot_password():
-    data = request.get_json(silent=True) or {}
-    email = (data.get("email") or "").strip()
-
-    if not email:
-        return jsonify({"success": False, "message": "Email is required"}), 400
-
-    # Always return the same generic response whether or not the email is
-    # registered, so this endpoint can't be used to discover which emails
-    # have accounts.
-    generic_response = jsonify(
-        {"success": True, "message": "If that email is registered, a reset link has been sent."}
-    )
-
-    user = User.query.filter_by(email=email).first()
-    if user is None:
-        return generic_response, 200
-
-    raw_token = secrets.token_urlsafe(32)
-    user.reset_token_hash = hashlib.sha256(raw_token.encode()).hexdigest()
-    user.reset_token_expires_at = datetime.utcnow() + timedelta(minutes=RESET_TOKEN_TTL_MINUTES)
-    db.session.commit()
-
-    try:
-        send_reset_email(user, raw_token)
-    except Exception:
-        # Email delivery failing (e.g. SMTP not configured yet) shouldn't
-        # surface to the client - the response stays generic either way -
-        # but it should be visible in the server logs.
-        current_app.logger.exception("Failed to send password reset email to user_id=%s", user.user_id)
-
-    return generic_response, 200
-
-
-@auth.route("/reset-password", methods=["POST"])
-def reset_password():
-    data = request.get_json(silent=True) or {}
-    token = data.get("token") or ""
-    new_password = data.get("new_password") or ""
-
-    if not token or not new_password:
-        return jsonify({"success": False, "message": "Missing required fields"}), 400
-
-    if len(new_password) < 8:
-        return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
-
-    token_hash = hashlib.sha256(token.encode()).hexdigest()
-    user = User.query.filter_by(reset_token_hash=token_hash).first()
-
-    if (
-        user is None
-        or user.reset_token_expires_at is None
-        or user.reset_token_expires_at < datetime.utcnow()
-    ):
-        return jsonify({"success": False, "message": "This reset link is invalid or has expired"}), 400
-
-    user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
-    user.reset_token_hash = None
-    user.reset_token_expires_at = None
-    db.session.commit()
-
-    return jsonify({"success": True, "message": "Password reset successfully"}), 200
-
-
 @auth.route("/logout", methods=["POST"])
 @token_required
 def logout():
@@ -389,8 +300,8 @@ def change_password():
     if not check_password_hash(user.password_hash, current_password):
         return jsonify({"success": False, "message": "Current password is incorrect"}), 400
 
-    if len(new_password) < 8:
-        return jsonify({"success": False, "message": "New password must be at least 8 characters"}), 400
+    if not is_valid_password(new_password):
+        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
 
     if check_password_hash(user.password_hash, new_password):
         return jsonify({"success": False, "message": "New password must be different"}), 400
@@ -398,6 +309,34 @@ def change_password():
     user.password_hash = generate_password_hash(new_password, method="pbkdf2:sha256")
     db.session.commit()
     return jsonify({"success": True, "message": "Password changed successfully"}), 200
+
+
+@auth.route("/change-username", methods=["POST"])
+@token_required
+def change_username():
+    data = request.get_json(silent=True) or {}
+    current_password = data.get("current_password") or ""
+    new_username = (data.get("new_username") or "").strip()
+    user = request.current_user
+
+    if not current_password or not new_username:
+        return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if not check_password_hash(user.password_hash, current_password):
+        return jsonify({"success": False, "message": "Current password is incorrect"}), 400
+
+    if len(new_username) > 100:
+        return jsonify({"success": False, "message": "Username must be at most 100 characters"}), 400
+
+    if new_username == user.username:
+        return jsonify({"success": False, "message": "New username must be different"}), 400
+
+    if User.query.filter(User.username == new_username, User.user_id != user.user_id).first():
+        return jsonify({"success": False, "message": "Username is already taken"}), 409
+
+    user.username = new_username
+    db.session.commit()
+    return jsonify({"success": True, "message": "Username changed successfully", "username": user.username}), 200
 
 
 @auth.route("/account", methods=["DELETE"])
@@ -497,6 +436,9 @@ def _create_dashboard_user(role):
 
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    if not is_valid_password(password):
+        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
@@ -633,7 +575,7 @@ def get_dashboard():
 
 @dashboard_bp.route("/devices", methods=["GET"])
 @token_required
-@roles_required("OWNER", "ADMIN")
+@roles_required("OWNER", "ADMIN", "INSPECTOR")
 def get_devices():
     # Outer-joined to each device's active threshold in a single query
     # (via device_thresholds) instead of querying per-device in a loop.
@@ -995,9 +937,10 @@ def update_device_status(device_id):
 
 @dashboard_bp.route("/readings", methods=["GET"])
 @token_required
-@roles_required("OWNER", "ADMIN")
+@roles_required("OWNER", "ADMIN", "INSPECTOR")
 def get_readings():
     device_id = request.args.get("device_id", type=int)
+    device_name = request.args.get("device_name")
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
 
@@ -1008,6 +951,7 @@ def get_readings():
         db.session.query(
             TemperatureLog,
             TemperatureSensor.device_id,
+            EmbeddedDevice.name,
             ThresholdConfig.warning_value,
             ThresholdConfig.critical_value,
         )
@@ -1026,6 +970,8 @@ def get_readings():
 
     if device_id:
         query = query.filter(TemperatureSensor.device_id == device_id)
+    if device_name:
+        query = query.filter(EmbeddedDevice.name.ilike(f"%{device_name}%"))
     if start_date:
         query = query.filter(TemperatureLog.recorded_at >= start_date)
     if end_date:
@@ -1034,7 +980,7 @@ def get_readings():
     rows = query.order_by(TemperatureLog.recorded_at.desc()).all()
 
     result = []
-    for log, log_device_id, warning_value, critical_value in rows:
+    for log, log_device_id, device_name_value, warning_value, critical_value in rows:
         temperature = float(log.temperature)
 
         if warning_value is None or critical_value is None:
@@ -1049,6 +995,7 @@ def get_readings():
         result.append(
             {
                 "device_id": log_device_id,
+                "device_name": device_name_value,
                 "temperature": temperature,
                 "status": status,
                 "timestamp": log.recorded_at.isoformat(),
@@ -1056,6 +1003,17 @@ def get_readings():
         )
 
     return jsonify(result), 200
+
+
+def _can_view_resolver(viewer, resolver):
+    """Resolver names are visible top-down through the role hierarchy:
+    Owner sees everyone's, Admin sees their own and Inspectors', and an
+    Inspector only sees their own."""
+    if viewer.role == "OWNER":
+        return True
+    if viewer.role == "ADMIN":
+        return resolver.user_id == viewer.user_id or resolver.role == "INSPECTOR"
+    return resolver.user_id == viewer.user_id
 
 
 @dashboard_bp.route("/alerts", methods=["GET"])
@@ -1074,6 +1032,10 @@ def get_alerts():
             "temperature": float(a.temperature),
             "status": a.status,
             "triggered_at": a.created_at.isoformat(),
+            "resolved_by": a.resolver.username
+            if a.resolver and _can_view_resolver(request.current_user, a.resolver)
+            else None,
+            "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
         }
         for a in alerts
     ]

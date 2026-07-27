@@ -1,13 +1,10 @@
 import { useEffect, useState } from "react";
-import { apiRequest, formatDate, getRole } from "../api";
+import { apiRequest, formatDate } from "../api";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import StatusBadge from "../components/StatusBadge";
 
 function Dashboard() {
-  const role = getRole();
-  const canViewDevicesAndReadings = role === "OWNER" || role === "ADMIN";
-
   const [devices, setDevices] = useState([]);
   const [readings, setReadings] = useState([]);
   const [alerts, setAlerts] = useState([]);
@@ -21,16 +18,11 @@ function Dashboard() {
 
     setError("");
 
-    const requests = [apiRequest("/dashboard/alerts")];
-
-    if (canViewDevicesAndReadings) {
-      requests.push(
-        apiRequest("/dashboard/devices"),
-        apiRequest("/dashboard/readings")
-      );
-    }
-
-    const [alertsRes, devicesRes, readingsRes] = await Promise.all(requests);
+    const [alertsRes, devicesRes, readingsRes] = await Promise.all([
+      apiRequest("/dashboard/alerts"),
+      apiRequest("/dashboard/devices"),
+      apiRequest("/dashboard/readings"),
+    ]);
 
     if (
       !alertsRes.ok ||
@@ -75,7 +67,7 @@ function Dashboard() {
     return () => {
       window.clearInterval(intervalId);
     };
-  }, [canViewDevicesAndReadings]);
+  }, []);
 
   if (loading) return <LoadingState />;
   if (error) return <ErrorState message={error} />;
@@ -105,42 +97,35 @@ function Dashboard() {
     { label: "Critical Alerts", value: criticalAlerts },
   ];
 
-  if (canViewDevicesAndReadings) {
-    const onlineDevices = devices.filter(
-      (device) => String(device.status).toLowerCase() === "online"
-    ).length;
+  const onlineDevices = devices.filter(
+    (device) => String(device.status).toLowerCase() === "online"
+  ).length;
 
-    const activeDevices = devices.filter(
-      (device) => device.is_active
-    ).length;
+  const activeDevices = devices.filter(
+    (device) => device.is_active
+  ).length;
 
-    const sortedReadings = [...readings].sort(
-      (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-    );
+  const sortedReadings = [...readings].sort(
+    (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+  );
 
-    const latestReading = sortedReadings[0];
+  const latestReading = sortedReadings[0];
 
-    metrics.unshift(
-      { label: "Total Devices", value: devices.length },
-      { label: "Online Devices", value: onlineDevices },
-      { label: "Active Devices", value: activeDevices }
-    );
+  metrics.unshift(
+    { label: "Total Devices", value: devices.length },
+    { label: "Online Devices", value: onlineDevices },
+    { label: "Active Devices", value: activeDevices }
+  );
 
-    metrics.push({
-      label: "Latest Temperature",
-      value: latestReading
-        ? `${latestReading.temperature}°C`
-        : "—",
-    });
-  }
+  metrics.unshift({
+    label: "Latest Temperature",
+    value: latestReading
+      ? `${latestReading.temperature}°C`
+      : "—",
+    featured: true,
+  });
 
-  const recentReadings = canViewDevicesAndReadings
-    ? [...readings]
-        .sort(
-          (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
-        )
-        .slice(0, 5)
-    : [];
+  const recentReadings = sortedReadings.slice(0, 5);
 
   return (
     <div className="dashboard">
@@ -174,7 +159,12 @@ function Dashboard() {
 
       <div className="metrics-grid">
         {metrics.map((metric) => (
-          <div key={metric.label} className="metric-card">
+          <div
+            key={metric.label}
+            className={
+              metric.featured ? "metric-card metric-card-featured" : "metric-card"
+            }
+          >
             <div className="metric-info">
               <span className="metric-label">
                 {metric.label}
@@ -189,48 +179,47 @@ function Dashboard() {
       </div>
 
       <div className="dashboard-tables">
-        {canViewDevicesAndReadings && (
-          <div className="card">
-            <h2 className="card-title">Recent Readings</h2>
+        <div className="card">
+          <h2 className="card-title">Recent Readings</h2>
 
-            {recentReadings.length === 0 ? (
-              <p className="muted-text">
-                No readings available
-              </p>
-            ) : (
-              <div className="table-wrapper">
-                <table className="data-table">
-                  <thead>
-                    <tr>
-                      <th>Device ID</th>
-                      <th>Temperature</th>
-                      <th>Status</th>
-                      <th>Timestamp</th>
+          {recentReadings.length === 0 ? (
+            <p className="muted-text">
+              No readings available
+            </p>
+          ) : (
+            <div className="table-wrapper">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Device ID</th>
+                    <th>Temperature</th>
+                    <th>Status</th>
+                    <th>Timestamp</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  {recentReadings.map((reading, index) => (
+                    <tr
+                      key={`${reading.device_id}-${reading.timestamp}-${index}`}
+                      className={index === 0 ? "latest-reading-row" : undefined}
+                    >
+                      <td>{reading.device_id}</td>
+
+                      <td>{reading.temperature}°C</td>
+
+                      <td>
+                        <StatusBadge value={reading.status} />
+                      </td>
+
+                      <td>{formatDate(reading.timestamp)}</td>
                     </tr>
-                  </thead>
-
-                  <tbody>
-                    {recentReadings.map((reading, index) => (
-                      <tr
-                        key={`${reading.device_id}-${reading.timestamp}-${index}`}
-                      >
-                        <td>{reading.device_id}</td>
-
-                        <td>{reading.temperature}°C</td>
-
-                        <td>
-                          <StatusBadge value={reading.status} />
-                        </td>
-
-                        <td>{formatDate(reading.timestamp)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
-          </div>
-        )}
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
         <div className="card">
           <h2 className="card-title">Recent Alerts</h2>

@@ -1,10 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest, clearAuth, getRole } from "../api";
+import { apiRequest, clearAuth, getRole, getUsername, setUsername as persistUsername } from "../api";
 
 function Settings() {
   const navigate = useNavigate();
   const role = getRole();
+  const [username, setUsernameField] = useState(getUsername() || "");
+  const [usernamePassword, setUsernamePassword] = useState("");
+  const [usernameMessage, setUsernameMessage] = useState("");
+  const [usernameIsError, setUsernameIsError] = useState(false);
+  const [usernameLoading, setUsernameLoading] = useState(false);
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -14,6 +19,39 @@ function Settings() {
   const [deletePassword, setDeletePassword] = useState("");
   const [deleteMessage, setDeleteMessage] = useState("");
   const [deleteLoading, setDeleteLoading] = useState(false);
+
+  async function handleChangeUsername(e) {
+    e.preventDefault();
+    setUsernameMessage("");
+    setUsernameIsError(false);
+
+    if (username.trim() === getUsername()) {
+      setUsernameIsError(true);
+      setUsernameMessage("New username must be different");
+      return;
+    }
+
+    setUsernameLoading(true);
+    const result = await apiRequest("/auth/change-username", {
+      method: "POST",
+      body: JSON.stringify({
+        current_password: usernamePassword,
+        new_username: username.trim(),
+      }),
+    });
+    setUsernameLoading(false);
+
+    if (!result.ok || !result.data?.success) {
+      setUsernameIsError(true);
+      setUsernameMessage(result.data?.message || "Unable to change username");
+      return;
+    }
+
+    persistUsername(result.data.username);
+    setUsernameField(result.data.username);
+    setUsernamePassword("");
+    setUsernameMessage("Username changed successfully");
+  }
 
   async function handleChangePassword(e) {
     e.preventDefault();
@@ -86,6 +124,49 @@ function Settings() {
   return (
     <div className="security-settings">
       <div className="card settings-card">
+        <h2 className="card-title">Change Username</h2>
+        <p className="settings-description">
+          Update your username. You will keep using your current password to sign in.
+        </p>
+
+        <form className="settings-form" onSubmit={handleChangeUsername}>
+          {usernameMessage && (
+            <div className={`alert ${usernameIsError ? "alert-error" : "alert-success"}`}>
+              {usernameMessage}
+            </div>
+          )}
+
+          <div className="form-group">
+            <label htmlFor="username">Username</label>
+            <input
+              id="username"
+              type="text"
+              value={username}
+              onChange={(e) => setUsernameField(e.target.value)}
+              autoComplete="username"
+              required
+            />
+          </div>
+
+          <div className="form-group">
+            <label htmlFor="username_current_password">Current Password</label>
+            <input
+              id="username_current_password"
+              type="password"
+              value={usernamePassword}
+              onChange={(e) => setUsernamePassword(e.target.value)}
+              autoComplete="current-password"
+              required
+            />
+          </div>
+
+          <button type="submit" className="btn btn-primary" disabled={usernameLoading}>
+            {usernameLoading ? "Saving..." : "Save Changes"}
+          </button>
+        </form>
+      </div>
+
+      <div className="card settings-card">
         <h2 className="card-title">Change Password</h2>
         <p className="settings-description">
           Update your password. You will need to sign in again after saving.
@@ -142,29 +223,31 @@ function Settings() {
         </form>
       </div>
 
-      <div className="card settings-card danger-zone">
-        <h2 className="card-title danger-title">Delete Account</h2>
+      {role !== "INSPECTOR" && (
+        <div className="card settings-card danger-zone">
+          <h2 className="card-title danger-title">Delete Account</h2>
 
-        <form className="settings-form" onSubmit={handleDeleteAccount}>
-          {deleteMessage && <div className="alert alert-error">{deleteMessage}</div>}
+          <form className="settings-form" onSubmit={handleDeleteAccount}>
+            {deleteMessage && <div className="alert alert-error">{deleteMessage}</div>}
 
-          <div className="form-group">
-            <label htmlFor="delete_password">Current Password</label>
-            <input
-              id="delete_password"
-              type="password"
-              value={deletePassword}
-              onChange={(e) => setDeletePassword(e.target.value)}
-              autoComplete="current-password"
-              required
-            />
-          </div>
+            <div className="form-group">
+              <label htmlFor="delete_password">Current Password</label>
+              <input
+                id="delete_password"
+                type="password"
+                value={deletePassword}
+                onChange={(e) => setDeletePassword(e.target.value)}
+                autoComplete="current-password"
+                required
+              />
+            </div>
 
-          <button type="submit" className="btn btn-danger" disabled={deleteLoading}>
-            {deleteLoading ? "Deleting..." : "Delete Account"}
-          </button>
-        </form>
-      </div>
+            <button type="submit" className="btn btn-danger" disabled={deleteLoading}>
+              {deleteLoading ? "Deleting..." : "Delete Account"}
+            </button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

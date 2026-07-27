@@ -1,7 +1,8 @@
-import { getRole } from "../api";
+import { getRole, getUsername } from "../api";
 
 function Topbar({ title, onMenuClick }) {
   const role = getRole() || "UNKNOWN";
+  const username = getUsername();
 
   return (
     <header className="topbar">
@@ -17,7 +18,7 @@ function Topbar({ title, onMenuClick }) {
         <h1 className="topbar-title">{title}</h1>
       </div>
       <div className="topbar-right">
-        <span className="topbar-role-label">Role</span>
+        {username && <span className="topbar-username">{username}</span>}
         <span className="topbar-role-badge">{role}</span>
       </div>
     </header>

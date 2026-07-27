@@ -16,10 +16,6 @@ class User(db.Model):
     dashboard_id = db.Column(db.Integer, db.ForeignKey("dashboards.dashboard_id"), nullable=True)
     last_login = db.Column(db.DateTime, nullable=True)
     created_at = db.Column(db.TIMESTAMP, server_default=db.func.current_timestamp())
-    # Set only while a "forgot password" request is pending; cleared again
-    # once the token is used or replaced by a newer request.
-    reset_token_hash = db.Column(db.String(255), nullable=True)
-    reset_token_expires_at = db.Column(db.DateTime, nullable=True)
 
     dashboard = db.relationship("Dashboard", foreign_keys=[dashboard_id], backref="members")
 
