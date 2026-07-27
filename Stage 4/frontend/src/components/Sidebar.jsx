@@ -95,7 +95,9 @@ function Sidebar({ open, onClose }) {
 </div>
         <div className="sidebar-brand-text">
           <span className="sidebar-brand-name">FlexSight</span>
-          <span className="sidebar-brand-tagline">Temperature Monitoring</span>
+          <span className="sidebar-brand-tagline">
+  SENSE · INSIGHT · ALERT
+</span> 
         </div>
         <button
           type="button"
