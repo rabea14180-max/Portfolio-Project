@@ -136,7 +136,7 @@ a:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 4px;
+  gap: 5px;
   min-width: 0;
 }
 
@@ -164,10 +164,10 @@ a:hover {
 }
 
 .sidebar-brand-tagline {
-  font-size: 6.5px;
+  font-size: 6px;
   font-weight: 500;
-  line-height: 1;
-  letter-spacing: 1px;
+  line-height: 1.2;
+  letter-spacing: 0.85px;
   color: #94a3b8;
   white-space: nowrap;
 }
