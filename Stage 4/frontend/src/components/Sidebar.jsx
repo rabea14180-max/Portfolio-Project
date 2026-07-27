@@ -58,7 +58,7 @@ function Sidebar({ open, onClose }) {
     <circle cx="54" cy="20" r="3" fill="#22d3ee" />
 
     {/* Thermometer */}
-<g transform="translate(0 -2)">
+<g transform="translate(0 -5)">
   <path
     d="M32 18
        A5 5 0 0 1 37 23
