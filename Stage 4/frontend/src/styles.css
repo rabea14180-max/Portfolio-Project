@@ -143,17 +143,18 @@ a:hover {
 
 .sidebar-brand-name {
   font-weight: 600;
-  font-size: 19px;
-  line-height: 1;
-  letter-spacing: -0.5px;
+  font-size: 17px;
+  line-height: 1.05;
+  letter-spacing: -0.4px;
+  display: inline-block;
 
   background: linear-gradient(
     90deg,
     #ffffff 0%,
-    #ffffff 32%,
+    #ffffff 30%,
     #67e8f9 48%,
     #22d3ee 58%,
-    #8b5cf6 76%,
+    #8b5cf6 78%,
     #ec4899 100%
   );
 
