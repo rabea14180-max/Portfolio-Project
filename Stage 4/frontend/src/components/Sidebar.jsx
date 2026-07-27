@@ -58,31 +58,33 @@ function Sidebar({ open, onClose }) {
     <circle cx="54" cy="20" r="3" fill="#22d3ee" />
 
     {/* Thermometer */}
-    <path
-      d="M32 18
-         A5 5 0 0 1 37 23
-         V38
-         A9 9 0 1 1 27 38
-         V23
-         A5 5 0 0 1 32 18Z"
-      fill="none"
-      stroke="#e0e7ff"
-      strokeWidth="3"
-    />
+<g transform="translate(0 -2)">
+  <path
+    d="M32 18
+       A5 5 0 0 1 37 23
+       V38
+       A9 9 0 1 1 27 38
+       V23
+       A5 5 0 0 1 32 18Z"
+    fill="none"
+    stroke="#e0e7ff"
+    strokeWidth="3"
+  />
 
-    <path
-      d="M32 25V42"
-      stroke="url(#temperature-gradient)"
-      strokeWidth="4"
-      strokeLinecap="round"
-    />
+  <path
+    d="M32 25V42"
+    stroke="url(#temperature-gradient)"
+    strokeWidth="4"
+    strokeLinecap="round"
+  />
 
-    <circle
-      cx="32"
-      cy="43"
-      r="5"
-      fill="url(#temperature-gradient)"
-    />
+  <circle
+    cx="32"
+    cy="43"
+    r="5"
+    fill="url(#temperature-gradient)"
+  />
+</g>
 
     {/* Data signal */}
     <path
