@@ -168,9 +168,9 @@ a:hover {
   background: linear-gradient(
     90deg,
     #ffffff 0%,
-    #ffffff 48%,
-    #dbeafe 62%,
-    #a5f3fc 78%,
+    #ffffff 40%,
+    #f0f9ff 55%,
+    #bae6fd 72%,
     #67e8f9 100%
   );
 
