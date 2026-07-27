@@ -168,10 +168,10 @@ a:hover {
   background: linear-gradient(
     90deg,
     #ffffff 0%,
-    #ffffff 35%,
-    #22d3ee 58%,
-    #8b5cf6 80%,
-    #ec4899 100%
+    #ffffff 48%,
+    #dbeafe 62%,
+    #a5f3fc 78%,
+    #67e8f9 100%
   );
 
   -webkit-background-clip: text;
