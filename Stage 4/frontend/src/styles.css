@@ -118,17 +118,18 @@ a:hover {
 }
 
 .sidebar-logo {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-highlight));
-  border-radius: var(--radius-sm);
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: 14px;
-  color: var(--bg-main);
   flex-shrink: 0;
+}
+
+.sidebar-logo svg {
+  width: 100%;
+  height: 100%;
+  display: block;
 }
 
 .sidebar-brand-text {
@@ -137,14 +138,27 @@ a:hover {
 }
 
 .sidebar-brand-name {
-  font-weight: 700;
+  font-weight: 600;
   font-size: 16px;
-  color: var(--text-main);
+  letter-spacing: -0.3px;
+
+  background: linear-gradient(
+    90deg,
+    #ffffff 0%,
+    #ffffff 35%,
+    #22d3ee 65%,
+    #8b5cf6 100%
+  );
+
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .sidebar-brand-tagline {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--text-muted);
+  letter-spacing: 0.3px;
 }
 
 .sidebar-nav {
