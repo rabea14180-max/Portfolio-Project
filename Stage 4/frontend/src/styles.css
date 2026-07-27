@@ -112,19 +112,18 @@ a:hover {
 .sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   padding: 24px 20px;
   border-bottom: 1px solid var(--border);
 }
 
 .sidebar-logo {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transform: translateY(-2px);
 }
 
 .sidebar-logo svg {
@@ -137,40 +136,40 @@ a:hover {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 5px;
+  gap: 4px;
   min-width: 0;
 }
 
 .sidebar-brand-name {
-  font-weight: 600;
-  font-size: 17px;
-  line-height: 1.05;
-  letter-spacing: -0.4px;
   display: inline-block;
+  width: fit-content;
+
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1.25;
+  letter-spacing: -0.4px;
 
   background: linear-gradient(
     90deg,
     #ffffff 0%,
-    #ffffff 30%,
-    #67e8f9 48%,
+    #ffffff 35%,
     #22d3ee 58%,
-    #8b5cf6 78%,
+    #8b5cf6 80%,
     #ec4899 100%
   );
 
   -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .sidebar-brand-tagline {
-  font-size: 7px;
-  font-weight: 600;
-  line-height: 1.2;
-  letter-spacing: 1.25px;
+  font-size: 6.5px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 1px;
   color: #94a3b8;
   white-space: nowrap;
-  text-transform: uppercase;
 }
 
 .sidebar-nav {
