@@ -166,13 +166,13 @@ a:hover {
   letter-spacing: -0.4px;
 
   background: linear-gradient(
-    90deg,
-    #ffffff 0%,
-    #ffffff 40%,
-    #f0f9ff 55%,
-    #bae6fd 72%,
-    #67e8f9 100%
-  );
+  90deg,
+  #ffffff 0%,
+  #dbeafe 25%,
+  #67e8f9 50%,
+  #60a5fa 75%,
+  #a78bfa 100%
+);
 
   -webkit-background-clip: text;
   background-clip: text;
