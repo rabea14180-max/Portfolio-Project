@@ -69,8 +69,13 @@ function Dashboard() {
     };
   }, []);
 
-  if (loading) return <LoadingState />;
-  if (error) return <ErrorState message={error} />;
+  if (loading) {
+    return <LoadingState />;
+  }
+
+  if (error) {
+    return <ErrorState message={error} />;
+  }
 
   const openAlerts = alerts.filter(
     (alert) => String(alert.status).toUpperCase() === "OPEN"
@@ -83,22 +88,20 @@ function Dashboard() {
   ).length;
 
   const latestOpenAlert = [...openAlerts].sort(
-    (a, b) => new Date(b.triggered_at) - new Date(a.triggered_at)
+    (a, b) =>
+      new Date(b.triggered_at) - new Date(a.triggered_at)
   )[0];
 
   const recentAlerts = [...alerts]
     .sort(
-      (a, b) => new Date(b.triggered_at) - new Date(a.triggered_at)
+      (a, b) =>
+        new Date(b.triggered_at) - new Date(a.triggered_at)
     )
     .slice(0, 5);
 
-  const metrics = [
-    { label: "Active Alerts", value: activeAlerts },
-    { label: "Critical Alerts", value: criticalAlerts },
-  ];
-
   const onlineDevices = devices.filter(
-    (device) => String(device.status).toLowerCase() === "online"
+    (device) =>
+      String(device.status).toLowerCase() === "online"
   ).length;
 
   const activeDevices = devices.filter(
@@ -106,53 +109,98 @@ function Dashboard() {
   ).length;
 
   const sortedReadings = [...readings].sort(
-    (a, b) => new Date(b.timestamp) - new Date(a.timestamp)
+    (a, b) =>
+      new Date(b.timestamp) - new Date(a.timestamp)
   );
 
   const latestReading = sortedReadings[0];
 
-  metrics.unshift(
-    { label: "Total Devices", value: devices.length },
-    { label: "Online Devices", value: onlineDevices },
-    { label: "Active Devices", value: activeDevices }
-  );
-
-  metrics.unshift({
-    label: "Latest Temperature",
-    value: latestReading
-      ? `${latestReading.temperature}°C`
-      : "—",
-    featured: true,
-  });
+  const metrics = [
+    {
+      label: "Latest Temperature",
+      value: latestReading
+        ? `${latestReading.temperature}°C`
+        : "—",
+      featured: true,
+    },
+    {
+      label: "Total Devices",
+      value: devices.length,
+    },
+    {
+      label: "Online Devices",
+      value: onlineDevices,
+    },
+    {
+      label: "Active Devices",
+      value: activeDevices,
+    },
+    {
+      label: "Active Alerts",
+      value: activeAlerts,
+    },
+    {
+      label: "Critical Alerts",
+      value: criticalAlerts,
+    },
+  ];
 
   const recentReadings = sortedReadings.slice(0, 5);
 
+  const latestAlertSeverity = latestOpenAlert
+    ? String(latestOpenAlert.severity).toUpperCase()
+    : "";
+
   return (
     <div className="dashboard">
+
       {latestOpenAlert && (
         <div
           role="alert"
           className={
-            String(latestOpenAlert.severity).toUpperCase() === "CRITICAL"
+            latestAlertSeverity === "CRITICAL"
               ? "temperature-alert temperature-alert-critical"
               : "temperature-alert temperature-alert-warning"
           }
         >
-          <div>
-            <strong>
-              {String(latestOpenAlert.severity).toUpperCase() === "CRITICAL"
-                ? "🚨 Critical Temperature Alert!"
-                : "⚠️ High Temperature Warning!"}
-            </strong>
+          <div className="temperature-alert-icon">
+            {latestAlertSeverity === "CRITICAL" ? "!" : "⚠"}
+          </div>
 
-            <p>
-              Device {latestOpenAlert.device_id} recorded{" "}
-              {latestOpenAlert.temperature}°C.
-            </p>
+          <div className="temperature-alert-content">
+            <div className="temperature-alert-header">
 
-            <small>
-              Triggered at {formatDate(latestOpenAlert.triggered_at)}
-            </small>
+              <div className="temperature-alert-heading">
+                <span className="temperature-alert-label">
+                  {latestAlertSeverity === "CRITICAL"
+                    ? "Critical Alert"
+                    : "Temperature Warning"}
+                </span>
+
+                <h3 className="temperature-alert-title">
+                  Temperature threshold exceeded
+                </h3>
+              </div>
+
+              <div className="temperature-alert-value">
+                {latestOpenAlert.temperature}°C
+              </div>
+
+            </div>
+
+            <div className="temperature-alert-details">
+              <span>
+                Device {latestOpenAlert.device_id}
+              </span>
+
+              <span className="temperature-alert-dot">
+                •
+              </span>
+
+              <span>
+                {formatDate(latestOpenAlert.triggered_at)}
+              </span>
+            </div>
           </div>
         </div>
       )}
@@ -162,10 +210,13 @@ function Dashboard() {
           <div
             key={metric.label}
             className={
-              metric.featured ? "metric-card metric-card-featured" : "metric-card"
+              metric.featured
+                ? "metric-card metric-card-featured"
+                : "metric-card"
             }
           >
             <div className="metric-info">
+
               <span className="metric-label">
                 {metric.label}
               </span>
@@ -173,14 +224,18 @@ function Dashboard() {
               <span className="metric-value">
                 {metric.value}
               </span>
+
             </div>
           </div>
         ))}
       </div>
 
       <div className="dashboard-tables">
+
         <div className="card">
-          <h2 className="card-title">Recent Readings</h2>
+          <h2 className="card-title">
+            Recent Readings
+          </h2>
 
           {recentReadings.length === 0 ? (
             <p className="muted-text">
@@ -189,6 +244,7 @@ function Dashboard() {
           ) : (
             <div className="table-wrapper">
               <table className="data-table">
+
                 <thead>
                   <tr>
                     <th>Device ID</th>
@@ -202,27 +258,42 @@ function Dashboard() {
                   {recentReadings.map((reading, index) => (
                     <tr
                       key={`${reading.device_id}-${reading.timestamp}-${index}`}
-                      className={index === 0 ? "latest-reading-row" : undefined}
+                      className={
+                        index === 0
+                          ? "latest-reading-row"
+                          : undefined
+                      }
                     >
-                      <td>{reading.device_id}</td>
-
-                      <td>{reading.temperature}°C</td>
-
                       <td>
-                        <StatusBadge value={reading.status} />
+                        {reading.device_id}
                       </td>
 
-                      <td>{formatDate(reading.timestamp)}</td>
+                      <td>
+                        {reading.temperature}°C
+                      </td>
+
+                      <td>
+                        <StatusBadge
+                          value={reading.status}
+                        />
+                      </td>
+
+                      <td>
+                        {formatDate(reading.timestamp)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           )}
         </div>
 
         <div className="card">
-          <h2 className="card-title">Recent Alerts</h2>
+          <h2 className="card-title">
+            Recent Alerts
+          </h2>
 
           {recentAlerts.length === 0 ? (
             <p className="muted-text">
@@ -231,6 +302,7 @@ function Dashboard() {
           ) : (
             <div className="table-wrapper">
               <table className="data-table">
+
                 <thead>
                   <tr>
                     <th>Alert ID</th>
@@ -245,30 +317,44 @@ function Dashboard() {
                 <tbody>
                   {recentAlerts.map((alert) => (
                     <tr key={alert.alert_id}>
-                      <td>{alert.alert_id}</td>
-
-                      <td>{alert.device_id}</td>
-
-                      <td>{alert.temperature}°C</td>
 
                       <td>
-                        <StatusBadge value={alert.severity} />
+                        {alert.alert_id}
                       </td>
 
                       <td>
-                        <StatusBadge value={alert.status} />
+                        {alert.device_id}
+                      </td>
+
+                      <td>
+                        {alert.temperature}°C
+                      </td>
+
+                      <td>
+                        <StatusBadge
+                          value={alert.severity}
+                        />
+                      </td>
+
+                      <td>
+                        <StatusBadge
+                          value={alert.status}
+                        />
                       </td>
 
                       <td>
                         {formatDate(alert.triggered_at)}
                       </td>
+
                     </tr>
                   ))}
                 </tbody>
+
               </table>
             </div>
           )}
         </div>
+
       </div>
     </div>
   );
