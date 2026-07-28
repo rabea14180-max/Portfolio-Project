@@ -167,11 +167,11 @@ a:hover {
 
   background: linear-gradient(
   90deg,
-  #ffffff 0%,
-  #dbeafe 25%,
+  #e0f2fe 0%,
+  #bae6fd 25%,
   #67e8f9 50%,
-  #60a5fa 75%,
-  #a78bfa 100%
+  #38bdf8 75%,
+  #818cf8 100%
 );
 
   -webkit-background-clip: text;
