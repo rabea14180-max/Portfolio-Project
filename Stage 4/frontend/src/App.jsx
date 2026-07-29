@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
+import Landing from "./pages/Landing";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AddUser from "./pages/AddUser";
@@ -14,7 +15,7 @@ import Settings from "./pages/Settings";
 function App() {
   return (
     <Routes>
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
@@ -39,6 +40,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/devices"
         element={
@@ -49,6 +51,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/alerts"
         element={
@@ -59,6 +62,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/readings"
         element={
@@ -69,6 +73,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/users"
         element={
@@ -79,6 +84,7 @@ function App() {
           </ProtectedRoute>
         }
       />
+
       <Route
         path="/settings"
         element={

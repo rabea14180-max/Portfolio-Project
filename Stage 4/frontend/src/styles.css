@@ -1298,3 +1298,227 @@ a:hover {
     left: 0;
   }
 }
+
+/* =========================
+   FlexSight Landing Page
+   ========================= */
+
+.landing-page {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 80% 20%, rgba(0, 210, 255, 0.12), transparent 30%),
+    linear-gradient(135deg, #07111f 0%, #0b1728 55%, #07111f 100%);
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+.landing-nav {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 28px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.landing-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.landing-logo {
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  background: linear-gradient(135deg, #1de9ff, #4c7dff);
+  color: white;
+  box-shadow: 0 0 24px rgba(29, 233, 255, 0.25);
+}
+
+.landing-login-btn {
+  text-decoration: none;
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  padding: 10px 22px;
+  border-radius: 10px;
+  transition: 0.2s;
+}
+
+.landing-login-btn:hover {
+  border-color: #1de9ff;
+  color: #1de9ff;
+}
+
+.landing-hero {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 90px 40px 70px;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 70px;
+  align-items: center;
+}
+
+.landing-badge {
+  display: inline-block;
+  color: #48e5ff;
+  background: rgba(72, 229, 255, 0.08);
+  border: 1px solid rgba(72, 229, 255, 0.2);
+  padding: 8px 14px;
+  border-radius: 30px;
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+
+.landing-content h1 {
+  font-size: 58px;
+  line-height: 1.08;
+  margin: 0 0 24px;
+  letter-spacing: -2px;
+}
+
+.landing-description {
+  color: #aebdce;
+  font-size: 17px;
+  line-height: 1.8;
+  max-width: 650px;
+}
+
+.landing-actions {
+  display: flex;
+  gap: 14px;
+  margin-top: 32px;
+}
+
+.landing-primary-btn,
+.landing-secondary-btn {
+  text-decoration: none;
+  padding: 13px 26px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+.landing-primary-btn {
+  background: linear-gradient(135deg, #1de9ff, #4169ff);
+  color: white;
+  box-shadow: 0 10px 30px rgba(29, 233, 255, 0.18);
+}
+
+.landing-secondary-btn {
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: white;
+}
+
+.landing-visual {
+  display: flex;
+  justify-content: center;
+}
+
+.sensor-card {
+  width: 100%;
+  max-width: 390px;
+  background: rgba(15, 31, 51, 0.82);
+  border: 1px solid rgba(92, 220, 255, 0.18);
+  border-radius: 22px;
+  padding: 28px;
+  box-shadow:
+    0 25px 70px rgba(0, 0, 0, 0.35),
+    0 0 50px rgba(29, 233, 255, 0.05);
+  backdrop-filter: blur(14px);
+}
+
+.sensor-status {
+  color: #43efb1;
+  font-size: 13px;
+}
+
+.sensor-temp {
+  padding: 36px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.sensor-temp span {
+  color: #8ea2b7;
+  font-size: 14px;
+}
+
+.sensor-temp strong {
+  font-size: 54px;
+  letter-spacing: -2px;
+}
+
+.sensor-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.sensor-details div {
+  background: rgba(255, 255, 255, 0.04);
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sensor-details span {
+  color: #7f93aa;
+  font-size: 12px;
+}
+
+.sensor-details strong {
+  font-size: 15px;
+}
+
+.landing-features {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 40px 70px;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+
+.landing-features > div {
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.landing-features h3 {
+  margin: 0 0 10px;
+  font-size: 17px;
+}
+
+.landing-features p {
+  color: #8fa2b6;
+  line-height: 1.6;
+  font-size: 14px;
+  margin: 0;
+}
+
+@media (max-width: 850px) {
+  .landing-hero {
+    grid-template-columns: 1fr;
+    padding-top: 45px;
+  }
+
+  .landing-content h1 {
+    font-size: 42px;
+  }
+
+  .landing-features {
+    grid-template-columns: 1fr;
+  }
+}
