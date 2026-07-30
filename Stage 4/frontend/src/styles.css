@@ -601,6 +601,7 @@ a:hover {
 /* ===== Tables ===== */
 .table-wrapper {
   overflow-x: auto;
+  padding-bottom: 10rem;
 }
 
 .data-table {

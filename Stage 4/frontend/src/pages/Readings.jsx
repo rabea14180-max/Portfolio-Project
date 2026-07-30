@@ -8,13 +8,10 @@ import StatusBadge from "../components/StatusBadge";
 function Readings() {
   const [readings, setReadings] = useState([]);
   const [activities, setActivities] = useState([]);
-
   const [loading, setLoading] = useState(true);
   const [activityLoading, setActivityLoading] = useState(false);
-
   const [error, setError] = useState("");
   const [activityError, setActivityError] = useState("");
-
   const [deviceId, setDeviceId] = useState("");
   const [deviceName, setDeviceName] = useState("");
   const [startDate, setStartDate] = useState("");
@@ -209,6 +206,7 @@ function Readings() {
         </form>
       </div>
 
+<<<<<<< HEAD
       <div className="readings-results">
         {loading ? (
           <LoadingState />
@@ -253,6 +251,8 @@ function Readings() {
         )}
       </div>
 
+=======
+>>>>>>> 9290eea198708eb3780be1312061893c1129cfcc
       {activityLoading ? (
         <LoadingState />
       ) : activityError ? (
@@ -297,6 +297,48 @@ function Readings() {
                         ? formatDate(activity.timestamp)
                         : "—"}
                     </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
+      {loading ? (
+        <LoadingState />
+      ) : error ? (
+        <ErrorState message={error} />
+      ) : readings.length === 0 ? (
+        <EmptyState />
+      ) : (
+        <div className="card">
+          <h2 className="card-title">Temperature Readings</h2>
+
+          <div className="table-wrapper">
+            <table className="data-table">
+              <thead>
+                <tr>
+                  <th>Device ID</th>
+                  <th>Device Name</th>
+                  <th>Temperature</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {readings.map((reading, index) => (
+                  <tr
+                    key={`${reading.device_id}-${reading.timestamp}-${index}`}
+                  >
+                    <td>{reading.device_id}</td>
+                    <td>{reading.device_name || "—"}</td>
+                    <td>{reading.temperature}°C</td>
+                    <td>
+                      <StatusBadge value={reading.status} />
+                    </td>
+                    <td>{formatDate(reading.timestamp)}</td>
                   </tr>
                 ))}
               </tbody>
