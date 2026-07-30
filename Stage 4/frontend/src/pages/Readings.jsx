@@ -131,16 +131,6 @@ function Readings() {
       <div className="card">
         <h2 className="card-title">Temperature Readings</h2>
 
-        <div className="filter-actions" style={{ marginBottom: "24px" }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleEmployeeSearch}
-          >
-            Search by Name
-          </button>
-        </div>
-
         {loading ? (
           <LoadingState />
         ) : error ? (
