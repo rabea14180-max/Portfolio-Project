@@ -10,6 +10,7 @@ function Alerts() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
+  const [employeeName, setEmployeeName] = useState("");
 
   const fetchAlerts = useCallback(async (employeeName = "") => {
     setLoading(true);
@@ -38,14 +39,14 @@ function Alerts() {
     fetchAlerts();
   }, [fetchAlerts]);
 
-  function handleEmployeeSearch() {
-    const name = window.prompt(
-      "Enter employee name to search (leave blank to clear):",
-      "",
-    );
-    if (name === null) return;
+  function handleEmployeeSearch(event) {
+    event.preventDefault();
+    fetchAlerts(employeeName);
+  }
 
-    fetchAlerts(name);
+  function handleClearEmployeeSearch() {
+    setEmployeeName("");
+    fetchAlerts("");
   }
 
   async function updateAlertStatus(alertId, status) {
@@ -70,15 +71,36 @@ function Alerts() {
     <div className="card">
       <h2 className="card-title">All Alerts</h2>
 
-      <div className="filter-actions" style={{ marginBottom: "24px" }}>
-        <button
-          type="button"
-          className="btn btn-primary"
-          onClick={handleEmployeeSearch}
-        >
-          Search by Name
-        </button>
-      </div>
+      <form
+        className="filter-form"
+        onSubmit={handleEmployeeSearch}
+        style={{ marginBottom: "24px" }}
+      >
+        <div className="form-group" style={{ flex: 1 }}>
+          <label htmlFor="employee_name">Search by Name</label>
+          <input
+            id="employee_name"
+            type="text"
+            value={employeeName}
+            onChange={(event) => setEmployeeName(event.target.value)}
+            placeholder="Enter employee name"
+          />
+        </div>
+
+        <div className="filter-actions">
+          <button type="submit" className="btn btn-primary">
+            Search
+          </button>
+
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleClearEmployeeSearch}
+          >
+            Clear
+          </button>
+        </div>
+      </form>
 
       {loading ? (
         <LoadingState />
