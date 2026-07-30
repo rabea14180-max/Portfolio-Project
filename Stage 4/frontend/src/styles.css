@@ -374,6 +374,7 @@ a:hover {
   /* Same min-width:auto shrink issue as .layout-main, but for cards sitting
      in a grid (e.g. .dashboard-tables) instead of a flex row. */
   min-width: 0;
+  margin-bottom: 10rem;
 }
 
 .card-title {
