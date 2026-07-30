@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { apiRequest } from "../api";
+import { apiRequest, validateUsername } from "../api";
 
 function Signup() {
   const navigate = useNavigate();
@@ -15,11 +15,18 @@ function Signup() {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setError(usernameError);
+      return;
+    }
+
     setLoading(true);
 
     const result = await apiRequest("/auth/register-owner", {
       method: "POST",
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username: username.trim(), email, password }),
     });
 
     setLoading(false);

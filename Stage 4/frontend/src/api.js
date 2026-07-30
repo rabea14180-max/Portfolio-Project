@@ -94,6 +94,22 @@ export function formatDate(value) {
   }
 }
 
+const USERNAME_PATTERN = /^[A-Za-z0-9_.-]{3,100}$/;
+
+// Mirrors the backend's username rules (models.py username column is
+// varchar(100); change-username in routes.py rejects usernames over 100
+// chars). Returns "" when valid, otherwise a user-facing error message.
+export function validateUsername(value) {
+  const trimmed = (value || "").trim();
+  if (!trimmed) return "Username is required";
+  if (trimmed.length < 3) return "Username must be at least 3 characters";
+  if (trimmed.length > 100) return "Username must be 100 characters or fewer";
+  if (!USERNAME_PATTERN.test(trimmed)) {
+    return "Username can only contain letters, numbers, underscores, dots, and hyphens";
+  }
+  return "";
+}
+
 // Per-device Warning/Critical thresholds now live in the backend
 // (threshold_configs, linked per-device via device_thresholds), and
 // GET /dashboard/readings already returns a calculated `status` for every

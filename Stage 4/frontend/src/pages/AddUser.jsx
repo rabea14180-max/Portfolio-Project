@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiRequest, getRole } from "../api";
+import { apiRequest, getRole, validateUsername } from "../api";
 
 function AddUser() {
   const currentRole = getRole();
@@ -17,12 +17,19 @@ function AddUser() {
     e.preventDefault();
     setError("");
     setSuccess("");
+
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setError(usernameError);
+      return;
+    }
+
     setLoading(true);
 
     const endpoint = role === "ADMIN" ? "/users/admin" : "/users/inspector";
     const result = await apiRequest(endpoint, {
       method: "POST",
-      body: JSON.stringify({ username, email, password }),
+      body: JSON.stringify({ username: username.trim(), email, password }),
     });
 
     setLoading(false);

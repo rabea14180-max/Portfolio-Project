@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest, clearAuth, getRole, getUsername, setUsername as persistUsername } from "../api";
+import { apiRequest, clearAuth, getRole, getUsername, setUsername as persistUsername, validateUsername } from "../api";
 
 function Settings() {
   const navigate = useNavigate();
@@ -24,6 +24,13 @@ function Settings() {
     e.preventDefault();
     setUsernameMessage("");
     setUsernameIsError(false);
+
+    const usernameError = validateUsername(username);
+    if (usernameError) {
+      setUsernameIsError(true);
+      setUsernameMessage(usernameError);
+      return;
+    }
 
     if (username.trim() === getUsername()) {
       setUsernameIsError(true);
