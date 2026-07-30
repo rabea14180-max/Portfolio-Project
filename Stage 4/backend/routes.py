@@ -95,10 +95,30 @@ def roles_required(*roles):
 PASSWORD_PATTERN = re.compile(r"^[A-Za-z0-9]{8,}$")
 
 
-def is_valid_password(password):
-    """At least 8 characters, letters and digits only, matching the Access
-    Control Matrix's password policy - no spaces or special characters."""
-    return bool(password) and bool(PASSWORD_PATTERN.fullmatch(password))
+def _has_weak_digit_run(password, run_length=4):
+    """Flags a run of `run_length`+ digits that are either all identical
+    (e.g. "1111") or consecutive ascending/descending (e.g. "1234", "4321")."""
+    for run in re.findall(r"\d+", password):
+        for i in range(len(run) - run_length + 1):
+            window = run[i:i + run_length]
+            if len(set(window)) == 1:
+                return True
+            if window in "0123456789" or window in "9876543210":
+                return True
+    return False
+
+
+def get_password_error(password):
+    """Returns "" when the password satisfies the Access Control Matrix's
+    password policy, otherwise a user-facing message pinpointing which rule
+    failed."""
+    if not password:
+        return "Password is required"
+    if not PASSWORD_PATTERN.fullmatch(password):
+        return "Password must be at least 8 characters and contain only letters and numbers"
+    if _has_weak_digit_run(password):
+        return "Password cannot contain repeated or sequential numbers (e.g. 1111 or 1234)"
+    return ""
 
 
 # ---------------------------------------------------------------------------
@@ -236,8 +256,9 @@ def register_owner():
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
 
-    if not is_valid_password(password):
-        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
+    password_error = get_password_error(password)
+    if password_error:
+        return jsonify({"success": False, "message": password_error}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409
@@ -300,8 +321,9 @@ def change_password():
     if not check_password_hash(user.password_hash, current_password):
         return jsonify({"success": False, "message": "Current password is incorrect"}), 400
 
-    if not is_valid_password(new_password):
-        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
+    password_error = get_password_error(new_password)
+    if password_error:
+        return jsonify({"success": False, "message": password_error}), 400
 
     if check_password_hash(user.password_hash, new_password):
         return jsonify({"success": False, "message": "New password must be different"}), 400
@@ -437,8 +459,9 @@ def _create_dashboard_user(role):
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
 
-    if not is_valid_password(password):
-        return jsonify({"success": False, "message": "Password must be at least 8 characters and contain only letters and numbers"}), 400
+    password_error = get_password_error(password)
+    if password_error:
+        return jsonify({"success": False, "message": password_error}), 400
 
     if User.query.filter((User.username == username) | (User.email == email)).first():
         return jsonify({"success": False, "message": "User already exists"}), 409

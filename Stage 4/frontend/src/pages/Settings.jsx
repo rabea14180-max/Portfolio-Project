@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { apiRequest, clearAuth, getRole, getUsername, setUsername as persistUsername, validateUsername } from "../api";
+import { apiRequest, clearAuth, getRole, getUsername, setUsername as persistUsername, validatePassword, validateUsername } from "../api";
 
 function Settings() {
   const navigate = useNavigate();
@@ -65,9 +65,10 @@ function Settings() {
     setChangeMessage("");
     setChangeIsError(false);
 
-    if (newPassword.length < 8) {
+    const passwordError = validatePassword(newPassword);
+    if (passwordError) {
       setChangeIsError(true);
-      setChangeMessage("New password must be at least 8 characters");
+      setChangeMessage(passwordError);
       return;
     }
     if (newPassword !== confirmPassword) {

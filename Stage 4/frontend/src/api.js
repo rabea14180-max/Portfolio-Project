@@ -110,6 +110,36 @@ export function validateUsername(value) {
   return "";
 }
 
+const PASSWORD_PATTERN = /^[A-Za-z0-9]{8,}$/;
+const ASCENDING_DIGITS = "0123456789";
+const DESCENDING_DIGITS = "9876543210";
+
+// Mirrors the backend's password policy (routes.py get_password_error):
+// at least 8 characters, letters/digits only, and no 4+ run of repeated or
+// sequential digits (e.g. "1111" or "1234"). Returns "" when valid,
+// otherwise a user-facing error message.
+export function validatePassword(value, { runLength = 4 } = {}) {
+  if (!value) return "Password is required";
+  if (!PASSWORD_PATTERN.test(value)) {
+    return "Password must be at least 8 characters and contain only letters and numbers";
+  }
+
+  const digitRuns = value.match(/\d+/g) || [];
+  for (const run of digitRuns) {
+    for (let i = 0; i + runLength <= run.length; i += 1) {
+      const window = run.slice(i, i + runLength);
+      const isRepeated = new Set(window).size === 1;
+      const isSequential =
+        ASCENDING_DIGITS.includes(window) || DESCENDING_DIGITS.includes(window);
+      if (isRepeated || isSequential) {
+        return "Password cannot contain repeated or sequential numbers (e.g. 1111 or 1234)";
+      }
+    }
+  }
+
+  return "";
+}
+
 // Per-device Warning/Critical thresholds now live in the backend
 // (threshold_configs, linked per-device via device_thresholds), and
 // GET /dashboard/readings already returns a calculated `status` for every

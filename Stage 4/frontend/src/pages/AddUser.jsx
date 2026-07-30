@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { apiRequest, getRole, validateUsername } from "../api";
+import { apiRequest, getRole, validatePassword, validateUsername } from "../api";
 
 function AddUser() {
   const currentRole = getRole();
@@ -21,6 +21,12 @@ function AddUser() {
     const usernameError = validateUsername(username);
     if (usernameError) {
       setError(usernameError);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 

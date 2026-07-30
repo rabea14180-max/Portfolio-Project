@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { apiRequest, validateUsername } from "../api";
+import { apiRequest, validatePassword, validateUsername } from "../api";
 
 function Signup() {
   const navigate = useNavigate();
@@ -19,6 +19,12 @@ function Signup() {
     const usernameError = validateUsername(username);
     if (usernameError) {
       setError(usernameError);
+      return;
+    }
+
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      setError(passwordError);
       return;
     }
 
