@@ -154,9 +154,9 @@ Project management, source control, documentation, quality assurance, frontend d
 | **Rabea Thabit** | Source control management and backend development. |
 | **Munirah Alotaibi** | Documentation, quality assurance, and frontend development. |
 
-## Team Retrospective
+## 9. Team Retrospective
 
-A team retrospective was conducted after completing the FlexSight MVP to evaluate the team’s performance, discuss the main challenges, and identify improvements for future projects.
+A team retrospective was conducted after completing the FlexSight MVP to evaluate the team's performance, discuss the main challenges, and identify improvements for future projects.
 
 ### Participants
 
@@ -166,30 +166,32 @@ A team retrospective was conducted after completing the FlexSight MVP to evaluat
 
 ### What Worked Well
 
-- Team responsibilities were divided according to each member’s role and technical responsibilities.
+- Team responsibilities were divided according to each member's role and technical responsibilities.
 - The three-sprint structure provided clear development checkpoints.
 - Regular communication helped coordinate frontend, backend, documentation, QA, and sensor tasks.
 - Git-based source control supported collaboration and integration.
-- Testing throughout development helped identify and verify defects before deployment.
+- Testing throughout development helped identify defects and verify fixes before deployment.
 - The team maintained a focused MVP scope.
+- Team members supported each other during integration and final validation.
 
 ### Challenges Discussed
 
-- Integrating the ESP32 and DHT11 with the backend.
-- Connecting the frontend, backend, database, and physical hardware.
-- Implementing and testing role-based permissions.
+- Connecting the ESP32 and DHT11 sensor to the software system.
+- Integrating the frontend, backend, database, and physical hardware.
+- Implementing and testing authentication and role-based permissions.
 - Restricting the Inspector role to dashboard-only access.
 - Maintaining the stability of the main branch during integration.
-- Completing testing, fixes, and deployment within the planned schedule.
+- Completing testing, defect resolution, and deployment within the planned schedule.
 
 ### How the Challenges Were Addressed
 
 - Hardware integration was developed and tested incrementally.
 - APIs and system components were tested separately before full integration.
-- Access behavior was verified using different user roles.
+- Access behavior was verified using accounts with different user roles.
 - Source-control responsibilities helped organize shared changes.
 - QA documented defects and verified the implemented fixes.
-- The team kept the MVP focused on essential temperature-monitoring functions.
+- The team kept the MVP focused on essential temperature-monitoring functionality.
+- Integration and deployment issues were reviewed collaboratively by the team.
 
 ### Improvements for Future Projects
 
@@ -198,19 +200,27 @@ A team retrospective was conducted after completing the FlexSight MVP to evaluat
 - Prepare test accounts for every user role earlier.
 - Keep technical documentation synchronized with code changes.
 - Schedule regular integration checkpoints.
+- Record important technical decisions throughout development.
 - Reserve dedicated time for testing, defect resolution, and deployment validation.
 
 ### Retrospective Action Items
 
 | Action Item | Expected Benefit |
 |---|---|
-| Start hardware testing earlier | Reduce late integration issues |
+| Start hardware testing during the first sprint | Reduce late hardware and software integration issues |
 | Review task progress at regular checkpoints | Identify delays and blockers earlier |
 | Prepare role-based test scenarios in advance | Improve access-control validation |
-| Update documentation with each major change | Keep project information accurate |
-| Reserve a stabilization period before delivery | Allow enough time for testing and fixes |
+| Update documentation after major changes | Keep project information accurate |
+| Review shared changes before integration | Maintain main-branch stability |
+| Reserve a stabilization period before delivery | Provide sufficient time for testing and fixes |
 
-## 9. Lessons Learned
+### Retrospective Outcome
+
+The retrospective showed that the team successfully delivered the planned FlexSight MVP through focused scope, incremental development, defined responsibilities, and continuous testing.
+
+The main improvement identified for future projects was to begin integration and role-based testing earlier while maintaining more frequent documentation and progress reviews.
+
+## 10. Lessons Learned
 
 ### Test Hardware Integration Early
 
@@ -240,7 +250,7 @@ Testing throughout development is more effective than leaving all defect resolut
 
 Updated documentation makes technical decisions, responsibilities, testing evidence, and project handover clearer.
 
-## 10. Recommendations for Future Projects
+## 11. Recommendations for Future Projects
 
 - Define hardware integration checkpoints from the first sprint.
 - Prepare test accounts and acceptance scenarios for every role before implementation is complete.
@@ -248,7 +258,7 @@ Updated documentation makes technical decisions, responsibilities, testing evide
 - Include a dedicated stabilization period for integration testing, defect fixes, and deployment checks.
 - Record measurable acceptance criteria for every Must-have requirement.
 
-## 11. Potential Future Enhancements
+## 12. Potential Future Enhancements
 
 The following items are recommendations only and are not current MVP functionality:
 
@@ -258,7 +268,7 @@ The following items are recommendations only and are not current MVP functionali
 - Support for multiple monitored locations.
 - Advanced reporting and analytics.
 
-## 12. Conclusion
+## 13. Conclusion
 
 FlexSight achieved its core objective by delivering a deployed temperature monitoring and alert MVP that connects physical sensing hardware to a controlled web dashboard. The completed system supports readings, devices, alerts, thresholds, users, and role-based access.
 
