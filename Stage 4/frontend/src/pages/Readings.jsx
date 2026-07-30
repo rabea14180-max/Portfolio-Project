@@ -64,6 +64,15 @@ function Readings() {
     fetchReadings();
   }
 
+  function handleEmployeeSearch() {
+    const name = window.prompt("Enter employee name to search (leave blank to clear):", "");
+    if (name === null) return;
+
+    const params = getFilterParams();
+    if (name.trim()) params.employee_name = name.trim();
+    fetchReadings(params);
+  }
+
   return (
     <div>
       <div className="card filter-card">
@@ -130,6 +139,16 @@ function Readings() {
 
       <div className="card">
         <h2 className="card-title">Temperature Readings</h2>
+
+        <div className="filter-actions" style={{ marginBottom: "24px" }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleEmployeeSearch}
+          >
+            Search by Name
+          </button>
+        </div>
 
         {loading ? (
           <LoadingState />
