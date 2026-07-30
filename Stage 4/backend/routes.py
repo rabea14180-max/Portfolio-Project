@@ -1126,26 +1126,39 @@ def _can_view_resolver(viewer, resolver):
 @dashboard_bp.route("/alerts", methods=["GET"])
 @token_required
 def get_alerts():
+    employee_name = (request.args.get("employee_name") or "").strip().lower()
+
     alerts = (
         Alert.query.filter(Alert.dashboard_id == request.current_user.dashboard_id)
         .order_by(Alert.created_at.desc())
         .all()
     )
-    result = [
-        {
-            "alert_id": a.alert_id,
-            "device_id": a.device_id,
-            "severity": a.severity,
-            "temperature": float(a.temperature),
-            "status": a.status,
-            "triggered_at": a.created_at.isoformat(),
-            "resolved_by": a.resolver.username
+    result = []
+    for a in alerts:
+        resolved_by = (
+            a.resolver.username
             if a.resolver and _can_view_resolver(request.current_user, a.resolver)
-            else None,
-            "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
-        }
-        for a in alerts
-    ]
+            else None
+        )
+
+        if employee_name and (
+            resolved_by is None or employee_name not in resolved_by.lower()
+        ):
+            continue
+
+        result.append(
+            {
+                "alert_id": a.alert_id,
+                "device_id": a.device_id,
+                "severity": a.severity,
+                "temperature": float(a.temperature),
+                "status": a.status,
+                "triggered_at": a.created_at.isoformat(),
+                "resolved_by": resolved_by,
+                "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
+            }
+        )
+
     return jsonify(result), 200
 
 
