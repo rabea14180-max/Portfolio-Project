@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(timeout 15 ssh -o BatchMode=yes root@64.227.153.34 \"systemctl is-enabled certbot.timer; systemctl is-active certbot.timer; echo '---'; cat /etc/nginx/sites-available/flexsight\")"
+    ]
+  }
+}
