@@ -821,6 +821,11 @@ a:hover {
   gap: 10px;
   align-items: center;
   padding-bottom: 16px;
+  white-space: nowrap;
+}
+
+.filter-actions .btn {
+  white-space: nowrap;
 }
 
 /* ===== Settings ===== */
