@@ -7,28 +7,31 @@ import StatusBadge from "../components/StatusBadge";
 
 function Readings() {
   const [readings, setReadings] = useState([]);
-  const [activities, setActivities] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [activityLoading, setActivityLoading] = useState(false);
   const [error, setError] = useState("");
-  const [activityError, setActivityError] = useState("");
   const [deviceId, setDeviceId] = useState("");
   const [deviceName, setDeviceName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [employeeName, setEmployeeName] = useState("");
 
+  function getFilterParams(name = employeeName) {
+    const params = {};
+
+    if (deviceId.trim()) params.device_id = deviceId.trim();
+    if (deviceName.trim()) params.device_name = deviceName.trim();
+    if (startDate) params.start_date = startDate;
+    if (endDate) params.end_date = endDate;
+    if (name.trim()) params.employee_name = name.trim();
+
+    return params;
+  }
+
   async function fetchReadings(params = {}) {
     setLoading(true);
     setError("");
 
-    const query = new URLSearchParams();
-
-    if (params.device_id) query.append("device_id", params.device_id);
-    if (params.device_name) query.append("device_name", params.device_name);
-    if (params.start_date) query.append("start_date", params.start_date);
-    if (params.end_date) query.append("end_date", params.end_date);
-
+    const query = new URLSearchParams(params);
     const queryString = query.toString();
     const endpoint = queryString
       ? `/dashboard/readings?${queryString}`
@@ -46,56 +49,18 @@ function Readings() {
     setLoading(false);
   }
 
-  async function fetchEmployeeActivity(name = "") {
-    setActivityLoading(true);
-    setActivityError("");
-
-    const query = new URLSearchParams();
-
-    if (name.trim()) {
-      query.append("employee_name", name.trim());
-    }
-
-    const queryString = query.toString();
-    const endpoint = queryString
-      ? `/dashboard/employee-activity?${queryString}`
-      : "/dashboard/employee-activity";
-
-    const result = await apiRequest(endpoint);
-
-    if (!result.ok) {
-      setActivityError(
-        result.data?.message || "Unable to load employee activity"
-      );
-      setActivityLoading(false);
-      return;
-    }
-
-    setActivities(Array.isArray(result.data) ? result.data : []);
-    setActivityLoading(false);
-  }
-
   useEffect(() => {
     fetchReadings();
-    fetchEmployeeActivity();
   }, []);
 
   function handleFilterSubmit(event) {
     event.preventDefault();
-
-    const params = {};
-
-    if (deviceId.trim()) params.device_id = deviceId.trim();
-    if (deviceName.trim()) params.device_name = deviceName.trim();
-    if (startDate) params.start_date = startDate;
-    if (endDate) params.end_date = endDate;
-
-    fetchReadings(params);
+    fetchReadings(getFilterParams());
   }
 
-  function handleEmployeeSubmit(event) {
+  function handleEmployeeSearch(event) {
     event.preventDefault();
-    fetchEmployeeActivity(employeeName);
+    fetchReadings(getFilterParams(employeeName));
   }
 
   function handleClearFilters() {
@@ -103,12 +68,13 @@ function Readings() {
     setDeviceName("");
     setStartDate("");
     setEndDate("");
+    setEmployeeName("");
     fetchReadings();
   }
 
   function handleClearEmployee() {
     setEmployeeName("");
-    fetchEmployeeActivity();
+    fetchReadings(getFilterParams(""));
   }
 
   return (
@@ -175,18 +141,22 @@ function Readings() {
         </form>
       </div>
 
-      <div className="card filter-card">
-        <h2 className="card-title">Employee Activity</h2>
+      <div className="card">
+        <h2 className="card-title">Temperature Readings</h2>
 
-        <form className="filter-form" onSubmit={handleEmployeeSubmit}>
-          <div className="form-group">
-            <label htmlFor="employee_name">Employee Name</label>
+        <form
+          className="filter-form"
+          onSubmit={handleEmployeeSearch}
+          style={{ marginBottom: "24px" }}
+        >
+          <div className="form-group" style={{ flex: 1 }}>
+            <label htmlFor="employee_name">Search by Name</label>
             <input
               id="employee_name"
               type="text"
               value={employeeName}
               onChange={(event) => setEmployeeName(event.target.value)}
-              placeholder="Search by employee name"
+              placeholder="Enter employee name"
             />
           </div>
 
@@ -204,9 +174,7 @@ function Readings() {
             </button>
           </div>
         </form>
-      </div>
 
-      <div className="readings-results">
         {loading ? (
           <LoadingState />
         ) : error ? (
@@ -214,93 +182,39 @@ function Readings() {
         ) : readings.length === 0 ? (
           <EmptyState />
         ) : (
-          <div className="card">
-            <h2 className="card-title">Temperature Readings</h2>
-
-            <div className="table-wrapper">
-              <table className="data-table">
-                <thead>
-                  <tr>
-                    <th>Device ID</th>
-                    <th>Device Name</th>
-                    <th>Temperature</th>
-                    <th>Status</th>
-                    <th>Timestamp</th>
-                  </tr>
-                </thead>
-
-                <tbody>
-                  {readings.map((reading, index) => (
-                    <tr
-                      key={`${reading.device_id}-${reading.timestamp}-${index}`}
-                    >
-                      <td>{reading.device_id}</td>
-                      <td>{reading.device_name || "—"}</td>
-                      <td>{reading.temperature}°C</td>
-                      <td>
-                        <StatusBadge value={reading.status} />
-                      </td>
-                      <td>{formatDate(reading.timestamp)}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        )}
-      </div>
-
-      {activityLoading ? (
-        <LoadingState />
-      ) : activityError ? (
-        <ErrorState message={activityError} />
-      ) : activities.length === 0 ? (
-        <div className="card">
-          <p>No employee activity found.</p>
-        </div>
-      ) : (
-        <div className="card">
-          <h2 className="card-title">Employee Activity Records</h2>
-
           <div className="table-wrapper">
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Employee</th>
-                  <th>Role</th>
-                  <th>Action</th>
-                  <th>Details</th>
-                  <th>Alert ID</th>
                   <th>Device ID</th>
-                  <th>Date and Time</th>
+                  <th>Device Name</th>
+                  <th>Temperature</th>
+                  <th>Status</th>
+                  <th>Timestamp</th>
+                  <th>Name</th>
                 </tr>
               </thead>
 
               <tbody>
-                {activities.map((activity, index) => (
+                {readings.map((reading, index) => (
                   <tr
-                    key={`${activity.employee_name}-${activity.action}-${activity.timestamp}-${index}`}
+                    key={`${reading.device_id}-${reading.timestamp}-${index}`}
                   >
-                    <td>{activity.employee_name}</td>
+                    <td>{reading.device_id}</td>
+                    <td>{reading.device_name || "—"}</td>
+                    <td>{reading.temperature}°C</td>
                     <td>
-                      <StatusBadge value={activity.role} />
+                      <StatusBadge value={reading.status} />
                     </td>
-                    <td>{activity.action}</td>
-                    <td>{activity.details}</td>
-                    <td>{activity.alert_id || "—"}</td>
-                    <td>{activity.device_id || "—"}</td>
-                    <td>
-                      {activity.timestamp
-                        ? formatDate(activity.timestamp)
-                        : "—"}
-                    </td>
+                    <td>{formatDate(reading.timestamp)}</td>
+                    <td>{reading.name || "—"}</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }
