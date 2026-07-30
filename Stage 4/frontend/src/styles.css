@@ -600,6 +600,7 @@ a:hover {
 
 /* ===== Tables ===== */
 .table-wrapper {
+  padding-bottom: 10rem;
   overflow-x: auto;
 }
 

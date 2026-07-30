@@ -32,7 +32,7 @@ function Login() {
       return;
     }
 
-    setError(result.data?.message || "Invalid username or password");
+    setError(result.data?.message || "Unable to sign in");
   }
 
   return (

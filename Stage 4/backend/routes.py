@@ -330,8 +330,10 @@ def login():
     password = data.get("password")
 
     user = User.query.filter_by(username=username).first()
-    if user is None or not check_password_hash(user.password_hash, password or ""):
-        return jsonify({"success": False, "message": "Invalid username or password"}), 401
+    if user is None:
+        return jsonify({"success": False, "message": "Username not found"}), 401
+    if not check_password_hash(user.password_hash, password or ""):
+        return jsonify({"success": False, "message": "Incorrect password"}), 401
 
     user.last_login = datetime.utcnow()
     db.session.commit()
