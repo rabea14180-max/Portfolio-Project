@@ -943,6 +943,7 @@ def get_readings():
     device_name = request.args.get("device_name")
     start_date = request.args.get("start_date")
     end_date = request.args.get("end_date")
+    employee_name = (request.args.get("employee_name") or "").strip().lower()
 
     # Each reading's device-specific active threshold (via device_thresholds)
     # is pulled in the same query, so status can be calculated per-row
@@ -979,9 +980,43 @@ def get_readings():
 
     rows = query.order_by(TemperatureLog.recorded_at.desc()).all()
 
+    resolved_alerts = (
+        Alert.query.filter(
+            Alert.dashboard_id == request.current_user.dashboard_id,
+            Alert.status == "RESOLVED",
+            Alert.resolved_by.isnot(None),
+            Alert.resolved_at.isnot(None),
+        )
+        .order_by(Alert.created_at.desc())
+        .all()
+    )
+
     result = []
     for log, log_device_id, device_name_value, warning_value, critical_value in rows:
         temperature = float(log.temperature)
+        resolver_name = None
+
+        for alert in resolved_alerts:
+            if alert.device_id != log_device_id:
+                continue
+
+            # The alert is created immediately after its triggering reading is
+            # stored, so a small allowance includes that first reading.
+            alert_start = alert.created_at - timedelta(seconds=5)
+
+            if alert_start <= log.recorded_at <= alert.resolved_at:
+                if alert.resolver and _can_view_resolver(
+                    request.current_user,
+                    alert.resolver,
+                ):
+                    resolver_name = alert.resolver.username
+                break
+
+        if employee_name and (
+            resolver_name is None
+            or employee_name not in resolver_name.lower()
+        ):
+            continue
 
         if warning_value is None or critical_value is None:
             status = "UNKNOWN"
@@ -999,74 +1034,9 @@ def get_readings():
                 "temperature": temperature,
                 "status": status,
                 "timestamp": log.recorded_at.isoformat(),
+                "name": resolver_name,
             }
         )
-
-    return jsonify(result), 200
-
-
-@dashboard_bp.route("/employee-activity", methods=["GET"])
-@token_required
-@roles_required("OWNER", "ADMIN", "INSPECTOR")
-def get_employee_activity():
-    employee_name = (request.args.get("employee_name") or "").strip()
-
-    users_query = User.query.filter(
-        User.dashboard_id == request.current_user.dashboard_id
-    )
-
-    if employee_name:
-        users_query = users_query.filter(
-            User.username.ilike(f"%{employee_name}%")
-        )
-
-    users = users_query.order_by(User.username.asc()).all()
-    result = []
-
-    for user in users:
-        if user.last_login:
-            result.append(
-                {
-                    "employee_name": user.username,
-                    "role": user.role,
-                    "action": "LOGIN",
-                    "details": "Logged in to FlexSight",
-                    "alert_id": None,
-                    "device_id": None,
-                    "timestamp": user.last_login.isoformat(),
-                }
-            )
-
-        resolved_alerts = Alert.query.filter(
-            Alert.dashboard_id == request.current_user.dashboard_id,
-            Alert.resolved_by == user.user_id,
-            Alert.status == "RESOLVED",
-        ).all()
-
-        for alert in resolved_alerts:
-            result.append(
-                {
-                    "employee_name": user.username,
-                    "role": user.role,
-                    "action": "RESOLVED ALERT",
-                    "details": (
-                        f"Resolved {alert.severity.lower()} temperature alert "
-                        f"at {float(alert.temperature)}°C"
-                    ),
-                    "alert_id": alert.alert_id,
-                    "device_id": alert.device_id,
-                    "timestamp": (
-                        alert.resolved_at.isoformat()
-                        if alert.resolved_at
-                        else None
-                    ),
-                }
-            )
-
-    result.sort(
-        key=lambda activity: activity["timestamp"] or "",
-        reverse=True,
-    )
 
     return jsonify(result), 200
 
