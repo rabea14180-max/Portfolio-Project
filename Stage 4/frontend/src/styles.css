@@ -638,6 +638,22 @@ a:hover {
   border-bottom: none;
 }
 
+/* Devices table has 11 columns - shrink padding/font and let long
+   headers wrap instead of forcing horizontal scroll. */
+.devices-table {
+  table-layout: fixed;
+  font-size: 13px;
+}
+
+.devices-table th {
+  padding: 10px 8px;
+  white-space: normal;
+}
+
+.devices-table td {
+  padding: 10px 8px;
+}
+
 .data-table tbody tr.latest-reading-row td {
   font-size: 18px;
   font-weight: 600;

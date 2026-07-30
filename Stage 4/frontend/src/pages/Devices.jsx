@@ -342,7 +342,7 @@ function Devices() {
           <p className="muted-text devices-empty-text">No data available</p>
         ) : (
           <div className="table-wrapper">
-            <table className="data-table">
+            <table className="data-table devices-table">
               <thead>
                 <tr>
                   <th>Device ID</th>

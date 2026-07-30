@@ -178,6 +178,37 @@ function Readings() {
         </form>
       </div>
 
+      <div className="card filter-card">
+        <h2 className="card-title">Employee Activity</h2>
+
+        <form className="filter-form" onSubmit={handleEmployeeSubmit}>
+          <div className="form-group">
+            <label htmlFor="employee_name">Employee Name</label>
+            <input
+              id="employee_name"
+              type="text"
+              value={employeeName}
+              onChange={(event) => setEmployeeName(event.target.value)}
+              placeholder="Search by employee name"
+            />
+          </div>
+
+          <div className="filter-actions">
+            <button type="submit" className="btn btn-primary">
+              Search
+            </button>
+
+            <button
+              type="button"
+              className="btn btn-secondary"
+              onClick={handleClearEmployee}
+            >
+              Clear
+            </button>
+          </div>
+        </form>
+      </div>
+
       <div className="readings-results">
         {loading ? (
           <LoadingState />
@@ -220,37 +251,6 @@ function Readings() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="card filter-card">
-        <h2 className="card-title">Employee Activity</h2>
-
-        <form className="filter-form" onSubmit={handleEmployeeSubmit}>
-          <div className="form-group">
-            <label htmlFor="employee_name">Employee Name</label>
-            <input
-              id="employee_name"
-              type="text"
-              value={employeeName}
-              onChange={(event) => setEmployeeName(event.target.value)}
-              placeholder="Search by employee name"
-            />
-          </div>
-
-          <div className="filter-actions">
-            <button type="submit" className="btn btn-primary">
-              Search
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleClearEmployee}
-            >
-              Clear
-            </button>
-          </div>
-        </form>
       </div>
 
       {activityLoading ? (
