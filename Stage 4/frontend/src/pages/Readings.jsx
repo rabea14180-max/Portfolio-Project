@@ -176,7 +176,7 @@ function Readings() {
       </div>
 
       <div className="card filter-card">
-        <h2 className="card-title">Filter Employee Activity</h2>
+        <h2 className="card-title">Employee Activity</h2>
 
         <form className="filter-form" onSubmit={handleEmployeeSubmit}>
           <div className="form-group">
