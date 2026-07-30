@@ -178,47 +178,49 @@ function Readings() {
         </form>
       </div>
 
-      {loading ? (
-        <LoadingState />
-      ) : error ? (
-        <ErrorState message={error} />
-      ) : readings.length === 0 ? (
-        <EmptyState />
-      ) : (
-        <div className="card">
-          <h2 className="card-title">Temperature Readings</h2>
+      <div className="readings-results">
+        {loading ? (
+          <LoadingState />
+        ) : error ? (
+          <ErrorState message={error} />
+        ) : readings.length === 0 ? (
+          <EmptyState />
+        ) : (
+          <div className="card">
+            <h2 className="card-title">Temperature Readings</h2>
 
-          <div className="table-wrapper">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Device ID</th>
-                  <th>Device Name</th>
-                  <th>Temperature</th>
-                  <th>Status</th>
-                  <th>Timestamp</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {readings.map((reading, index) => (
-                  <tr
-                    key={`${reading.device_id}-${reading.timestamp}-${index}`}
-                  >
-                    <td>{reading.device_id}</td>
-                    <td>{reading.device_name || "—"}</td>
-                    <td>{reading.temperature}°C</td>
-                    <td>
-                      <StatusBadge value={reading.status} />
-                    </td>
-                    <td>{formatDate(reading.timestamp)}</td>
+            <div className="table-wrapper">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Device ID</th>
+                    <th>Device Name</th>
+                    <th>Temperature</th>
+                    <th>Status</th>
+                    <th>Timestamp</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+
+                <tbody>
+                  {readings.map((reading, index) => (
+                    <tr
+                      key={`${reading.device_id}-${reading.timestamp}-${index}`}
+                    >
+                      <td>{reading.device_id}</td>
+                      <td>{reading.device_name || "—"}</td>
+                      <td>{reading.temperature}°C</td>
+                      <td>
+                        <StatusBadge value={reading.status} />
+                      </td>
+                      <td>{formatDate(reading.timestamp)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       <div className="card filter-card">
         <h2 className="card-title">Employee Activity</h2>
