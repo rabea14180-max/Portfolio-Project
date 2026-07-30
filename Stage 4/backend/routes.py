@@ -1005,6 +1005,72 @@ def get_readings():
     return jsonify(result), 200
 
 
+@dashboard_bp.route("/employee-activity", methods=["GET"])
+@token_required
+@roles_required("OWNER", "ADMIN", "INSPECTOR")
+def get_employee_activity():
+    employee_name = (request.args.get("employee_name") or "").strip()
+
+    users_query = User.query.filter(
+        User.dashboard_id == request.current_user.dashboard_id
+    )
+
+    if employee_name:
+        users_query = users_query.filter(
+            User.username.ilike(f"%{employee_name}%")
+        )
+
+    users = users_query.order_by(User.username.asc()).all()
+    result = []
+
+    for user in users:
+        if user.last_login:
+            result.append(
+                {
+                    "employee_name": user.username,
+                    "role": user.role,
+                    "action": "LOGIN",
+                    "details": "Logged in to FlexSight",
+                    "alert_id": None,
+                    "device_id": None,
+                    "timestamp": user.last_login.isoformat(),
+                }
+            )
+
+        resolved_alerts = Alert.query.filter(
+            Alert.dashboard_id == request.current_user.dashboard_id,
+            Alert.resolved_by == user.user_id,
+            Alert.status == "RESOLVED",
+        ).all()
+
+        for alert in resolved_alerts:
+            result.append(
+                {
+                    "employee_name": user.username,
+                    "role": user.role,
+                    "action": "RESOLVED ALERT",
+                    "details": (
+                        f"Resolved {alert.severity.lower()} temperature alert "
+                        f"at {float(alert.temperature)}°C"
+                    ),
+                    "alert_id": alert.alert_id,
+                    "device_id": alert.device_id,
+                    "timestamp": (
+                        alert.resolved_at.isoformat()
+                        if alert.resolved_at
+                        else None
+                    ),
+                }
+            )
+
+    result.sort(
+        key=lambda activity: activity["timestamp"] or "",
+        reverse=True,
+    )
+
+    return jsonify(result), 200
+
+
 def _can_view_resolver(viewer, resolver):
     """Resolver names are visible top-down through the role hierarchy:
     Owner sees everyone's, Admin sees their own and Inspectors', and an
@@ -1019,88 +1085,26 @@ def _can_view_resolver(viewer, resolver):
 @dashboard_bp.route("/alerts", methods=["GET"])
 @token_required
 def get_alerts():
-    employee_name = (request.args.get("employee_name") or "").strip().lower()
-
     alerts = (
         Alert.query.filter(Alert.dashboard_id == request.current_user.dashboard_id)
         .order_by(Alert.created_at.desc())
         .all()
     )
-
-    result = []
-
-    for alert in alerts:
-        resolver_name = (
-            alert.resolver.username
-            if alert.resolver
-            and _can_view_resolver(request.current_user, alert.resolver)
-            else None
-        )
-
-        if employee_name and (
-            resolver_name is None
-            or employee_name not in resolver_name.lower()
-        ):
-            continue
-
-        result.append(
-            {
-                "alert_id": alert.alert_id,
-                "device_id": alert.device_id,
-                "severity": alert.severity,
-                "temperature": float(alert.temperature),
-                "status": alert.status,
-                "triggered_at": alert.created_at.isoformat(),
-                "resolved_by": resolver_name,
-                "resolved_at": (
-                    alert.resolved_at.isoformat()
-                    if alert.resolved_at
-                    else None
-                ),
-            }
-        )
-
-    return jsonify(result), 200
-
-
-@dashboard_bp.route("/employee-activity", methods=["GET"])
-@token_required
-def get_employee_activity():
-    employee_name = (request.args.get("employee_name") or "").strip().lower()
-
-    alerts = (
-        Alert.query.filter(
-            Alert.dashboard_id == request.current_user.dashboard_id,
-            Alert.resolved_by.isnot(None),
-        )
-        .order_by(Alert.resolved_at.desc())
-        .all()
-    )
-
-    result = []
-
-    for alert in alerts:
-        resolver = alert.resolver
-        if resolver is None or not _can_view_resolver(request.current_user, resolver):
-            continue
-
-        if employee_name and employee_name not in resolver.username.lower():
-            continue
-
-        result.append(
-            {
-                "employee_name": resolver.username,
-                "role": resolver.role,
-                "action": "Resolved Alert",
-                "details": f"Resolved {alert.severity} alert ({alert.temperature}°C)",
-                "alert_id": alert.alert_id,
-                "device_id": alert.device_id,
-                "timestamp": (
-                    alert.resolved_at.isoformat() if alert.resolved_at else None
-                ),
-            }
-        )
-
+    result = [
+        {
+            "alert_id": a.alert_id,
+            "device_id": a.device_id,
+            "severity": a.severity,
+            "temperature": float(a.temperature),
+            "status": a.status,
+            "triggered_at": a.created_at.isoformat(),
+            "resolved_by": a.resolver.username
+            if a.resolver and _can_view_resolver(request.current_user, a.resolver)
+            else None,
+            "resolved_at": a.resolved_at.isoformat() if a.resolved_at else None,
+        }
+        for a in alerts
+    ]
     return jsonify(result), 200
 
 
