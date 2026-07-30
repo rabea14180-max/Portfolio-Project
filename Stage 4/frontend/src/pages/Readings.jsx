@@ -13,16 +13,14 @@ function Readings() {
   const [deviceName, setDeviceName] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
-  const [employeeName, setEmployeeName] = useState("");
 
-  function getFilterParams(name = employeeName) {
+  function getFilterParams() {
     const params = {};
 
     if (deviceId.trim()) params.device_id = deviceId.trim();
     if (deviceName.trim()) params.device_name = deviceName.trim();
     if (startDate) params.start_date = startDate;
     if (endDate) params.end_date = endDate;
-    if (name.trim()) params.employee_name = name.trim();
 
     return params;
   }
@@ -58,26 +56,12 @@ function Readings() {
     fetchReadings(getFilterParams());
   }
 
-  function handleEmployeeSearch() {
-    const name = window.prompt("Enter employee name to search:", employeeName);
-    if (name === null) return;
-
-    setEmployeeName(name);
-    fetchReadings(getFilterParams(name));
-  }
-
   function handleClearFilters() {
     setDeviceId("");
     setDeviceName("");
     setStartDate("");
     setEndDate("");
-    setEmployeeName("");
     fetchReadings();
-  }
-
-  function handleClearEmployee() {
-    setEmployeeName("");
-    fetchReadings(getFilterParams(""));
   }
 
   return (
@@ -146,24 +130,6 @@ function Readings() {
 
       <div className="card">
         <h2 className="card-title">Temperature Readings</h2>
-
-        <div className="filter-actions" style={{ marginBottom: "24px" }}>
-          <button
-            type="button"
-            className="btn btn-primary"
-            onClick={handleEmployeeSearch}
-          >
-            Search by Name
-          </button>
-
-          <button
-            type="button"
-            className="btn btn-secondary"
-            onClick={handleClearEmployee}
-          >
-            Clear
-          </button>
-        </div>
 
         {loading ? (
           <LoadingState />
