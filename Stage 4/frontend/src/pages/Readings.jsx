@@ -64,15 +64,6 @@ function Readings() {
     fetchReadings();
   }
 
-  function handleEmployeeSearch() {
-    const name = window.prompt("Enter employee name to search (leave blank to clear):", "");
-    if (name === null) return;
-
-    const params = getFilterParams();
-    if (name.trim()) params.employee_name = name.trim();
-    fetchReadings(params);
-  }
-
   return (
     <div>
       <div className="card filter-card">
