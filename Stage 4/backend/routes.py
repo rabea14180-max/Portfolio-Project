@@ -1063,6 +1063,47 @@ def get_alerts():
     return jsonify(result), 200
 
 
+@dashboard_bp.route("/employee-activity", methods=["GET"])
+@token_required
+def get_employee_activity():
+    employee_name = (request.args.get("employee_name") or "").strip().lower()
+
+    alerts = (
+        Alert.query.filter(
+            Alert.dashboard_id == request.current_user.dashboard_id,
+            Alert.resolved_by.isnot(None),
+        )
+        .order_by(Alert.resolved_at.desc())
+        .all()
+    )
+
+    result = []
+
+    for alert in alerts:
+        resolver = alert.resolver
+        if resolver is None or not _can_view_resolver(request.current_user, resolver):
+            continue
+
+        if employee_name and employee_name not in resolver.username.lower():
+            continue
+
+        result.append(
+            {
+                "employee_name": resolver.username,
+                "role": resolver.role,
+                "action": "Resolved Alert",
+                "details": f"Resolved {alert.severity} alert ({alert.temperature}°C)",
+                "alert_id": alert.alert_id,
+                "device_id": alert.device_id,
+                "timestamp": (
+                    alert.resolved_at.isoformat() if alert.resolved_at else None
+                ),
+            }
+        )
+
+    return jsonify(result), 200
+
+
 @dashboard_bp.route("/alerts/<int:alert_id>", methods=["PUT"])
 @token_required
 def update_alert(alert_id):
