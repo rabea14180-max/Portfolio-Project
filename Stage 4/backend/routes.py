@@ -121,6 +121,43 @@ def get_password_error(password):
     return ""
 
 
+USERNAME_PATTERN = re.compile(r"^[A-Za-z0-9_.-]{5,100}$")
+
+
+def _has_repeated_char_pattern(username):
+    """Flags a run of 4+ repeated characters: one character repeated
+    (e.g. "aaaa"), a 2-character block repeated (e.g. "abab"), or a
+    3-character block repeated (e.g. "abcabc")."""
+    for i in range(len(username) - 3):
+        window = username[i:i + 4]
+        if len(set(window)) == 1:
+            return True
+        if window[0:2] == window[2:4]:
+            return True
+    for i in range(len(username) - 5):
+        if username[i:i + 3] == username[i + 3:i + 6]:
+            return True
+    return False
+
+
+def get_username_error(username):
+    """Returns "" when the username satisfies the naming policy, otherwise a
+    user-facing message pinpointing which rule failed. Mirrors the
+    frontend's validateUsername in api.js."""
+    trimmed = (username or "").strip()
+    if not trimmed:
+        return "Username is required"
+    if len(trimmed) <= 4:
+        return "Username must be more than 4 characters"
+    if len(trimmed) > 100:
+        return "Username must be 100 characters or fewer"
+    if not USERNAME_PATTERN.fullmatch(trimmed):
+        return "Username can only contain letters, numbers, underscores, dots, and hyphens"
+    if _has_repeated_char_pattern(trimmed):
+        return "Username cannot contain a repeated character or pattern (e.g. aaaa or abab)"
+    return ""
+
+
 # ---------------------------------------------------------------------------
 # Alert email notifications
 # ---------------------------------------------------------------------------
@@ -256,6 +293,10 @@ def register_owner():
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
 
+    username_error = get_username_error(username)
+    if username_error:
+        return jsonify({"success": False, "message": username_error}), 400
+
     password_error = get_password_error(password)
     if password_error:
         return jsonify({"success": False, "message": password_error}), 400
@@ -347,8 +388,9 @@ def change_username():
     if not check_password_hash(user.password_hash, current_password):
         return jsonify({"success": False, "message": "Current password is incorrect"}), 400
 
-    if len(new_username) > 100:
-        return jsonify({"success": False, "message": "Username must be at most 100 characters"}), 400
+    username_error = get_username_error(new_username)
+    if username_error:
+        return jsonify({"success": False, "message": username_error}), 400
 
     if new_username == user.username:
         return jsonify({"success": False, "message": "New username must be different"}), 400
@@ -458,6 +500,10 @@ def _create_dashboard_user(role):
 
     if not all([username, email, password]):
         return jsonify({"success": False, "message": "Missing required fields"}), 400
+
+    username_error = get_username_error(username)
+    if username_error:
+        return jsonify({"success": False, "message": username_error}), 400
 
     password_error = get_password_error(password)
     if password_error:

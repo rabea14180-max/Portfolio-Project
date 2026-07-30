@@ -94,18 +94,37 @@ export function formatDate(value) {
   }
 }
 
-const USERNAME_PATTERN = /^[A-Za-z0-9_.-]{3,100}$/;
+const USERNAME_PATTERN = /^[A-Za-z0-9_.-]{5,100}$/;
+
+// Flags a run of 4+ repeated characters, whether that's one character
+// repeated (e.g. "aaaa"), a 2-character block repeated (e.g. "abab"), or a
+// 3-character block repeated (e.g. "abcabc") - mirrors the repeated/
+// sequential digit rule used for passwords.
+function hasRepeatedCharPattern(value) {
+  for (let i = 0; i + 4 <= value.length; i += 1) {
+    if (new Set(value.slice(i, i + 4)).size === 1) return true;
+    if (value.slice(i, i + 2) === value.slice(i + 2, i + 4)) return true;
+  }
+  for (let i = 0; i + 6 <= value.length; i += 1) {
+    if (value.slice(i, i + 3) === value.slice(i + 3, i + 6)) return true;
+  }
+  return false;
+}
 
 // Mirrors the backend's username rules (models.py username column is
-// varchar(100); change-username in routes.py rejects usernames over 100
-// chars). Returns "" when valid, otherwise a user-facing error message.
+// varchar(100); routes.py get_username_error enforces the same charset,
+// length, and no-repeated-pattern rules). Returns "" when valid, otherwise
+// a user-facing error message.
 export function validateUsername(value) {
   const trimmed = (value || "").trim();
   if (!trimmed) return "Username is required";
-  if (trimmed.length < 3) return "Username must be at least 3 characters";
+  if (trimmed.length <= 4) return "Username must be more than 4 characters";
   if (trimmed.length > 100) return "Username must be 100 characters or fewer";
   if (!USERNAME_PATTERN.test(trimmed)) {
     return "Username can only contain letters, numbers, underscores, dots, and hyphens";
+  }
+  if (hasRepeatedCharPattern(trimmed)) {
+    return "Username cannot contain a repeated character or pattern (e.g. aaaa or abab)";
   }
   return "";
 }
