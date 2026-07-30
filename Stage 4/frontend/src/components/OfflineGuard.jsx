@@ -1,28 +1,52 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { apiRequest } from "../api";
 import ErrorState from "./ErrorState";
+import LoadingState from "./LoadingState";
 
 function OfflineGuard({ children }) {
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
+  const [isConnected, setIsConnected] = useState(null);
 
-  useEffect(() => {
-    function handleOnline() {
-      setIsOnline(true);
+  const checkConnection = useCallback(async () => {
+    if (!navigator.onLine) {
+      setIsConnected(false);
+      return;
     }
 
-    function handleOffline() {
-      setIsOnline(false);
-    }
+    const result = await apiRequest(
+      `/dashboard?connection_check=${Date.now()}`
+    );
 
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
+    setIsConnected(result.ok);
   }, []);
 
-  if (!isOnline) {
+  useEffect(() => {
+    function handleOffline() {
+      setIsConnected(false);
+    }
+
+    function handleOnline() {
+      checkConnection();
+    }
+
+    checkConnection();
+
+    window.addEventListener("offline", handleOffline);
+    window.addEventListener("online", handleOnline);
+
+    const interval = setInterval(checkConnection, 5000);
+
+    return () => {
+      window.removeEventListener("offline", handleOffline);
+      window.removeEventListener("online", handleOnline);
+      clearInterval(interval);
+    };
+  }, [checkConnection]);
+
+  if (isConnected === null) {
+    return <LoadingState />;
+  }
+
+  if (!isConnected) {
     return <ErrorState />;
   }
 
