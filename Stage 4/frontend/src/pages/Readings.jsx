@@ -58,9 +58,12 @@ function Readings() {
     fetchReadings(getFilterParams());
   }
 
-  function handleEmployeeSearch(event) {
-    event.preventDefault();
-    fetchReadings(getFilterParams(employeeName));
+  function handleEmployeeSearch() {
+    const name = window.prompt("Enter employee name to search:", employeeName);
+    if (name === null) return;
+
+    setEmployeeName(name);
+    fetchReadings(getFilterParams(name));
   }
 
   function handleClearFilters() {
@@ -144,36 +147,23 @@ function Readings() {
       <div className="card">
         <h2 className="card-title">Temperature Readings</h2>
 
-        <form
-          className="filter-form"
-          onSubmit={handleEmployeeSearch}
-          style={{ marginBottom: "24px" }}
-        >
-          <div className="form-group" style={{ flex: 1 }}>
-            <label htmlFor="employee_name">Search by Name</label>
-            <input
-              id="employee_name"
-              type="text"
-              value={employeeName}
-              onChange={(event) => setEmployeeName(event.target.value)}
-              placeholder="Enter employee name"
-            />
-          </div>
+        <div className="filter-actions" style={{ marginBottom: "24px" }}>
+          <button
+            type="button"
+            className="btn btn-primary"
+            onClick={handleEmployeeSearch}
+          >
+            Search by Name
+          </button>
 
-          <div className="filter-actions">
-            <button type="submit" className="btn btn-primary">
-              Search
-            </button>
-
-            <button
-              type="button"
-              className="btn btn-secondary"
-              onClick={handleClearEmployee}
-            >
-              Clear
-            </button>
-          </div>
-        </form>
+          <button
+            type="button"
+            className="btn btn-secondary"
+            onClick={handleClearEmployee}
+          >
+            Clear
+          </button>
+        </div>
 
         {loading ? (
           <LoadingState />
