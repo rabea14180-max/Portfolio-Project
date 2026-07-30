@@ -13,7 +13,7 @@
 
 ## Executive Summary
 
-FlexSight delivered a functional web-based MVP that connects an ESP32 monitoring node and DHT11 temperature sensor to a Flask backend, SQL database, and React dashboard. The completed system supports authentication, device monitoring, stored temperature readings, configurable thresholds, alert handling, user management, and role-based access control.
+FlexSight delivered a functional web-based MVP that connects an ESP32 monitoring node and DHT11 temperature sensor to a Flask backend, SQL database, and React dashboard. The completed system supports Sign Up, Log In, Log Out, device monitoring, stored temperature readings, configurable thresholds, alert handling, user management, and role-based access control.
 
 The final result met the core objectives defined for the MVP: capture temperature data from physical hardware, process and store readings, present operational information through a deployed dashboard, and create alerts when a configured temperature limit is exceeded.
 
@@ -25,7 +25,9 @@ FlexSight was created to improve temperature visibility in sensitive environment
 
 The delivered MVP includes:
 
-- User registration, login, and logout.
+- Sign Up for creating a new Owner account.
+- Log In for authenticating registered users.
+- Log Out for securely ending the current user session.
 - A monitoring dashboard that displays the latest temperature, device status, and alert indicators.
 - Device records and stored temperature readings.
 - Configurable alert thresholds.
@@ -70,6 +72,16 @@ The default project threshold is **50°C**, and the threshold is configurable.
 | Deliver and deploy a stable MVP | The integrated web system was deployed and validated. | Achieved |
 
 ## 4. Implemented Functional Results
+
+### Authentication Functions
+
+- The system provides a Sign Up page for creating a new Owner account.
+- Registered users can securely Log In using their account credentials.
+- Authenticated users can Log Out and end their active session.
+- Protected pages require authentication before access is granted.
+- Available pages and system functions are controlled according to the user's role.
+
+### Dashboard and Monitoring Functions
 
 - The dashboard refreshes available system information every five seconds.
 - Dashboard metrics include:
@@ -190,7 +202,7 @@ A team retrospective was conducted after completing the FlexSight MVP to evaluat
 - Access behavior was verified using accounts with different user roles.
 - Source-control responsibilities helped organize shared changes.
 - QA documented defects and verified the implemented fixes.
-- The team kept the MVP focused on essential temperature-monitoring functionality.
+- The team kept the MVP focused on essential temperature-monitoring functions.
 - Integration and deployment issues were reviewed collaboratively by the team.
 
 ### Improvements for Future Projects
@@ -270,6 +282,6 @@ The following items are recommendations only and are not current MVP functionali
 
 ## 13. Conclusion
 
-FlexSight achieved its core objective by delivering a deployed temperature monitoring and alert MVP that connects physical sensing hardware to a controlled web dashboard. The completed system supports readings, devices, alerts, thresholds, users, and role-based access.
+FlexSight achieved its core objective by delivering a deployed temperature monitoring and alert MVP that connects physical sensing hardware to a controlled web dashboard. The completed system supports Sign Up, Log In, Log Out, readings, devices, alerts, thresholds, users, and role-based access.
 
 The project demonstrated the importance of focused scope, incremental integration, role-specific testing, continuous documentation, and coordinated source control. The completed MVP provides a validated foundation for future improvements without overstating unimplemented capabilities.
