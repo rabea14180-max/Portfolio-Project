@@ -154,6 +154,62 @@ Project management, source control, documentation, quality assurance, frontend d
 | **Rabea Thabit** | Source control management and backend development. |
 | **Munirah Alotaibi** | Documentation, quality assurance, and frontend development. |
 
+## Team Retrospective
+
+A team retrospective was conducted after completing the FlexSight MVP to evaluate the team’s performance, discuss the main challenges, and identify improvements for future projects.
+
+### Participants
+
+- Hamsa Bnian Alammar
+- Rabea Thabit
+- Munirah Alotaibi
+
+### What Worked Well
+
+- Team responsibilities were divided according to each member’s role and technical responsibilities.
+- The three-sprint structure provided clear development checkpoints.
+- Regular communication helped coordinate frontend, backend, documentation, QA, and sensor tasks.
+- Git-based source control supported collaboration and integration.
+- Testing throughout development helped identify and verify defects before deployment.
+- The team maintained a focused MVP scope.
+
+### Challenges Discussed
+
+- Integrating the ESP32 and DHT11 with the backend.
+- Connecting the frontend, backend, database, and physical hardware.
+- Implementing and testing role-based permissions.
+- Restricting the Inspector role to dashboard-only access.
+- Maintaining the stability of the main branch during integration.
+- Completing testing, fixes, and deployment within the planned schedule.
+
+### How the Challenges Were Addressed
+
+- Hardware integration was developed and tested incrementally.
+- APIs and system components were tested separately before full integration.
+- Access behavior was verified using different user roles.
+- Source-control responsibilities helped organize shared changes.
+- QA documented defects and verified the implemented fixes.
+- The team kept the MVP focused on essential temperature-monitoring functions.
+
+### Improvements for Future Projects
+
+- Begin hardware integration during the first sprint.
+- Define clearer acceptance criteria for every task.
+- Prepare test accounts for every user role earlier.
+- Keep technical documentation synchronized with code changes.
+- Schedule regular integration checkpoints.
+- Reserve dedicated time for testing, defect resolution, and deployment validation.
+
+### Retrospective Action Items
+
+| Action Item | Expected Benefit |
+|---|---|
+| Start hardware testing earlier | Reduce late integration issues |
+| Review task progress at regular checkpoints | Identify delays and blockers earlier |
+| Prepare role-based test scenarios in advance | Improve access-control validation |
+| Update documentation with each major change | Keep project information accurate |
+| Reserve a stabilization period before delivery | Allow enough time for testing and fixes |
+
 ## 9. Lessons Learned
 
 ### Test Hardware Integration Early
