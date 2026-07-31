@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Layout from "./components/Layout";
 import Landing from "./pages/Landing";
+import Links from "./pages/Links";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import AddUser from "./pages/AddUser";
@@ -16,6 +17,7 @@ function App() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/links" element={<Links />} />
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
 
