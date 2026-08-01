@@ -13,10 +13,11 @@
 |---|---|
 | Results and Lessons Learned | [FlexSight_Results_and_Lessons_Learned.md](FlexSight_Results_and_Lessons_Learned.md) |
 | Project Presentation | [FlexSight_Portfolio_Presentation.pdf](FlexSight_Portfolio_Presentation.pdf) |
-| Presentation PDF | [FlexSight_Portfolio_Presentation.pdf](FlexSight_Portfolio_Presentation.pdf) |
 | Team Retrospective | [team-retrospective.md](team-retrospective.md) |
 | Live Demo Plan | [demo-plan.md](demo-plan.md) |
 
 ## Final Status
 
 FlexSight was completed, tested, and deployed successfully. All 16 planned tasks were completed across three sprints, and 38 automated checks passed.
+
+The final MVP includes temperature monitoring, configurable thresholds, dashboard alerts, email notifications, and role-based access control.
