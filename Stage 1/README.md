@@ -105,20 +105,21 @@ The system:
 
 ### 4.1 In Scope
 
+### 4.1 In Scope
+
 | # | Feature | Description |
 |---|---|---|
 | 1 | Temperature Monitoring | Collect hourly temperature readings from ESP32 monitoring devices |
 | 2 | ESP32 Monitoring Device | Use an ESP32-based device to collect and send temperature data |
 | 3 | MQTT/API Communication | Send temperature readings from the ESP32 device to the backend |
 | 4 | Server Processing | Receive, validate, process, and store temperature data |
-| 5 | Threshold Checking | Classify readings as normal, warning, or critical based on configured thresholds |
-| 6 | Web Dashboard | Display temperature readings, device status, and alert information |
-| 7 | Dashboard Alerts | Show warning and critical alerts when abnormal temperatures are detected |
-| 8 | Historical Readings | Store and display previous hourly temperature readings |
-| 9 | User Roles | Support Owner, Admin, and Inspector roles with role-based access |
-| 10 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
-
-### 4.2 Out of Scope
+| 5 | Threshold Checking | Classify readings based on configured thresholds |
+| 6 | Web Dashboard | Display temperature readings, device status, and alerts |
+| 7 | Dashboard Alerts | Show alerts when abnormal temperatures are detected |
+| 8 | Email Notifications | Send email alerts to configured recipients when abnormal temperatures are detected |
+| 9 | Historical Readings | Store and display previous hourly temperature readings |
+| 10 | User Roles | Support Owner, Admin, and Inspector roles |
+| 11 | User Authentication | Allow users to sign up, log in, and log out |
 
 | # | Feature | Status |
 |---|---|---|
@@ -156,9 +157,10 @@ These features may be considered in future versions after the temperature monito
 |---|---|
 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
 | Temperature Monitoring | Collect hourly temperature readings from ESP32 monitoring devices |
-| Alert Detection | Detect warning and critical temperature levels based on configured thresholds |
-| Dashboard Monitoring | Display readings, device status, and alert information in a web dashboard |
-| Incident Follow-up | Allow responsible users to acknowledge, follow up, and resolve alerts |
+| Alert Detection | Detect abnormal temperature levels based on configured thresholds |
+| Dashboard Monitoring | Display readings, device status, and alerts |
+| Email Notification | Send an email alert to configured recipients when an abnormal temperature is detected |
+| Incident Follow-up | Allow responsible users to acknowledge and resolve alerts |
 
 
 ---
