@@ -15,9 +15,11 @@
 
 - Confirm that the website and login page are working.
 - Verify that devices, readings, and alerts are available.
-- Open the presentation and website before starting.
+- Confirm that the alert email recipient is configured.
+- Verify that email notifications are working.
+- Open the presentation, website, and demonstration email before starting.
 - Hide passwords and sensitive information.
-- Keep the real screenshots as a backup.
+- Keep real screenshots as a backup.
 
 ## Live Demo Steps
 
@@ -26,29 +28,44 @@
 3. Show registered devices and their status.
 4. Open the Readings page and explain the stored temperature data.
 5. Demonstrate the user-configurable temperature threshold.
-6. Show generated alerts and their severity and status.
-7. Acknowledge or resolve an alert.
-8. Demonstrate role-based access.
+6. Show the configured email recipient.
+7. Show the alert generated when the threshold is exceeded.
+8. Show the alert notification received by email.
+9. Acknowledge or resolve the alert.
+10. Demonstrate role-based access.
+
+## Email Alerts
+
+FlexSight can send an email notification when a temperature reading exceeds the threshold configured by an authorized user.
+
+The email notification provides information about the triggered alert so the responsible user can respond without continuously monitoring the dashboard.
+
+During the demo:
+
+- Confirm the configured recipient email.
+- Trigger or display an existing temperature alert.
+- Show the alert inside the FlexSight dashboard.
+- Open the received email notification.
+- Do not display passwords or private account information.
 
 ## User Roles
 
-- **Owner:** Full system access.
-- **Admin/Manager:** Manages users, devices, alerts, and configuration.
+- **Owner:** Full system access, including users, devices, alerts, thresholds, and email settings.
+- **Admin/Manager:** Manages users, devices, alerts, thresholds, and email settings according to permissions.
 - **Inspector:** View-only access to Dashboard and Readings, with access to Settings to change the password.
 
 ## System Flow
 
 DHT11 Sensor → ESP32 → Flask REST API → PostgreSQL → React Dashboard
 
-The backend compares incoming readings with the threshold configured by an authorized user and creates an alert when the threshold is exceeded.
+When a reading exceeds the configured threshold, the backend creates an alert inside the application and sends an email notification to the configured recipient.
 
 ## Demo Closing
 
-FlexSight delivers a complete sensor-to-dashboard workflow with temperature monitoring, stored readings, configurable thresholds, alerts, and role-based access control.
+FlexSight delivers a complete sensor-to-dashboard workflow with temperature monitoring, stored readings, configurable thresholds, dashboard alerts, email notifications, and role-based access control.
 
-If the live website is unavailable, the team will continue the demonstration using the real screenshots included in the presentation.
+If the live website or email service is unavailable, the team will continue the demonstration using real screenshots.
 
 ## Live Demo
 
 **FlexSight Website:** https://flexsight.dev/links
-ڑ
