@@ -115,9 +115,8 @@ The system:
 | 6 | Web Dashboard | Display temperature readings, device status, and alert information |
 | 7 | Dashboard Alerts | Show warning and critical alerts when abnormal temperatures are detected |
 | 8 | Historical Readings | Store and display previous hourly temperature readings |
-| 9 | Email Notifications | Send email notifications when warning or critical alerts occur |
-| 10 | User Roles | Support Owner, Admin, and Inspector roles with role-based access |
-| 11 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
+| 9 | User Roles | Support Owner, Admin, and Inspector roles with role-based access |
+| 10 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
 
 ### 4.2 Out of Scope
 
@@ -160,7 +159,7 @@ These features may be considered in future versions after the temperature monito
 | Alert Detection | Detect warning and critical temperature levels based on configured thresholds |
 | Dashboard Monitoring | Display readings, device status, and alert information in a web dashboard |
 | Incident Follow-up | Allow responsible users to acknowledge, follow up, and resolve alerts |
-| Email Notification | Notify responsible users when abnormal temperature levels are detected |
+
 
 ---
 
@@ -265,7 +264,7 @@ FlexSight was chosen because it is:
 - Based on a clear workflow:
 
 text
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 ---
@@ -317,7 +316,7 @@ Database Storage
         ↓
 Web Dashboard
         ↓
-Dashboard Alert / Email Notification
+Dashboard Alert 
 
 
 ### 10.3 Data Flow
