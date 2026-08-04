@@ -80,10 +80,6 @@ function Signup() {
               </h1>
             </div>
           </div>
-
-          <p className="auth-subtitle">
-            Temperature Monitoring & Alert System
-          </p>
         </div>
 
         <form
