@@ -25,7 +25,7 @@
 
 - Managed source control and repository organization.
 - Developed the Flask backend and REST APIs.
-- Implemented PostgreSQL and email-alert integration.
+- Implemented PostgreSQL 
 
 ### Munirah Alotaibi
 **QA, Frontend Developer, and Documentation**
@@ -39,7 +39,7 @@
 - All 16 planned tasks were completed across three sprints.
 - Clear responsibilities allowed the team to work in parallel.
 - The complete sensor-to-dashboard workflow was integrated.
-- Dashboard alerts and email notifications were implemented.
+- Dashboard alerts were implemented.
 - A total of 38 automated checks passed.
 - The final web MVP was deployed successfully.
 
@@ -50,7 +50,6 @@
 | ESP32 and sensor integration | Used iterative hardware testing |
 | Parallel frontend and backend development | Clarified responsibilities and API requirements |
 | Complete system integration | Tested each component before final integration |
-| Email notification configuration | Verified the recipient and email service settings |
 | Limited development time | Prioritized essential MVP features |
 
 ## What Could Be Improved
@@ -73,9 +72,8 @@
 - Start hardware testing during the first sprint.
 - Define API contracts before implementation.
 - Schedule regular integration check-ins.
-- Test email notifications before deployment.
 - Continue using automated tests.
 
 ## Conclusion
 
-The FlexSight team successfully delivered a stable IoT temperature-monitoring MVP with configurable thresholds, dashboard alerts, email notifications, and role-based access control.
+The FlexSight team successfully delivered a stable IoT temperature-monitoring MVP with configurable thresholds, dashboard alerts, and role-based access control.
