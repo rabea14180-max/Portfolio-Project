@@ -29,7 +29,7 @@ The completed MVP includes:
 - Device management and status tracking.
 - Historical temperature readings.
 - User-configurable temperature thresholds.
-- Automatic dashboard and email alerts.
+- Automatic dashboard.
 - Alert acknowledgment and resolution.
 - User and account management.
 - ESP32 and DHT11 integration.
@@ -47,7 +47,6 @@ The team completed all 16 planned tasks across three sprints.
 | Temperature readings | Completed |
 | Configurable thresholds | Completed |
 | Dashboard alerts | Completed |
-| Email notifications | Completed |
 | PostgreSQL integration | Completed |
 | ESP32 and DHT11 integration | Completed |
 | Testing | Completed |
@@ -88,7 +87,7 @@ Testing covered authentication, permissions, devices, readings, thresholds, aler
 - Reusable React components reduced repeated code.
 - PostgreSQL was successfully integrated with the Flask backend.
 - The ESP32 and DHT11 sensor were connected to the deployed system.
-- Configurable thresholds and email notifications were implemented.
+- Configurable thresholds were implemented.
 - Automated testing helped identify issues before delivery.
 - The final MVP was successfully deployed.
 
@@ -99,7 +98,6 @@ Testing covered authentication, permissions, devices, readings, thresholds, aler
 | Frontend and backend integration | API requirements and response formats were reviewed |
 | Role-based access control | Each role was tested using separate accounts |
 | Sensor integration | Hardware and API components were tested gradually |
-| Email notifications | Email delivery was tested with the alert workflow |
 | Production differences | The deployed system was validated separately |
 | Limited development time | Essential MVP features were prioritized |
 
@@ -123,7 +121,7 @@ Future versions may include:
 | Team Member | Role and Contribution |
 |---|---|
 | Hamsa Bnian Alammar | Project management, sprint coordination, and ESP32 sensor integration |
-| Rabea Thabit | Source control, Flask backend, PostgreSQL, APIs, and email integration |
+| Rabea Thabit | Source control, Flask backend, PostgreSQL, APIs |
 | Munirah Alotaibi | Quality assurance, React frontend, testing, and documentation |
 
 ### What Worked Well?
@@ -148,7 +146,7 @@ Future versions may include:
 
 FlexSight successfully delivered a stable sensor-to-dashboard temperature-monitoring MVP.
 
-The system connects an ESP32 and DHT11 sensor to a Flask backend, PostgreSQL database, and React dashboard. It supports authentication, device monitoring, configurable thresholds, dashboard and email alerts, user management, and role-based access control.
+The system connects an ESP32 and DHT11 sensor to a Flask backend, PostgreSQL database, and React dashboard. It supports authentication, device monitoring, configurable thresholds, dashboard , user management, and role-based access control.
 
 All 16 planned tasks were completed, and 38 automated checks passed.
 
