@@ -1,6 +1,6 @@
 # FlexSight — Stage 4
 
-FlexSight is a temperature monitoring MVP. An ESP32 connected to a DHT11 sensor sends temperature readings to a Flask backend. The backend stores and processes the data, and the React dashboard displays devices, readings, alerts, users, and temperature thresholds.
+FlexSight is a temperature monitoring MVP. An ESP32 connected to a DHT11 sensor sends temperature readings to a Flask backend. The backend stores and processes the data, while the React dashboard displays devices, readings, alerts, users, and configurable temperature thresholds.
 
 ## System Components
 
@@ -18,14 +18,14 @@ FlexSight is a temperature monitoring MVP. An ESP32 connected to a DHT11 sensor 
 |---|---|
 | Hamsa Bnian Alammar | Project Manager and ESP32 Development |
 | Rabea Thabit | SCM and Backend Development |
-| Munirah Alotaibi | QA, UI/UX, and Frontend Development |
+| Munirah Alotaibi | QA, UI/UX, Frontend Development, and Documentation |
 
 ## Sprint Status
 
 | Sprint | Date | Goal | Status |
 |---|---|---|---|
 | Sprint 1 | 30 June–6 July 2026 | Database, backend, authentication, and initial frontend | Completed |
-| Sprint 2 | 7–13 July 2026 | Dashboard features and initial sensor setup | Completed |
+| Sprint 2 | 7–13 July 2026 | Dashboard features, user roles, device settings, and initial sensor setup | Completed |
 | Sprint 3 | 14–20 July 2026 | ESP32 integration, testing, fixes, and deployment | Completed |
 | Final Stabilization | 21–23 July 2026 | Authentication, permissions, integration, alerts, and final verification | Completed |
 
@@ -46,7 +46,7 @@ FlexSight is a temperature monitoring MVP. An ESP32 connected to a DHT11 sensor 
 |---|---|
 | Frontend | [Frontend README](./frontend/README.md) |
 | Backend | [Backend README](./backend/README.md) |
-| Database | [Database Testing Evidence](./database-testing-evidance.md) |
+| Database | [Database Testing Evidence](./database-testing-evidence.md) |
 | Source Repository | [Portfolio Project](https://github.com/rabea14180-max/Portfolio-Project) |
 | Production Environment | [FlexSight Production](http://64.227.153.34) |
 
@@ -68,10 +68,8 @@ FlexSight is a temperature monitoring MVP. An ESP32 connected to a DHT11 sensor 
 | Frontend Automated Tests | 26 | 0 | Passed |
 | Backend Unit Tests | 5 | 0 | Passed |
 | Backend Production Integration Tests | 7 | 0 | Passed |
-| *Total Automated Tests* | *38* | *0* | *Passed* |
+| **Total Automated Tests** | **38** | **0** | **Passed** |
 | Frontend Production Build | 1 | 0 | Passed |
-
-## Project Structure
 
 ## Project Structure
 
@@ -139,16 +137,14 @@ Stage 4/
 │   └── esp32_temperature.ino
 ├── README.md
 ├── alerts-table.png
-├── database-testing-evidance.md
+├── database-testing-evidence.md
 ├── deliverables.md
-├── development- execution.md
+├── development-execution.md
 ├── final-integration-qa-testing.md
 ├── monitor-progress.md
 ├── sprint-plan.md
 └── sprint-reviews-retrospectives.md
 ```
-
-
 
 ## Quick Start
 
