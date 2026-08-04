@@ -55,7 +55,7 @@ The project follows this main workflow:
 
 ```text
 User Authentication → Web Dashboard
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 ```
 
 
@@ -71,7 +71,7 @@ The system collects hourly temperature readings, processes them on the server, s
 | 1 | Specific, Measurable, Time-bound | Build and demonstrate a working temperature monitoring MVP that collects hourly readings from an ESP32 monitoring device and sends the readings to the backend through MQTT/API by the end of the project timeline. |
 | 2 | Specific, Achievable | Implement backend processing that receives, validates, stores, and evaluates temperature readings using warning and critical thresholds. |
 | 3 | Measurable, Relevant | Trigger dashboard alerts when abnormal temperature levels are detected, including warning readings from 45°C to 49°C and critical readings at 50°C or above. |
-| 4 | Achievable, Relevant | Store users, devices, readings, alerts, threshold settings, and email notification records in a database to support dashboard monitoring and testing. |
+| 4 | Achievable, Relevant | Store users, devices, readings, alerts, threshold settings,  a database to support dashboard monitoring and testing. |
 | 5 | Specific, Achievable | Implement a basic authentication flow that allows users to sign up, log in, access the dashboard, and log out. |
 | 6 | Scalable | Design the MVP architecture to be modular so additional ESP32 devices and future improvements can be added later without rebuilding the core system. |
 
@@ -116,10 +116,9 @@ The system collects hourly temperature readings, processes them on the server, s
 | 6 | Web Dashboard | Display temperature readings, device status, and alert information. |
 | 7 | Dashboard Alerts | Show warning and critical alerts when abnormal temperatures are detected. |
 | 8 | Historical Readings | Store and display previous hourly temperature readings. |
-| 9 | Email Notifications | Send email notifications when warning or critical alerts occur. |
-| 10 | User Roles | Support Owner, Admin, and Inspector roles with role-based access. |
-| 11 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out. |
-| 12 | Database Storage | Store users, devices, temperature readings, alerts, threshold settings, and notification records. |
+| 9 | User Roles | Support Owner, Admin, and Inspector roles with role-based access. |
+| 10| User Authentication | Allow users to sign up, log in, access the dashboard, and log out. |
+| 11| Database Storage | Store users, devices, temperature readings, alerts, threshold settings, and notification records. |
 
 ---
 
@@ -155,7 +154,7 @@ These features may be considered in future versions after the temperature monito
 | Database Design | Initial database structure for users, devices, temperature readings, alerts, thresholds, and notifications. |
 | Web Dashboard Design | Dashboard screens for readings, device status, alerts, users, and settings. |
 | Backend Plan | Initial plan for backend APIs, server processing, threshold checking, and dashboard data support. |
-| Testing Plan | Initial plan for testing database, authentication, API endpoints, dashboard display, alerts, and email notification records. |
+| Testing Plan | Initial plan for testing database, authentication, API endpoints, dashboard display, alerts |
 
 ---
 
@@ -187,7 +186,7 @@ These features may be considered in future versions after the temperature monito
 | Phase 2 — Project Charter | Week 3–4 | Prepare objectives, stakeholders, scope, risks, deliverables, and timeline. |
 | Phase 3 — Technical Documentation | Week 5–6 | Prepare user stories, system architecture, database design, API endpoints, Figma screens, SCM strategy, and QA strategy. |
 | Phase 4 — MVP Development | Week 7–10 | Build database, backend models, API routes, authentication flow, dashboard pages, alert logic, and dashboard API connection. |
-| Phase 5 — Testing & Validation | Week 11 | Test database, authentication, APIs, dashboard display, threshold alerts, and email notification records. |
+| Phase 5 — Testing & Validation | Week 11 | Test database, authentication, APIs, dashboard display, threshold alerts|
 | Phase 6 — Final Delivery | Week 12 | Prepare final documentation, demo, presentation, and repository review. |
 
 ---
@@ -231,7 +230,7 @@ The MVP focuses on:
 
 text
 User Authentication → Web Dashboard
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 The system allows users to sign up, log in, access the dashboard, and log out. It collects hourly temperature readings from ESP32 monitoring devices, sends the readings to the backend through MQTT/API, validates and stores the data, checks warning and critical thresholds, and displays device status, readings, and alerts on the web dashboard.
