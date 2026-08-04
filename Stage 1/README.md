@@ -105,21 +105,20 @@ The system:
 
 ### 4.1 In Scope
 
+### 4.1 In Scope
+
 | # | Feature | Description |
 |---|---|---|
 | 1 | Temperature Monitoring | Collect hourly temperature readings from ESP32 monitoring devices |
 | 2 | ESP32 Monitoring Device | Use an ESP32-based device to collect and send temperature data |
 | 3 | MQTT/API Communication | Send temperature readings from the ESP32 device to the backend |
 | 4 | Server Processing | Receive, validate, process, and store temperature data |
-| 5 | Threshold Checking | Classify readings as normal, warning, or critical based on configured thresholds |
-| 6 | Web Dashboard | Display temperature readings, device status, and alert information |
-| 7 | Dashboard Alerts | Show warning and critical alerts when abnormal temperatures are detected |
+| 5 | Threshold Checking | Classify readings based on configured thresholds |
+| 6 | Web Dashboard | Display temperature readings, device status, and alerts |
+| 7 | Dashboard Alerts | Show alerts when abnormal temperatures are detected |
 | 8 | Historical Readings | Store and display previous hourly temperature readings |
-| 9 | Email Notifications | Send email notifications when warning or critical alerts occur |
-| 10 | User Roles | Support Owner, Admin, and Inspector roles with role-based access |
-| 11 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
-
-### 4.2 Out of Scope
+| 9 | User Roles | Support Owner, Admin, and Inspector roles |
+| 10 | User Authentication | Allow users to sign up, log in, and log out |
 
 | # | Feature | Status |
 |---|---|---|
@@ -157,10 +156,10 @@ These features may be considered in future versions after the temperature monito
 |---|---|
 | User Authentication | Allow users to sign up, log in, access the dashboard, and log out |
 | Temperature Monitoring | Collect hourly temperature readings from ESP32 monitoring devices |
-| Alert Detection | Detect warning and critical temperature levels based on configured thresholds |
-| Dashboard Monitoring | Display readings, device status, and alert information in a web dashboard |
-| Incident Follow-up | Allow responsible users to acknowledge, follow up, and resolve alerts |
-| Email Notification | Notify responsible users when abnormal temperature levels are detected |
+| Alert Detection | Detect abnormal temperature levels based on configured thresholds |
+| Dashboard Monitoring | Display readings, device status, and alerts |
+| Incident Follow-up | Allow responsible users to acknowledge and resolve alerts |
+
 
 ---
 
@@ -171,7 +170,7 @@ The project team was divided based on the main areas required to build FlexSight
 The team responsibilities are aligned with the main FlexSight workflow:
 
 text
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 | Role | Team Member | Main Responsibility |
@@ -265,7 +264,7 @@ FlexSight was chosen because it is:
 - Based on a clear workflow:
 
 text
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 ---
@@ -283,8 +282,7 @@ flowchart TB
     E["Database"]
     F["Web Dashboard"]
     G["Dashboard Alert"]
-    H["Email Notification"]
-    I["User Authentication"]
+    H["User Authentication"]
 
     I --> F
     A --> B
@@ -317,7 +315,7 @@ Database Storage
         ↓
 Web Dashboard
         ↓
-Dashboard Alert / Email Notification
+Dashboard Alert 
 
 
 ### 10.3 Data Flow
@@ -506,7 +504,6 @@ erDiagram
 | GET | /api/devices | Retrieve ESP32 device information and current status |
 | GET | /api/users | Retrieve system users and assigned roles |
 | PUT | /api/settings/threshold | Update warning and critical temperature thresholds |
-| GET | /api/notifications | Retrieve email notification records |
 
 ---
 
@@ -619,7 +616,7 @@ text
 │                                    │ Login Button            │
 │ Hourly temperature monitoring      │ Create Account Link     │
 │ with dashboard alerts              │                         │
-│ and email notifications            │                         │
+│           │                         │
 └──────────────────────────────────────────────────────────────┘
 
 
@@ -708,7 +705,7 @@ text
 Warning Threshold: 45°C
 Critical Threshold: 50°C
 Reading Frequency: Hourly
-Alert Type: Dashboard Alert / Email Notification
+Alert Type: Dashboard Alert 
 Device Monitoring: ESP32 Devices
 Authentication: Sign Up / Login / Log Out
 
@@ -985,7 +982,6 @@ FlexSight/
 | Fixed Threshold | One threshold may not fit every use case | Allow warning and critical thresholds to be updated in settings |
 | Power Supply | The ESP32 monitoring device requires continuous power | Use a stable power source during testing |
 | Timeline | Advanced features may exceed the project timeline | Keep the MVP focused on temperature monitoring and authentication |
-| Email Delivery | Email notifications may fail due to service or configuration issues | Test email delivery and track notification status |
 | False Alerts | Temporary temperature fluctuations may trigger unnecessary alerts | Validate readings before generating alerts |
 | Authentication Errors | Sign up, login, or log out issues may prevent users from accessing the dashboard | Test authentication flow before final integration |
 
@@ -1014,7 +1010,7 @@ FlexSight is a web-based temperature monitoring and alert system designed to sup
 The project focuses on a clear and achievable MVP:
 
 text
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 The system allows users to sign up, log in, access the dashboard, and log out. It collects hourly temperature readings from ESP32 monitoring devices, sends the readings to the backend through MQTT/API, validates and stores the data, checks warning and critical thresholds, and displays device status, readings, and alerts on the web dashboard.

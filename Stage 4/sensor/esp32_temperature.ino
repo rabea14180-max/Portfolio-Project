@@ -1,5 +1,6 @@
 #include <WiFi.h>
 #include <HTTPClient.h>
+#include <WiFiClientSecure.h>
 #include <DHT.h>
 
 #define DHTPIN 15
@@ -11,9 +12,9 @@ const char* ssid = "Hams";
 const char* password = "12345678";
 
 // Backend URL
-const char* serverUrl = "http://172.20.10.4:5001/api/readings";
+const char* serverUrl = "https://flexsight.dev/api/readings";
 
-void setup() {
+void setup() { 
   Serial.begin(115200);
   Serial.println("FlexSight Temperature Monitoring Started");
 
@@ -44,13 +45,16 @@ void loop() {
     Serial.println(" °C");
 
     if (WiFi.status() == WL_CONNECTED) {
+
+      WiFiClientSecure client;
+      client.setInsecure();
+
       HTTPClient http;
 
-      http.begin(serverUrl);
+      http.begin(client, serverUrl);
       http.addHeader("Content-Type", "application/json");
 
-      
-      String jsonData = "{\"device_id\":4,\"temperature\":";
+      String jsonData = "{\"device_id\":14,\"temperature\":";
       jsonData += String(temperature);
       jsonData += "}";
 

@@ -2,8 +2,8 @@
 
 > **Project:** FlexSight — Temperature Monitoring & Alert System  
 > **Repository:** https://github.com/rabea14180-max/Portfolio-Project  
-> **Production Environment:** http://64.227.153.34/login  
-> **Stack:** React/Vite · Python/Flask · SQL Database · ESP32 · DHT11  
+> **Live Project:** https://flexsight.dev/links  
+> **Stack:** React/Vite · Python/Flask · PostgreSQL · ESP32 · DHT11  
 > **Development Period:** June 30, 2026 — July 20, 2026  
 > **Team Size:** 3 members  
 
@@ -11,13 +11,7 @@
 
 ## Purpose of This Report
 
-This document is the final report for Stage 5 of the FlexSight project. It summarizes the MVP results, lessons learned during development, and the main points from the team retrospective.
-
-The report is divided into three sections:
-
-1. Results Summary
-2. Lessons Learned
-3. Team Retrospective Highlights
+This report summarizes the final FlexSight MVP results, lessons learned, and team retrospective highlights.
 
 ---
 
@@ -25,55 +19,47 @@ The report is divided into three sections:
 
 ### 1.1 MVP Core Functionalities
 
-FlexSight is a deployed temperature monitoring and alert system. It connects an ESP32 and DHT11 sensor to a Flask backend and displays the collected data in a React web dashboard.
+FlexSight is a deployed IoT temperature-monitoring and alert system. It connects an ESP32 and DHT11 sensor to a Flask backend, PostgreSQL database, and React dashboard.
 
 The completed MVP includes:
 
-- Owner account registration and user login.
-- Role-based access for Owner, Admin, and Inspector users.
-- A dashboard showing the latest temperature, device totals, and alert totals.
-- Device management and device status tracking.
-- Warning and critical temperature thresholds.
-- Temperature readings history with search filters.
-- Alert records with Open, Acknowledged, and Resolved statuses.
-- User management for Owner and Admin accounts.
-- Account settings for changing usernames and passwords.
-- ESP32 and DHT11 integration with the production API.
-- A deployed frontend, backend, and database.
+- Owner registration, login, and logout.
+- Role-based access for Owner, Admin/Manager, and Inspector.
+- Dashboard statistics and latest temperature readings.
+- Device management and status tracking.
+- Historical temperature readings.
+- User-configurable temperature thresholds.
+- Automatic dashboard.
+- Alert acknowledgment and resolution.
+- User and account management.
+- ESP32 and DHT11 integration.
+- Deployed frontend, backend, and PostgreSQL database.
 
-### 1.2 Outcomes Compared With Initial Objectives
+### 1.2 Outcomes
 
-The team completed all 16 planned development tasks across three sprints. The main MVP requirements were implemented and tested.
+The team completed all 16 planned tasks across three sprints.
 
-| Initial Objective | Result |
+| Objective | Result |
 |---|---|
-| User authentication | Completed |
-| Username login | Completed |
-| Role-based access | Completed |
+| Authentication and account management | Completed |
+| Role-based access control | Completed |
 | Device management | Completed |
 | Temperature readings | Completed |
-| Warning and critical alerts | Completed |
 | Configurable thresholds | Completed |
-| Database connection | Completed |
+| Dashboard alerts | Completed |
+| PostgreSQL integration | Completed |
 | ESP32 and DHT11 integration | Completed |
-| User management | Completed |
-| Account settings | Completed |
-| Alert resolution tracking | Completed |
 | Testing | Completed |
 | Production deployment | Completed |
-
-The following items were deferred:
-
-- Password reset.
-- Email notifications.
 
 The following items were outside the agreed MVP scope:
 
 - Mobile application.
 - Location management.
-- Humidity, smoke, gas, and camera monitoring.
+- Additional sensor types.
 - Artificial intelligence features.
-- Advanced analytics and external integrations.
+- Advanced analytics.
+- External system integrations.
 
 ### 1.3 Project Metrics
 
@@ -83,13 +69,13 @@ The following items were outside the agreed MVP scope:
 | Planned tasks | 16 |
 | Completed tasks | 16 |
 | Average velocity | 5.3 tasks per sprint |
-| Production integration tests | 12 passed |
+| Backend and integration tests | 12 passed |
 | Frontend automated tests | 26 passed |
-| Total recorded tests | 38 passed |
+| Total automated checks | 38 passed |
 | Supported user roles | 3 |
 | MVP deployment | Completed |
 
-The frontend tests covered API requests, protected routes, authentication redirects, and status badge colors. Production tests covered the API health, dashboard data, devices, temperature readings, alerts, users, and database connectivity.
+Testing covered authentication, permissions, devices, readings, thresholds, alerts, APIs, frontend components, and production connectivity.
 
 ---
 
@@ -97,37 +83,34 @@ The frontend tests covered API requests, protected routes, authentication redire
 
 ### 2.1 What Went Well
 
-- Dividing the project into three sprints made the development work easier to follow.
-- Assigning clear responsibilities allowed frontend, backend, and testing work to continue in parallel.
-- Reusing React components such as `ProtectedRoute`, `StatusBadge`, `LoadingState`, and `ErrorState` reduced repeated code.
-- Testing with production data helped confirm that the frontend, backend, and database were connected correctly.
-- GitHub provided one shared location for code review and integration.
-- Testing each completed feature helped the team resolve issues before the final deployment.
+- Clear responsibilities allowed the team to work in parallel.
+- Reusable React components reduced repeated code.
+- PostgreSQL was successfully integrated with the Flask backend.
+- The ESP32 and DHT11 sensor were connected to the deployed system.
+- Configurable thresholds were implemented.
+- Automated testing helped identify issues before delivery.
+- The final MVP was successfully deployed.
 
 ### 2.2 Challenges and Resolutions
 
 | Challenge | Resolution |
 |---|---|
-| Connecting the React frontend to the Flask API | A shared API helper was used for requests, tokens, and authentication errors. |
-| Controlling access for different user roles | Protected routes and role checks were added to the frontend and backend. |
-| Displaying wide device and reading tables | Responsive table containers were added to prevent page overflow. |
-| Updating dashboard data | The dashboard was configured to request updated data automatically. |
-| Highlighting the correct navigation item | The active sidebar link logic and page routes were reviewed and corrected. |
-| Improving the Settings page layout | Form cards and spacing were updated to match the dashboard design. |
-| Integrating the ESP32 sensor | Sensor readings were tested against the production API and database. |
-| Maintaining a stable deployed version | Integration changes were reviewed before being added to the main branch. |
+| Frontend and backend integration | API requirements and response formats were reviewed |
+| Role-based access control | Each role was tested using separate accounts |
+| Sensor integration | Hardware and API components were tested gradually |
+| Production differences | The deployed system was validated separately |
+| Limited development time | Essential MVP features were prioritized |
 
 ### 2.3 Future Improvements
 
-For future versions, the team could:
+Future versions may include:
 
-- Add email notifications for critical alerts.
-- Add a complete password reset flow.
-- Add charts for temperature trends.
-- Improve mobile responsiveness for large data tables.
-- Increase automated backend and frontend test coverage.
-- Add clearer deployment monitoring and error logs.
-- Continue testing features during each sprint instead of leaving integration checks until the end.
+- Improved temperature charts and reports.
+- Additional device health information.
+- More detailed alert history.
+- Increased automated test coverage.
+- Improved responsive design.
+- Additional sensor types.
 
 ---
 
@@ -135,54 +118,42 @@ For future versions, the team could:
 
 ### Team Roles
 
-| Team Member | Role |
+| Team Member | Role and Contribution |
 |---|---|
-| Hamsa Bnian Alammar | Project Manager and Frontend Developer |
-| Rabea Thabit | Source Control Manager and Backend Developer |
-| Munirah Alotaibi | Quality Assurance and Frontend Developer |
+| Hamsa Bnian Alammar | Project management, sprint coordination, and ESP32 sensor integration |
+| Rabea Thabit | Source control, Flask backend, PostgreSQL, APIs |
+| Munirah Alotaibi | Quality assurance, React frontend, testing, and documentation |
 
-### What Worked Well as a Team?
+### What Worked Well?
 
-- The team used the sprint plan to track tasks and deadlines.
-- Team members worked according to their technical responsibilities.
-- Frontend and backend work was integrated through agreed API endpoints.
-- The SCM reviewed integration changes and maintained the stability of the main branch.
-- QA tested the completed features and verified fixes before final acceptance.
-- Problems were discussed and resolved during the same sprint whenever possible.
+- Tasks were organized across three sprints.
+- Responsibilities were clearly distributed.
+- Frontend, backend, and hardware work progressed in parallel.
+- Integration issues were identified through regular testing.
+- All planned tasks were completed successfully.
 
-### What Challenges Did the Team Face?
+### What Could Be Improved?
 
-- Some frontend pages needed changes after being connected to real backend data.
-- Role permissions required testing with multiple account types.
-- Hardware, backend, database, and frontend integration required several rounds of testing.
-- Interface issues appeared on wide tables and smaller screens.
-- Deployment testing found differences that were not visible in the local development environment.
-
-### How Can the Team Improve?
-
-- Agree on API response formats earlier.
-- Add automated tests while each feature is being developed.
-- Allow more time for hardware and deployment integration.
-- Keep short records of important technical decisions.
-- Test responsive layouts throughout development.
-- Review the complete user flow at the end of every sprint.
+- Begin hardware testing earlier.
+- Define API contracts before implementation.
+- Schedule more frequent integration checks.
+- Allow additional time for deployment risks.
+- Update documentation after major changes.
 
 ---
 
 ## 4. Conclusion
 
-The FlexSight team completed and deployed the planned MVP in three sprints. The final system monitors temperature readings, manages devices and users, creates alerts, applies role-based access, and connects the ESP32 sensor to a web dashboard.
+FlexSight successfully delivered a stable sensor-to-dashboard temperature-monitoring MVP.
 
-All 16 planned development tasks were completed, and 38 recorded tests passed across frontend and production integration testing. The final result meets the agreed scope for a temperature monitoring and alert system.
+The system connects an ESP32 and DHT11 sensor to a Flask backend, PostgreSQL database, and React dashboard. It supports authentication, device monitoring, configurable thresholds, dashboard , user management, and role-based access control.
 
-The project showed the importance of clear roles, continuous testing, stable API contracts, and early integration between hardware and software components.
+All 16 planned tasks were completed, and 38 automated checks passed.
 
 ---
 
-## Landing Page
+## Project Links
 
-The FlexSight landing page is available in:
-
-`Stage_5/Landing_Page.html`
-
-It presents the project purpose, main features, system screenshots, team members, production environment, and GitHub repository.
+- **Live Project:** https://flexsight.dev/links
+- **GitHub Repository:** https://github.com/rabea14180-max/Portfolio-Project
+- **Landing Page:** [Landing_Page.html](Landing_Page.html)

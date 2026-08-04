@@ -2249,3 +2249,34 @@ a:hover {
   width: 52px;
   height: 52px;
 } 
+.temperature-chart-card {
+  margin-bottom: 20px;
+  padding: 18px 22px;
+}
+
+.temperature-chart-header {
+  margin-bottom: 10px;
+}
+
+.temperature-chart-subtitle {
+  margin: 6px 0 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.temperature-chart {
+  width: 100%;
+  height: 205px;
+  margin-top: 10px;
+}
+
+@media (max-width: 768px) {
+  .temperature-chart-card {
+    padding: 16px;
+  }
+
+  .temperature-chart {
+    height: 185px;
+    margin-top: 8px;
+  }
+}

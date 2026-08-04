@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { apiRequest, validatePassword, validateUsername } from "../api";
+import { FlexSightLogo } from "./Landing";
 
 function Signup() {
   const navigate = useNavigate();
@@ -50,9 +51,15 @@ function Signup() {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-brand">
-          <div className="auth-logo">FS</div>
-          <h1 className="auth-title">FlexSight</h1>
-          <p className="auth-subtitle">Temperature Monitoring & Alert System</p>
+          <div className="auth-brand-header">
+            <div className="auth-logo">
+              <FlexSightLogo />
+            </div>
+
+            <div className="auth-brand-text">
+              <h1 className="auth-title">FlexSight</h1>
+            </div>
+          </div>
         </div>
 
         <form className="auth-form" onSubmit={handleSubmit}>

@@ -11,7 +11,6 @@ This document defines the external services and internal API endpoints used by t
 | Service | Purpose | Reason for Selection |
 |---|---|---|
 | MQTT Broker | Receives hourly temperature readings from ESP32 devices and forwards them to the backend. | Lightweight, reliable, and suitable for IoT communication. |
-| SMTP Email Service | Sends warning and critical alert notifications to responsible users. | Simple, reliable, and appropriate for MVP email notifications. |
 
 ---
 
@@ -25,7 +24,6 @@ flowchart LR
     API["Flask Backend API"]
     DB["SQL Database"]
     Dashboard["Web Dashboard"]
-    Email["SMTP Email Service"]
     Users["Owner / Admin / Inspector"]
 
     Users --> Dashboard
@@ -35,10 +33,7 @@ flowchart LR
     MQTT --> API
     API --> DB
     API --> Dashboard
-    API --> Email
-    Email --> Users
 ```
-
 
 ---
 
@@ -54,12 +49,11 @@ flowchart LR
 
 ## Multi-Tenant Dashboard Architecture
 
-FlexSight is multi-tenant: every Owner gets their own private Dashboard when
-they register. Admin and Inspector accounts are created by an Owner and always
-inherit that Owner's `dashboard_id`. Every device, sensor reading, alert,
-threshold configuration, and notification belongs to exactly one dashboard, and
-every authenticated endpoint filters its data by the caller's `dashboard_id` -
-users can never see or modify another dashboard's data.
+FlexSight is multi-tenant: every Owner gets their own private Dashboard when they register. Admin and Inspector accounts are created by an Owner and always inherit that Owner's `dashboard_id`.
+
+Every device, sensor reading, alert, and threshold configuration belongs to exactly one dashboard, and every authenticated endpoint filters its data by the caller's `dashboard_id`. Users can never see or modify another dashboard's data.
+
+---
 
 ## User Roles
 
@@ -89,7 +83,6 @@ users can never see or modify another dashboard's data.
 | /dashboard/alerts | GET | Token | Retrieve active and historical alerts for the dashboard. |
 | /dashboard/alerts/{id} | PUT | Token | Update alert status. |
 | /dashboard/settings/threshold | PUT | Owner, Admin | Update warning and critical temperature thresholds for the dashboard. |
-
 ---
 
 ## API Processing Flow
@@ -101,7 +94,6 @@ sequenceDiagram
     participant MQTT
     participant API
     participant Database
-    participant Email
 
     Dashboard->>API: Send sign up / login / logout request
     API->>Database: Create, validate, or end user session
@@ -118,10 +110,8 @@ sequenceDiagram
     alt Threshold exceeded
         API->>Database: Store alert
         API->>Dashboard: Display alert
-        API->>Email: Send notification
     end
 ```
-
 
 ---
 
@@ -131,10 +121,7 @@ sequenceDiagram
 
 ### Purpose
 
-Public, unauthenticated. Self-registers a new Owner account and, in the same
-transaction, creates the private Dashboard that Owner owns. This is the only
-way an Owner account is created - there is no one above an Owner to create it
-for them.
+Public, unauthenticated. Self-registers a new Owner account and, in the same transaction, creates the private Dashboard that Owner owns. This is the only way an Owner account is created.
 
 ### Request Body
 
@@ -145,7 +132,6 @@ for them.
   "password": "password123"
 }
 ```
-
 
 ### Request Fields
 
@@ -164,17 +150,13 @@ for them.
 }
 ```
 
-
 ---
 
 ## 2. POST /users/admin, POST /users/inspector
 
 ### Purpose
 
-Owner-only. Creates an Admin (`/users/admin`) or Inspector (`/users/inspector`)
-account that automatically inherits the caller's `dashboard_id`. Admin and
-Inspector accounts belong to the Owner who created them and can never create
-accounts of their own.
+Owner-only. Creates an Admin (`/users/admin`) or Inspector (`/users/inspector`) account that automatically inherits the caller's `dashboard_id`.
 
 ### Request Body
 
@@ -185,7 +167,6 @@ accounts of their own.
   "password": "password123"
 }
 ```
-
 
 ### Request Fields
 
@@ -204,7 +185,6 @@ accounts of their own.
 }
 ```
 
-
 ---
 
 ## 3. POST /auth/login
@@ -222,7 +202,6 @@ Authenticates a user and allows access to the dashboard based on the assigned ro
 }
 ```
 
-
 ### Request Fields
 
 | Field | Type | Required | Description |
@@ -239,7 +218,6 @@ Authenticates a user and allows access to the dashboard based on the assigned ro
   "token": "jwt_token"
 }
 ```
-
 
 ---
 
@@ -276,7 +254,6 @@ Receives temperature readings from ESP32 monitoring devices.
 }
 ```
 
-
 ### Request Fields
 
 | Field | Type | Required | Description |
@@ -290,10 +267,9 @@ Receives temperature readings from ESP32 monitoring devices.
 1. Receive the hourly reading from the ESP32 device through MQTT/backend communication.
 2. Validate the device ID and temperature value.
 3. Store the reading in the SQL database.
-4. Compare temperature against warning and critical thresholds.
+4. Compare the temperature against warning and critical thresholds.
 5. Generate an alert if the threshold is exceeded.
-6. Send an email notification when required.
-7. Update the dashboard with the latest reading.
+6. Update the dashboard with the latest reading.
 
 ### Successful Response
 
@@ -303,16 +279,13 @@ Receives temperature readings from ESP32 monitoring devices.
   "message": "Reading stored successfully"
 }
 ```
-
-
 ---
 
 ## 6. GET /dashboard/readings
 
 ### Purpose
 
-Owner/Admin only. Retrieves temperature readings for devices belonging to the
-caller's dashboard, for display and historical review.
+Owner/Admin only. Retrieves temperature readings for devices belonging to the caller's dashboard, for display and historical review.
 
 ### Query Parameters
 
@@ -334,15 +307,13 @@ caller's dashboard, for display and historical review.
 ]
 ```
 
-
 ---
 
 ## 7. GET /dashboard/alerts
 
 ### Purpose
 
-Retrieves active and historical alerts belonging to the caller's dashboard, for
-monitoring and incident follow-up.
+Retrieves active and historical alerts belonging to the caller's dashboard for monitoring and incident follow-up.
 
 ### Successful Response
 
@@ -359,16 +330,13 @@ monitoring and incident follow-up.
 ]
 ```
 
-
 ---
 
 ## 8. PUT /dashboard/alerts/{id}
 
 ### Purpose
 
-Updates the status of an alert after review or follow-up. Only alerts
-belonging to the caller's dashboard can be updated. This is the one write
-action available to the Inspector role.
+Updates the status of an alert after review or follow-up. Only alerts belonging to the caller's dashboard can be updated.
 
 ### Request Body
 
@@ -378,7 +346,6 @@ action available to the Inspector role.
   "notes": "Issue checked and resolved by inspector."
 }
 ```
-
 
 ### Request Fields
 
@@ -396,15 +363,13 @@ action available to the Inspector role.
 }
 ```
 
-
 ---
 
 ## 9. GET /dashboard/devices
 
 ### Purpose
 
-Owner/Admin only. Retrieves the ESP32 monitoring devices registered under the
-caller's dashboard and their current status.
+Owner/Admin only. Retrieves the ESP32 monitoring devices registered under the caller's dashboard and their current status.
 
 ### Successful Response
 
@@ -418,7 +383,6 @@ caller's dashboard and their current status.
   }
 ]
 ```
-
 
 ---
 
@@ -441,7 +405,6 @@ Owner-only. Retrieves the users belonging to the caller's dashboard.
 ]
 ```
 
-
 ---
 
 ## 11. DELETE /users/{id}
@@ -449,8 +412,8 @@ Owner-only. Retrieves the users belonging to the caller's dashboard.
 ### Purpose
 
 Owner-only. Removes an Admin or Inspector account from the caller's dashboard.
-Returns 404 if the target user does not belong to the caller's dashboard, and
-400 if the target is the dashboard's Owner (an Owner cannot be deleted this way).
+
+Returns **404** if the target user does not belong to the caller's dashboard, and **400** if the target is the dashboard Owner.
 
 ### Successful Response
 
@@ -460,7 +423,6 @@ Returns 404 if the target user does not belong to the caller's dashboard, and
   "message": "User deleted successfully"
 }
 ```
-
 
 ---
 
@@ -480,15 +442,13 @@ Returns a summary of the caller's dashboard. Available to all three roles.
 }
 ```
 
-
 ---
 
 ## 13. PUT /dashboard/settings/threshold
 
 ### Purpose
 
-Owner or Admin. Updates the warning and critical temperature thresholds used by
-the alert logic for the caller's dashboard.
+Owner or Admin. Updates the warning and critical temperature thresholds used by the alert logic for the caller's dashboard.
 
 ### Request Body
 
@@ -499,7 +459,6 @@ the alert logic for the caller's dashboard.
 }
 ```
 
-
 ### Successful Response
 
 ```json
@@ -508,8 +467,6 @@ the alert logic for the caller's dashboard.
   "message": "Threshold updated successfully"
 }
 ```
-
-
 ---
 
 # Access Control Matrix
@@ -537,12 +494,12 @@ the alert logic for the caller's dashboard.
 
 | Error Case | Example Response |
 |---|---|
-| Unauthorized access | { "success": false, "message": "Unauthorized access" } |
-| Invalid credentials | { "success": false, "message": "Invalid username or password" } |
-| User already exists | { "success": false, "message": "User already exists" } |
-| Device not found | { "success": false, "message": "Device not found" } |
-| Invalid sensor data | { "success": false, "message": "Invalid sensor data" } |
-| Internal server error | { "success": false, "message": "Internal server error" } |
+| Unauthorized access | `{ "success": false, "message": "Unauthorized access" }` |
+| Invalid credentials | `{ "success": false, "message": "Invalid username or password" }` |
+| User already exists | `{ "success": false, "message": "User already exists" }` |
+| Device not found | `{ "success": false, "message": "Device not found" }` |
+| Invalid sensor data | `{ "success": false, "message": "Invalid sensor data" }` |
+| Internal server error | `{ "success": false, "message": "Internal server error" }` |
 
 ---
 
@@ -565,9 +522,8 @@ the alert logic for the caller's dashboard.
 |---|---|
 | MQTT Broker | Lightweight and suitable for ESP32 IoT communication. |
 | Flask Backend API | Simple, flexible, and appropriate for RESTful API development. |
-| SQL Database | Provides structured storage for users, devices, readings, alerts, alert notifications, and threshold settings. |
-| SMTP Email Service | Supports automated alert notifications without requiring a mobile app. |
-| RESTful API Design | Provides clear communication between dashboard, backend, and database. |
+| SQL Database | Provides structured storage for users, devices, readings, alerts, and threshold settings. |
+| RESTful API Design | Provides clear communication between the dashboard, backend, and database. |
 
 ---
 
@@ -580,7 +536,6 @@ Possible future additions include:
 - More ESP32 monitoring devices.
 - Configurable alert assignment.
 - Advanced report export.
-- Email delivery tracking.
 - Dashboard performance summaries.
 - Additional role-based permission controls.
 
@@ -588,4 +543,4 @@ Possible future additions include:
 
 # Conclusion
 
-This API documentation defines the external services and internal endpoints required for the FlexSight Temperature Monitoring System. The design supports IoT data transmission, dashboard monitoring, alert generation, role-based access, email notifications, authentication, and future scalability while remaining aligned with the MVP scope.
+This API documentation defines the external services and internal endpoints required for the FlexSight Temperature Monitoring System. The design supports IoT data transmission, dashboard monitoring, alert generation, role-based access, authentication, and future scalability while remaining aligned with the MVP scope.

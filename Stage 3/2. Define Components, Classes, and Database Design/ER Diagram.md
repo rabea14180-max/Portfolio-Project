@@ -1,38 +1,6 @@
 ## Database Overview
 
-The FlexSight database is designed to support user management, ESP32 monitoring devices, temperature sensors, temperature readings, threshold configuration, alert processing, and notification handling.
-
-The schema uses primary keys (PK) and foreign keys (FK) to maintain clear relationships between the main system entities.
-
----
-
-# Database Schema
-
-## users
-
-* id (PK)
-* username (UNIQUE)
-* password_hash
-* email (UNIQUE)
-* mobile (UNIQUE)
-* role (owner / admin / inspector)
-* notification_preferences (email)
-* account_status (active / inactive / suspended)
-* last_login_at
-* created_at
-* updated_at
-
-## embedded_devices
-
-* id (PK)
-* device_code (UNIQUE)
-* user_id (FK -> users.id)
-* name
-* status (online / offline …
-
-## Database Overview
-
-The FlexSight database is designed to support user authentication, user role management, ESP32 monitoring devices, temperature sensors, hourly temperature readings, threshold configuration, alert processing, dashboard access, and notification handling.
+The FlexSight database is designed to support user authentication, user role management, ESP32 monitoring devices, temperature sensors, hourly temperature readings, threshold configuration, alert processing, and dashboard access.
 
 The schema uses primary keys (PK) and foreign keys (FK) to maintain clear relationships between the main system entities.
 
@@ -40,9 +8,8 @@ The database supports the MVP workflow:
 
 ```text
 Sign Up / Login → Dashboard Access
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert
 ```
-
 
 ---
 
@@ -107,15 +74,6 @@ Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Datab
 - current_user_id (FK → users.user_id)
 - created_at
 
-## notifications
-
-- notification_id (PK)
-- alert_id (FK → alerts.alert_id)
-- user_id (FK → users.user_id)
-- notification_type (EMAIL / SMS / PUSH)
-- sent_at
-- status (PENDING / SENT / FAILED)
-
 ## device_thresholds
 
 - device_id (FK → embedded_devices.device_id)
@@ -127,20 +85,17 @@ Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Datab
 
 - users 1 → N embedded_devices
 - users 1 → N dashboards
-- users 1 → N notifications
 - users 1 → N alerts through resolved_by
 - embedded_devices 1 → N temperature_sensors
 - temperature_sensors 1 → N temperature_logs
 - embedded_devices 1 → N alerts
-- alerts 1 → N notifications
 - embedded_devices N → N threshold_configs through device_thresholds
 - threshold_configs N → N embedded_devices through device_thresholds
-
----
+- ---
 
 # Back-end Components
 
-The FlexSight backend is composed of core components responsible for authentication, device monitoring, temperature reading processing, threshold checking, alert generation, database storage, dashboard communication, and notification delivery.
+The FlexSight backend is composed of core components responsible for authentication, device monitoring, temperature reading processing, threshold checking, alert generation, database storage, and dashboard communication.
 
 Each component has a clear responsibility and works with other components to support the complete temperature monitoring workflow.
 
@@ -182,7 +137,7 @@ Represents the Flask backend server responsible for receiving, validating, proce
 
 ## Database
 
-Represents the MySQL database layer responsible for storing and retrieving users, devices, readings, alerts, thresholds, dashboards, and notification records.
+Represents the MySQL database layer responsible for storing and retrieving users, devices, readings, alerts, thresholds, and dashboard records.
 
 ## Alert
 
@@ -196,16 +151,13 @@ Represents the web interface used by authenticated users to view temperature rea
 
 Represents the warning and critical threshold settings used to classify temperature readings.
 
-## NotificationService
-
-Represents the service responsible for creating and tracking alert notification records.
-
 ---
 
 # Class Diagram
 
 ```mermaid
 classDiagram
+
     class User {
         +Integer user_id
         +String username
@@ -335,13 +287,6 @@ classDiagram
         +applyToDevice(device_id) void
     }
 
-    class NotificationService {
-        +createNotification(alert_id, user_id) void
-        +sendEmail(user, alert) Boolean
-        +updateNotificationStatus() void
-        +getRecipients(alert_id) List
-    }
-
     User <|-- Owner
     User <|-- Admin
     User <|-- Inspector
@@ -363,14 +308,8 @@ classDiagram
     Dashboard --> Server : requests data
     Dashboard --> Alert : displays
 
-    Alert --> NotificationService : triggers
-    NotificationService --> User : notifies
-    NotificationService --> Database : stores notification records
-
     EmbeddedDevice --> ThresholdConfig : uses
 ```
-
-
 ---
 
 # Database Design Notes
@@ -382,7 +321,6 @@ classDiagram
 - The temperature_logs table stores hourly temperature readings.
 - The threshold_configs table stores warning and critical threshold values.
 - The alerts table stores warning and critical alerts.
-- The notifications table stores notification records related to alerts and users.
 - The dashboards table links dashboard access to the current user.
 - The device_thresholds table connects devices with threshold configurations.
 
@@ -405,4 +343,3 @@ classDiagram
 | Alert | Represents warning and critical temperature incidents |
 | Dashboard | Displays readings, devices, alerts, users, and settings |
 | ThresholdConfig | Stores warning and critical threshold values |
-| NotificationService | Handles alert notification records and email notification support |
