@@ -2,13 +2,13 @@
 
 This document provides evidence that the FlexSight database was created and tested successfully during Stage 4.
 
-The database was tested using MySQL Workbench and VS Code Terminal. The testing confirmed that the database, tables, sample data, and relationships were created correctly.
+The database was tested using PostgreSQL (hosted on Supabase) via the VS Code Terminal. The testing confirmed that the database, tables, sample data, and relationships were created correctly.
 
 ---
 
 ## 1. Show Databases
 
-This screenshot shows that the MySQL database temperature_monitoring_system was created successfully.
+This screenshot shows that the PostgreSQL database (temperature_monitoring_system schema) was created successfully.
 
 ![Show Databases](assets/database-testing/show-databases.png)
 
