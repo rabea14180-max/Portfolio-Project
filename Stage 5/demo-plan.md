@@ -16,7 +16,6 @@
 - Confirm that the website and login page are working.
 - Verify that devices, readings, and alerts are available.
 - Confirm that the alert email recipient is configured.
-- Verify that email notifications are working.
 - Open the presentation, website, and demonstration email before starting.
 - Hide passwords and sensitive information.
 - Keep real screenshots as a backup.
@@ -28,11 +27,10 @@
 3. Show registered devices and their status.
 4. Open the Readings page and explain the stored temperature data.
 5. Demonstrate the user-configurable temperature threshold.
-6. Show the configured email recipient.
-7. Show the alert generated when the threshold is exceeded.
-8. Show the alert notification received by email.
-9. Acknowledge or resolve the alert.
-10. Demonstrate role-based access.
+6. Show the alert generated when the threshold is exceeded.
+7. Show the alert notification received by email.
+8. Acknowledge or resolve the alert.
+9. Demonstrate role-based access.
 
 ## Email Alerts
 
@@ -45,7 +43,6 @@ During the demo:
 - Confirm the configured recipient email.
 - Trigger or display an existing temperature alert.
 - Show the alert inside the FlexSight dashboard.
-- Open the received email notification.
 - Do not display passwords or private account information.
 
 ## User Roles
@@ -62,7 +59,7 @@ When a reading exceeds the configured threshold, the backend creates an alert in
 
 ## Demo Closing
 
-FlexSight delivers a complete sensor-to-dashboard workflow with temperature monitoring, stored readings, configurable thresholds, dashboard alerts, email notifications, and role-based access control.
+FlexSight delivers a complete sensor-to-dashboard workflow with temperature monitoring, stored readings, configurable thresholds, dashboard alerts, and role-based access control.
 
 If the live website or email service is unavailable, the team will continue the demonstration using real screenshots.
 
