@@ -116,10 +116,9 @@ The system:
 | 5 | Threshold Checking | Classify readings based on configured thresholds |
 | 6 | Web Dashboard | Display temperature readings, device status, and alerts |
 | 7 | Dashboard Alerts | Show alerts when abnormal temperatures are detected |
-| 8 | Email Notifications | Send email alerts to configured recipients when abnormal temperatures are detected |
-| 9 | Historical Readings | Store and display previous hourly temperature readings |
-| 10 | User Roles | Support Owner, Admin, and Inspector roles |
-| 11 | User Authentication | Allow users to sign up, log in, and log out |
+| 8 | Historical Readings | Store and display previous hourly temperature readings |
+| 9 | User Roles | Support Owner, Admin, and Inspector roles |
+| 10 | User Authentication | Allow users to sign up, log in, and log out |
 
 | # | Feature | Status |
 |---|---|---|
@@ -159,7 +158,6 @@ These features may be considered in future versions after the temperature monito
 | Temperature Monitoring | Collect hourly temperature readings from ESP32 monitoring devices |
 | Alert Detection | Detect abnormal temperature levels based on configured thresholds |
 | Dashboard Monitoring | Display readings, device status, and alerts |
-| Email Notification | Send an email alert to configured recipients when an abnormal temperature is detected |
 | Incident Follow-up | Allow responsible users to acknowledge and resolve alerts |
 
 
@@ -172,7 +170,7 @@ The project team was divided based on the main areas required to build FlexSight
 The team responsibilities are aligned with the main FlexSight workflow:
 
 text
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 | Role | Team Member | Main Responsibility |
@@ -284,8 +282,7 @@ flowchart TB
     E["Database"]
     F["Web Dashboard"]
     G["Dashboard Alert"]
-    H["Email Notification"]
-    I["User Authentication"]
+    H["User Authentication"]
 
     I --> F
     A --> B
@@ -507,7 +504,6 @@ erDiagram
 | GET | /api/devices | Retrieve ESP32 device information and current status |
 | GET | /api/users | Retrieve system users and assigned roles |
 | PUT | /api/settings/threshold | Update warning and critical temperature thresholds |
-| GET | /api/notifications | Retrieve email notification records |
 
 ---
 
@@ -620,7 +616,7 @@ text
 │                                    │ Login Button            │
 │ Hourly temperature monitoring      │ Create Account Link     │
 │ with dashboard alerts              │                         │
-│ and email notifications            │                         │
+│           │                         │
 └──────────────────────────────────────────────────────────────┘
 
 
@@ -709,7 +705,7 @@ text
 Warning Threshold: 45°C
 Critical Threshold: 50°C
 Reading Frequency: Hourly
-Alert Type: Dashboard Alert / Email Notification
+Alert Type: Dashboard Alert 
 Device Monitoring: ESP32 Devices
 Authentication: Sign Up / Login / Log Out
 
@@ -986,7 +982,6 @@ FlexSight/
 | Fixed Threshold | One threshold may not fit every use case | Allow warning and critical thresholds to be updated in settings |
 | Power Supply | The ESP32 monitoring device requires continuous power | Use a stable power source during testing |
 | Timeline | Advanced features may exceed the project timeline | Keep the MVP focused on temperature monitoring and authentication |
-| Email Delivery | Email notifications may fail due to service or configuration issues | Test email delivery and track notification status |
 | False Alerts | Temporary temperature fluctuations may trigger unnecessary alerts | Validate readings before generating alerts |
 | Authentication Errors | Sign up, login, or log out issues may prevent users from accessing the dashboard | Test authentication flow before final integration |
 
@@ -1015,7 +1010,7 @@ FlexSight is a web-based temperature monitoring and alert system designed to sup
 The project focuses on a clear and achievable MVP:
 
 text
-Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert / Email Notification
+Temperature Sensor → ESP32 Monitoring Device → MQTT/API → Server → Database → Web Dashboard → Dashboard Alert 
 
 
 The system allows users to sign up, log in, access the dashboard, and log out. It collects hourly temperature readings from ESP32 monitoring devices, sends the readings to the backend through MQTT/API, validates and stores the data, checks warning and critical thresholds, and displays device status, readings, and alerts on the web dashboard.
