@@ -20,4 +20,4 @@
 
 FlexSight was completed, tested, and deployed successfully. All 16 planned tasks were completed across three sprints, and 38 automated checks passed.
 
-The final MVP includes temperature monitoring, configurable thresholds, dashboard alerts, email notifications, and role-based access control.
+The final MVP includes temperature monitoring, configurable thresholds, dashboard alerts, and role-based access control.
